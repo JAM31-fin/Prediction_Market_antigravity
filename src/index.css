@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-background: #080c14;
+    --color-card: #0f172a;
+    --color-card-hover: #131d35;
+    --color-border: #1e293b;
+    --color-border-hover: #334155;
+    --color-accent: #06b6d4;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: #080c14;
+    color: #f8fafc;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Neutral image outline to prevent blurring into dark backgrounds */
+  img {
+    outline: 1px solid rgba(255, 255, 255, 0.08);
+    outline-offset: -1px;
+  }
+}
+
+/* Typography & text wrapping utilities */
+.text-wrap-balance {
+  text-wrap: balance;
+}
+
+.text-wrap-pretty {
+  text-wrap: pretty;
+}
+
+/* Custom financial trading utilities */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tactile interactive control baseline with explicit transition scope */
+.btn-tactile {
+  transition-property: transform, background-color, border-color, box-shadow, color;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-tactile:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* Layered subtle shadows for cards and elevated surfaces */
+.elevation-card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.35), 0 4px 12px -2px rgba(0, 0, 0, 0.25);
+}
+
+.elevation-popover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 16px 36px -6px rgba(0, 0, 0, 0.6);
+}
+
+.slate-panel,
+.glass-panel {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+.slate-panel-hover,
+.glass-panel-hover {
+  transition-property: border-color, background-color, transform;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+.slate-panel-hover:hover,
+.glass-panel-hover:hover {
+  background: #111a30;
+  border-color: #334155;
+  transform: translateY(-1px);
+}
+
+/* Custom subtle slate scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #080c14;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}

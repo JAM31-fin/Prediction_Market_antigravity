@@ -1,0 +1,6 @@
+{
+  "name": "CentraMarkets - Centralized Prediction Market",
+  "description": "A modern, high-performance centralized prediction market platform with LMSR automated market making, comprehensive trading terminal, portfolio management, and operator administrative controls.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
