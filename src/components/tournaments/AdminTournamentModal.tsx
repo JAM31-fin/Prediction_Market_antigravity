@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { Tournament, Category, TournamentStatus } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 import { 
@@ -129,11 +130,17 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md overflow-y-auto">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+        className="terminal-card glass-terminal rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl elevation-card my-8 border border-white/[0.12]"
+      >
         
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-[#080d18]/80">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
               <Trophy className="w-4 h-4" />
@@ -162,8 +169,8 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
         {/* Modal Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto font-sans">
           {error && (
-            <div className="p-3 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+            <div className="p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
               <span>{error}</span>
             </div>
           )}
@@ -179,7 +186,7 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={language === 'es' ? 'Ej. 🏆 1er Torneo de Predicciones del Grupo' : 'e.g. 🏆 1st Friends Prediction Tournament'}
-              className="w-full px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-800 focus:border-cyan-500 text-sm text-slate-100 placeholder-slate-600 outline-none transition-colors"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#04070d] border border-slate-700/80 focus:border-[#00d2ff] text-sm text-slate-100 placeholder-slate-500 outline-none transition-all font-sans"
             />
           </div>
 
@@ -193,7 +200,7 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={language === 'es' ? 'Breve resumen del propósito del torneo para motivar a tus amigos...' : 'Brief summary of the tournament purpose...'}
-              className="w-full px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-800 focus:border-cyan-500 text-sm text-slate-100 placeholder-slate-600 outline-none transition-colors"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#04070d] border border-slate-700/80 focus:border-[#00d2ff] text-sm text-slate-100 placeholder-slate-500 outline-none transition-all font-sans"
             />
           </div>
 
@@ -209,13 +216,13 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
                 value={prizePool}
                 onChange={(e) => setPrizePool(e.target.value)}
                 placeholder={language === 'es' ? 'Ej. $50 USD / Cena pagada por todos' : 'e.g. $50 USD / Free dinner'}
-                className="w-full px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-800 focus:border-cyan-500 text-sm text-slate-100 placeholder-slate-600 outline-none transition-colors"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#04070d] border border-slate-700/80 focus:border-amber-400 text-sm text-slate-100 placeholder-slate-500 outline-none transition-all font-sans"
               />
             </div>
 
             <div>
               <label className="block text-xs font-mono font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
-                <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                <DollarSign className="w-3.5 h-3.5 text-[#00f0a0]" />
                 <span>{language === 'es' ? 'Saldo Inicial Virtual (USD)' : 'Starting Virtual Balance (USD)'}</span>
               </label>
               <input
@@ -224,7 +231,7 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
                 step="50"
                 value={initialBalance}
                 onChange={(e) => setInitialBalance(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-800 focus:border-cyan-500 text-sm text-slate-100 placeholder-slate-600 outline-none transition-colors"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#04070d] border border-slate-700/80 focus:border-[#00f0a0] text-sm font-mono text-slate-100 placeholder-slate-500 outline-none transition-all tabular-nums"
               />
             </div>
           </div>
@@ -240,7 +247,7 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
                 type="datetime-local"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-800 focus:border-cyan-500 text-xs font-mono text-slate-100 outline-none transition-colors"
+                className="w-full px-3.5 py-2 rounded-xl bg-[#04070d] border border-slate-700/80 focus:border-[#00d2ff] text-xs font-mono text-slate-100 outline-none transition-all"
               />
             </div>
 
@@ -254,7 +261,7 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
                 required
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-800 focus:border-rose-500 text-xs font-mono text-slate-100 outline-none transition-colors"
+                className="w-full px-3.5 py-2 rounded-xl bg-[#04070d] border border-slate-700/80 focus:border-rose-500 text-xs font-mono text-slate-100 outline-none transition-all"
               />
             </div>
           </div>
@@ -263,13 +270,13 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-mono font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
-                <Tag className="w-3.5 h-3.5 text-cyan-400" />
+                <Tag className="w-3.5 h-3.5 text-[#00d2ff]" />
                 <span>{language === 'es' ? 'Mercados Elegibles' : 'Eligible Markets'}</span>
               </label>
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value as any)}
-                className="w-full px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-800 focus:border-cyan-500 text-sm text-slate-100 outline-none transition-colors cursor-pointer"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#04070d] border border-slate-700/80 focus:border-[#00d2ff] text-sm text-slate-100 outline-none transition-all cursor-pointer font-sans"
               >
                 <option value="ALL">{language === 'es' ? '🌐 Todos los Mercados' : '🌐 All Markets'}</option>
                 <option value="Friends">{language === 'es' ? '👥 Solo Retos del Grupo' : '👥 Group Challenges Only'}</option>
@@ -286,7 +293,7 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as any)}
-                className="w-full px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-800 focus:border-cyan-500 text-sm text-slate-100 outline-none transition-colors cursor-pointer"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#04070d] border border-slate-700/80 focus:border-[#00d2ff] text-sm text-slate-100 outline-none transition-all cursor-pointer font-sans"
               >
                 <option value="active">{language === 'es' ? '🟢 Activo / En Curso' : '🟢 Active / Running'}</option>
                 <option value="upcoming">{language === 'es' ? '⏳ Próximo (Apertura futura)' : '⏳ Upcoming (Opens later)'}</option>
@@ -307,23 +314,25 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
               value={rules}
               onChange={(e) => setRules(e.target.value)}
               placeholder={language === 'es' ? 'Detalla las reglas de desempate, límites y condiciones...' : 'Detail tie-break rules and conditions...'}
-              className="w-full px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-800 focus:border-cyan-500 text-xs font-mono text-slate-200 placeholder-slate-600 outline-none transition-colors"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#04070d] border border-slate-700/80 focus:border-[#00d2ff] text-xs font-mono text-slate-200 placeholder-slate-500 outline-none transition-all"
             />
           </div>
 
           {/* Modal Actions */}
           <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.98 }}
               type="button"
               onClick={onClose}
-              className="px-4 py-2 min-h-[38px] rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs font-mono font-semibold btn-tactile cursor-pointer"
+              className="px-5 py-2.5 min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono font-semibold cursor-pointer transition-colors"
             >
               {language === 'es' ? 'Cancelar' : 'Cancel'}
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="px-5 py-2 min-h-[38px] rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-mono font-bold flex items-center gap-1.5 shadow-md shadow-amber-500/20 btn-tactile cursor-pointer disabled:opacity-50"
+              className="px-6 py-2.5 min-h-[44px] rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-mono font-extrabold flex items-center gap-1.5 shadow-md shadow-amber-500/20 cursor-pointer disabled:opacity-50"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>
@@ -333,11 +342,11 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
                   ? (language === 'es' ? 'Guardar Cambios' : 'Save Changes')
                   : (language === 'es' ? 'Crear Torneo' : 'Create Tournament')}
               </span>
-            </button>
+            </motion.button>
           </div>
         </form>
 
-      </div>
+      </motion.div>
     </div>
   );
 };

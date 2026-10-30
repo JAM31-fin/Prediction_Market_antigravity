@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion } from 'motion/react';
 import { useMarket } from '../../context/MarketContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { marketDictionary, getLocalizedOutcomeName } from '../../i18n/marketTranslations';
@@ -128,7 +129,7 @@ export const PortfolioPage: React.FC = () => {
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => navigateTo('markets')}
-            className="px-4 py-2 min-h-[38px] rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold font-mono text-xs flex items-center gap-1.5 btn-tactile shadow-md shadow-emerald-500/20 cursor-pointer"
+            className="px-4 py-2 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#00f0a0] hover:bg-[#00f0a0]/90 text-slate-950 font-bold font-mono text-xs flex items-center gap-1.5 btn-tactile shadow-[0_0_15px_rgba(0,240,160,0.3)] cursor-pointer"
           >
             <span>{language === 'es' ? 'EXPLORAR MERCADOS' : 'EXPLORE MARKETS'}</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
@@ -136,31 +137,31 @@ export const PortfolioPage: React.FC = () => {
         </div>
       </div>
 
-      {/* KPI Cards Grid */}
+      {/* KPI Cards Grid with Liquid Glass & Terminal Styling */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8 font-mono tabular-nums">
         
         {/* Total Portfolio Value */}
-        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 elevation-card">
+        <div className="p-4 rounded-2xl terminal-card elevation-card">
           <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">{t('portfolio.totalValue')}</div>
           <div className="text-lg sm:text-xl font-extrabold text-white mt-1">
             ${totalPortfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <div className={`text-[11px] font-bold mt-1 ${netReturnPercent >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <div className={`text-[11px] font-bold mt-1 ${netReturnPercent >= 0 ? 'text-[#00f0a0]' : 'text-[#ff3b69]'}`}>
             {netReturnPercent >= 0 ? '+' : ''}{netReturnPercent}% {language === 'es' ? 'histórico' : 'all-time'}
           </div>
         </div>
 
         {/* Available Virtual Cash */}
-        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 elevation-card">
+        <div className="p-4 rounded-2xl terminal-card elevation-card">
           <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">{t('portfolio.availableCash')}</div>
-          <div className="text-lg sm:text-xl font-extrabold text-cyan-400 mt-1">
+          <div className="text-lg sm:text-xl font-extrabold text-[#00d2ff] mt-1">
             ${(user?.virtualBalance ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="text-[11px] text-slate-400 mt-1 font-mono">{language === 'es' ? 'Créditos Disponibles' : 'Virtual Credits'}</div>
         </div>
 
         {/* Invested Amount */}
-        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 elevation-card">
+        <div className="p-4 rounded-2xl terminal-card elevation-card">
           <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Invested Capital</div>
           <div className="text-lg sm:text-xl font-extrabold text-slate-200 mt-1">
             ${totalInvested.toFixed(2)}
@@ -169,27 +170,27 @@ export const PortfolioPage: React.FC = () => {
         </div>
 
         {/* Unrealized P&L */}
-        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 elevation-card">
+        <div className="p-4 rounded-2xl terminal-card elevation-card">
           <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Unrealized P&L</div>
-          <div className={`text-lg sm:text-xl font-extrabold mt-1 ${totalUnrealizedPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <div className={`text-lg sm:text-xl font-extrabold mt-1 ${totalUnrealizedPnL >= 0 ? 'text-[#00f0a0]' : 'text-[#ff3b69]'}`}>
             {totalUnrealizedPnL >= 0 ? '+' : ''}${totalUnrealizedPnL.toFixed(2)}
           </div>
           <div className="text-[11px] text-slate-400 mt-1">Mark to Market</div>
         </div>
 
         {/* Realized P&L */}
-        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 elevation-card">
+        <div className="p-4 rounded-2xl terminal-card elevation-card">
           <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Realized P&L</div>
-          <div className={`text-lg sm:text-xl font-extrabold mt-1 ${totalRealizedPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <div className={`text-lg sm:text-xl font-extrabold mt-1 ${totalRealizedPnL >= 0 ? 'text-[#00f0a0]' : 'text-[#ff3b69]'}`}>
             {totalRealizedPnL >= 0 ? '+' : ''}${totalRealizedPnL.toFixed(2)}
           </div>
           <div className="text-[11px] text-slate-400 mt-1">Closed Trades</div>
         </div>
 
         {/* Total Net P&L */}
-        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 elevation-card">
+        <div className="p-4 rounded-2xl terminal-card elevation-card">
           <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Net Return</div>
-          <div className={`text-lg sm:text-xl font-extrabold mt-1 ${totalNetPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <div className={`text-lg sm:text-xl font-extrabold mt-1 ${totalNetPnL >= 0 ? 'text-[#00f0a0]' : 'text-[#ff3b69]'}`}>
             {totalNetPnL >= 0 ? '+' : ''}${totalNetPnL.toFixed(2)}
           </div>
           <div className="text-[11px] text-slate-400 mt-1">Combined P&L</div>
@@ -198,7 +199,7 @@ export const PortfolioPage: React.FC = () => {
       </div>
 
       {/* Portfolio Financial Performance Chart with Concentric Radius */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 mb-8 elevation-card">
+      <div className="terminal-card rounded-2xl p-5 sm:p-6 mb-8 elevation-card">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div>
             <h3 className="font-bold text-sm text-slate-100 font-mono uppercase tracking-wider">
@@ -209,19 +210,19 @@ export const PortfolioPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl p-1 text-xs font-mono">
+          <div className="flex items-center glass-terminal rounded-xl p-1 text-xs font-mono">
             <button
               onClick={() => setChartView('value')}
-              className={`px-3 py-1.5 rounded-lg btn-tactile cursor-pointer ${
-                chartView === 'value' ? 'bg-slate-800 text-white font-semibold border border-slate-700/60 shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg btn-tactile cursor-pointer ${
+                chartView === 'value' ? 'bg-slate-800 text-[#00f0a0] font-semibold border border-slate-700/60 shadow-sm' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               Portfolio Value ($)
             </button>
             <button
               onClick={() => setChartView('pnl')}
-              className={`px-3 py-1.5 rounded-lg btn-tactile cursor-pointer ${
-                chartView === 'pnl' ? 'bg-slate-800 text-white font-semibold border border-slate-700/60 shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg btn-tactile cursor-pointer ${
+                chartView === 'pnl' ? 'bg-slate-800 text-[#00d2ff] font-semibold border border-slate-700/60 shadow-sm' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               Cumulative P&L ($)
@@ -234,36 +235,46 @@ export const PortfolioPage: React.FC = () => {
             <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="valGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.12} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#00f0a0" stopOpacity={0.22} />
+                  <stop offset="60%" stopColor="#00f0a0" stopOpacity={0.05} />
+                  <stop offset="100%" stopColor="#00f0a0" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="pnlGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.12} />
-                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#00d2ff" stopOpacity={0.22} />
+                  <stop offset="60%" stopColor="#00d2ff" stopOpacity={0.05} />
+                  <stop offset="100%" stopColor="#00d2ff" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} opacity={0.6} />
-              <XAxis dataKey="time" stroke="#64748b" fontSize={11} tickLine={false} axisLine={{ stroke: '#1e293b' }} />
-              <YAxis stroke="#64748b" fontSize={11} tickFormatter={(v) => `$${v}`} tickLine={false} axisLine={{ stroke: '#1e293b' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#151e2e" vertical={false} opacity={0.8} />
+              <XAxis dataKey="time" stroke="#64748b" fontSize={11} tickLine={false} axisLine={{ stroke: '#151e2e' }} />
+              <YAxis stroke="#64748b" fontSize={11} tickFormatter={(v) => `$${v}`} tickLine={false} axisLine={{ stroke: '#151e2e' }} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#0f172a',
-                  borderColor: '#334155',
-                  borderRadius: '8px',
+                  backgroundColor: 'rgba(8, 13, 24, 0.92)',
+                  backdropFilter: 'blur(12px)',
+                  borderColor: '#223048',
+                  borderRadius: '12px',
                   fontSize: '12px',
                   fontFamily: 'monospace',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+                  color: '#ffffff',
                 }}
                 formatter={(val: any) => [`$${val}`, chartView === 'value' ? 'Portfolio Value' : 'Net P&L']}
               />
               <Area
                 type="monotone"
                 dataKey={chartView === 'value' ? 'value' : 'pnl'}
-                stroke={chartView === 'value' ? '#10b981' : '#06b6d4'}
-                strokeWidth={2}
+                stroke={chartView === 'value' ? '#00f0a0' : '#00d2ff'}
+                strokeWidth={2.2}
                 fillOpacity={1}
                 fill={chartView === 'value' ? 'url(#valGrad)' : 'url(#pnlGrad)'}
-                activeDot={{ r: 4, strokeWidth: 2, stroke: '#ffffff' }}
+                activeDot={{
+                  r: 4.5,
+                  strokeWidth: 2,
+                  stroke: '#ffffff',
+                  fill: chartView === 'value' ? '#00f0a0' : '#00d2ff',
+                  style: { filter: `drop-shadow(0 0 6px ${chartView === 'value' ? '#00f0a0' : '#00d2ff'})` },
+                }}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -271,30 +282,44 @@ export const PortfolioPage: React.FC = () => {
       </div>
 
       {/* Positions Section Header & Tabs */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-6">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between border-b border-[#151e2e] pb-3 mb-6">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveTab('open')}
-            className={`text-sm font-semibold pb-2 border-b-2 transition-[color,border-color] duration-150 flex items-center gap-2 cursor-pointer ${
-              activeTab === 'open'
-                ? 'border-cyan-400 text-white'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+            className={`relative px-3.5 py-2 min-h-[40px] rounded-xl text-xs font-semibold tracking-normal transition-colors cursor-pointer btn-tactile ${
+              activeTab === 'open' ? 'text-white' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Briefcase className="w-4 h-4 text-cyan-400 shrink-0" />
-            <span>{language === 'es' ? `Posiciones Abiertas (${openPositions.length})` : `Open Positions (${openPositions.length})`}</span>
+            {activeTab === 'open' && (
+              <motion.div
+                layoutId="portfolio-tab-active"
+                className="absolute inset-0 bg-[#0c1626] border border-[#00d2ff]/40 rounded-xl shadow-[0_0_12px_rgba(0,210,255,0.18)]"
+                transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-2">
+              <Briefcase className={`w-4 h-4 ${activeTab === 'open' ? 'text-[#00d2ff]' : 'text-slate-500'}`} />
+              <span>{language === 'es' ? `Posiciones Abiertas (${openPositions.length})` : `Open Positions (${openPositions.length})`}</span>
+            </span>
           </button>
 
           <button
             onClick={() => setActiveTab('settled')}
-            className={`text-sm font-semibold pb-2 border-b-2 transition-[color,border-color] duration-150 flex items-center gap-2 cursor-pointer ${
-              activeTab === 'settled'
-                ? 'border-cyan-400 text-white'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+            className={`relative px-3.5 py-2 min-h-[40px] rounded-xl text-xs font-semibold tracking-normal transition-colors cursor-pointer btn-tactile ${
+              activeTab === 'settled' ? 'text-white' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <CheckCircle2 className="w-4 h-4 text-slate-400 shrink-0" />
-            <span>{language === 'es' ? `Liquidadas y Cerradas (${settledPositions.length})` : `Settled & Closed (${settledPositions.length})`}</span>
+            {activeTab === 'settled' && (
+              <motion.div
+                layoutId="portfolio-tab-active"
+                className="absolute inset-0 bg-[#0c1626] border border-[#00d2ff]/40 rounded-xl shadow-[0_0_12px_rgba(0,210,255,0.18)]"
+                transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-2">
+              <CheckCircle2 className={`w-4 h-4 ${activeTab === 'settled' ? 'text-[#00d2ff]' : 'text-slate-500'}`} />
+              <span>{language === 'es' ? `Liquidadas y Cerradas (${settledPositions.length})` : `Settled & Closed (${settledPositions.length})`}</span>
+            </span>
           </button>
         </div>
 
@@ -306,7 +331,7 @@ export const PortfolioPage: React.FC = () => {
       {/* Open Positions Table / Cards */}
       {activeTab === 'open' ? (
         openPositions.length === 0 ? (
-          <div className="text-center py-20 bg-slate-900 rounded-2xl border border-slate-800 p-6 elevation-card">
+          <div className="text-center py-20 terminal-card rounded-2xl p-6 elevation-card">
             <Briefcase className="w-10 h-10 text-slate-600 mx-auto mb-3" />
             <h4 className="text-slate-200 font-bold text-sm">
               {language === 'es' ? 'No tienes posiciones activas' : 'No Active Positions'}
@@ -318,7 +343,7 @@ export const PortfolioPage: React.FC = () => {
             </p>
             <button
               onClick={() => navigateTo('markets')}
-              className="px-4 py-2 min-h-[38px] bg-white hover:bg-slate-100 text-slate-950 rounded-xl text-xs font-semibold font-sans btn-tactile shadow-sm cursor-pointer"
+              className="px-4 py-2 min-h-[40px] sm:min-h-[44px] bg-[#00f0a0] hover:bg-[#00f0a0]/90 text-slate-950 rounded-xl text-xs font-bold font-mono btn-tactile shadow-[0_0_15px_rgba(0,240,160,0.3)] cursor-pointer"
             >
               {language === 'es' ? 'EXPLORAR MERCADOS' : 'BROWSE PREDICTION MARKETS'}
             </button>
@@ -334,24 +359,24 @@ export const PortfolioPage: React.FC = () => {
               return (
                 <div
                   key={pos.id}
-                  className="bg-slate-900 border border-slate-800 hover:border-slate-750 rounded-2xl p-4 sm:p-5 transition-colors elevation-card"
+                  className="terminal-card terminal-card-hover rounded-2xl p-4 sm:p-5 transition-all elevation-card"
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     
                     {/* Market Question & Outcome Badge */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300">
+                        <span className="hud-tag text-slate-300">
                           {pos.marketCategory}
                         </span>
-                        <span className="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono font-semibold text-xs border border-slate-700">
+                        <span className="hud-tag text-[#00d2ff] bg-cyan-950/40 border-cyan-500/20">
                           {displayOutcome} &bull; {pos.quantity.toFixed(3)} {language === 'es' ? 'acciones' : 'Shares'}
                         </span>
                       </div>
                       
                       <h3
                         onClick={() => navigateTo('detail', pos.marketId)}
-                        className="text-sm sm:text-base font-bold text-slate-100 hover:text-cyan-300 cursor-pointer transition-colors leading-snug tracking-tight text-wrap-balance"
+                        className="text-sm sm:text-base font-bold text-slate-100 hover:text-[#00d2ff] cursor-pointer transition-colors leading-snug tracking-tight text-wrap-balance"
                       >
                         {displayQuestion}
                       </h3>
@@ -360,7 +385,7 @@ export const PortfolioPage: React.FC = () => {
                     {/* Financial Metrics Strip */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-xs text-right tabular-nums">
                       <div>
-                        <div className="text-[10px] text-slate-500">
+                        <div className="text-[10px] text-slate-400 uppercase">
                           {language === 'es' ? 'Precio Entrada' : 'Avg Entry'}
                         </div>
                         <div className="font-semibold text-slate-300 mt-0.5">
@@ -369,7 +394,7 @@ export const PortfolioPage: React.FC = () => {
                       </div>
 
                       <div>
-                        <div className="text-[10px] text-slate-500">
+                        <div className="text-[10px] text-slate-400 uppercase">
                           {language === 'es' ? 'Precio Actual' : 'Current Price'}
                         </div>
                         <div className="font-semibold text-slate-300 mt-0.5">
@@ -378,7 +403,7 @@ export const PortfolioPage: React.FC = () => {
                       </div>
 
                       <div>
-                        <div className="text-[10px] text-slate-500">
+                        <div className="text-[10px] text-slate-400 uppercase">
                           {language === 'es' ? 'Valor Actual' : 'Current Value'}
                         </div>
                         <div className="font-bold text-slate-100 mt-0.5">
@@ -387,12 +412,12 @@ export const PortfolioPage: React.FC = () => {
                       </div>
 
                       <div>
-                        <div className="text-[10px] text-slate-500">
+                        <div className="text-[10px] text-slate-400 uppercase">
                           {language === 'es' ? 'Ganancia / Pérdida' : 'Unrealized P&L'}
                         </div>
                         <div
                           className={`font-bold mt-0.5 flex items-center justify-end gap-1 ${
-                            isProfitable ? 'text-emerald-400' : 'text-rose-400'
+                            isProfitable ? 'text-[#00f0a0]' : 'text-[#ff3b69]'
                           }`}
                         >
                           {isProfitable ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
@@ -404,16 +429,16 @@ export const PortfolioPage: React.FC = () => {
                     </div>
 
                     {/* Action Buttons: [BUY MORE], [SELL] */}
-                    <div className="flex items-center gap-2 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-800">
+                    <div className="flex items-center gap-2 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-[#151e2e]">
                       <button
                         onClick={() => navigateTo('detail', pos.marketId)}
-                        className="flex-1 sm:flex-none px-3.5 py-1.5 min-h-[36px] rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono font-medium btn-tactile cursor-pointer border border-slate-700"
+                        className="flex-1 sm:flex-none px-3.5 py-1.5 min-h-[40px] rounded-lg bg-[#0c1424] hover:bg-[#00f0a0]/15 text-slate-200 hover:text-[#00f0a0] border border-[#1d2b42] hover:border-[#00f0a0]/40 text-xs font-mono font-semibold btn-tactile cursor-pointer"
                       >
                         {language === 'es' ? 'APOSTAR MÁS' : 'BUY MORE'}
                       </button>
                       <button
                         onClick={() => setSelectedPositionToSell(pos)}
-                        className="flex-1 sm:flex-none px-3.5 py-1.5 min-h-[36px] rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-mono font-bold btn-tactile cursor-pointer"
+                        className="flex-1 sm:flex-none px-3.5 py-1.5 min-h-[40px] rounded-lg bg-[#ff3b69]/15 hover:bg-[#ff3b69]/25 text-[#ff3b69] border border-[#ff3b69]/40 text-xs font-mono font-bold btn-tactile cursor-pointer"
                       >
                         {language === 'es' ? 'VENDER / COBRAR' : 'SELL / REDEEM'}
                       </button>
@@ -429,7 +454,7 @@ export const PortfolioPage: React.FC = () => {
         /* Settled / Closed Positions Tab */
         <div className="space-y-3">
           {settledPositions.length === 0 ? (
-            <div className="text-center py-16 bg-slate-900/30 rounded-2xl border border-white/[0.06] text-slate-500 text-xs font-mono">
+            <div className="text-center py-16 terminal-card rounded-2xl text-slate-400 text-xs font-mono">
               {language === 'es' ? 'No hay posiciones cerradas o liquidadas todavía.' : 'No settled or closed positions yet.'}
             </div>
           ) : (
@@ -439,10 +464,10 @@ export const PortfolioPage: React.FC = () => {
               const displayOutcome = getLocalizedOutcomeName(pos.outcomeName, language);
 
               return (
-                <div key={pos.id} className="bg-slate-900/50 border border-white/[0.06] rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 text-xs font-mono tabular-nums">
+                <div key={pos.id} className="terminal-card rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 text-xs font-mono tabular-nums elevation-card">
                   <div>
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">
+                      <span className="hud-tag uppercase text-slate-400">
                         {pos.status}
                       </span>
                       <span className="font-bold text-slate-200 font-sans text-sm">
@@ -455,8 +480,8 @@ export const PortfolioPage: React.FC = () => {
                   </div>
 
                   <div className="text-right">
-                    <div className="text-[11px] text-slate-500">{language === 'es' ? 'Ganancia Realizada' : 'Realized P&L'}</div>
-                    <div className={`font-bold text-sm ${pos.realizedPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    <div className="text-[11px] text-slate-400">{language === 'es' ? 'Ganancia Realizada' : 'Realized P&L'}</div>
+                    <div className={`font-bold text-sm ${pos.realizedPnL >= 0 ? 'text-[#00f0a0]' : 'text-[#ff3b69]'}`}>
                       {pos.realizedPnL >= 0 ? '+' : ''}${pos.realizedPnL.toFixed(2)}
                     </div>
                   </div>

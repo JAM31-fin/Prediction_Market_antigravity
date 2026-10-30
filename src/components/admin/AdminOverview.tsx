@@ -62,64 +62,64 @@ export const AdminOverview: React.FC = () => {
 
       {/* High-Level Operator KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 font-mono">
-        <div className="p-4 rounded-xl bg-slate-900 border border-amber-500/30">
+        <div className="terminal-card p-4 rounded-2xl border-amber-500/30">
           <div className="text-[11px] text-amber-400 uppercase font-bold">Platform Balance</div>
-          <div className="text-xl sm:text-2xl font-black text-amber-400 mt-1">
+          <div className="text-xl sm:text-2xl font-black text-amber-400 mt-1 tabular-nums">
             ${(user?.virtualBalance ?? platformBalance ?? 25000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="text-[10px] text-slate-400 mt-1">$25k Base + Net Result</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
+        <div className="terminal-card p-4 rounded-2xl">
           <div className="text-[11px] text-slate-400 uppercase font-bold">Total Platform Volume</div>
-          <div className="text-xl sm:text-2xl font-black text-white mt-1">
+          <div className="text-xl sm:text-2xl font-black text-white mt-1 tabular-nums">
             ${(metrics?.totalVolume ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <div className="text-[10px] text-emerald-400 mt-1">&bull; Gross contract flow</div>
+          <div className="text-[10px] text-[#00f0a0] mt-1">&bull; Gross contract flow</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
+        <div className="terminal-card p-4 rounded-2xl">
           <div className="text-[11px] text-slate-400 uppercase font-bold">Net Operator Revenue</div>
-          <div className="text-xl sm:text-2xl font-black text-emerald-400 mt-1">
+          <div className="text-xl sm:text-2xl font-black text-[#00f0a0] mt-1 tabular-nums">
             ${(metrics?.netRevenue ?? metrics?.totalRevenue ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="text-[10px] text-slate-400 mt-1">Commissions + spreads</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
+        <div className="terminal-card p-4 rounded-2xl">
           <div className="text-[11px] text-slate-400 uppercase font-bold">Active Contracts</div>
-          <div className="text-xl sm:text-2xl font-black text-blue-400 mt-1">
+          <div className="text-xl sm:text-2xl font-black text-[#00d2ff] mt-1 tabular-nums">
             {metrics?.activeMarkets ?? 0} Open
           </div>
           <div className="text-[10px] text-slate-400 mt-1">{markets?.length ?? 0} total deployed</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
+        <div className="terminal-card p-4 rounded-2xl">
           <div className="text-[11px] text-slate-400 uppercase font-bold">Active Traders</div>
-          <div className="text-xl sm:text-2xl font-black text-purple-400 mt-1">
+          <div className="text-xl sm:text-2xl font-black text-purple-400 mt-1 tabular-nums">
             {(metrics?.activeUsers || metrics?.totalUsers || 0).toLocaleString('en-US')}
           </div>
-          <div className="text-[10px] text-slate-400 mt-1">
-            {(allTrades?.length ?? trades?.length ?? 0)} trades recorded &bull; {(metrics?.totalUsers || 0)} accounts
+          <div className="text-[10px] text-slate-400 mt-1 truncate">
+            {(allTrades?.length ?? trades?.length ?? 0)} trades &bull; {(metrics?.totalUsers || 0)} users
           </div>
         </div>
 
         {/* Solvency Coverage Ratio KPI */}
-        <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
+        <div className="terminal-card p-4 rounded-2xl">
           <div className="flex items-center justify-between text-[11px] uppercase font-bold text-slate-400">
             <span>Ratio Cobertura</span>
             <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${
               platformAggregates.riskCoverageRatio >= 1.0
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                ? 'bg-[#00f0a0]/15 text-[#00f0a0] border border-[#00f0a0]/30'
                 : platformAggregates.riskCoverageRatio >= 0.5
-                ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                : 'bg-[#ff3b69]/15 text-[#ff3b69] border border-[#ff3b69]/30'
             }`}>
               {platformAggregates.riskCoverageRatio >= 1.0 ? 'SOLVENTE' : 'ALERTA'}
             </span>
           </div>
-          <div className={`text-xl sm:text-2xl font-black mt-1 ${
-            platformAggregates.riskCoverageRatio >= 1.0 ? 'text-emerald-400' : 'text-amber-400'
+          <div className={`text-xl sm:text-2xl font-black mt-1 tabular-nums ${
+            platformAggregates.riskCoverageRatio >= 1.0 ? 'text-[#00f0a0]' : 'text-amber-400'
           }`}>
             {platformAggregates.riskCoverageRatio >= 999
               ? '∞ (100%)'
@@ -185,33 +185,33 @@ export const AdminOverview: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Quick Operations Panel */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
+        <div className="terminal-card rounded-2xl p-5 space-y-4">
           <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300">
             Operator Administrative Functions
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-sans">
             <button
               onClick={() => setAdminSubView('create')}
-              className="p-3.5 rounded-lg bg-slate-950 hover:bg-slate-850 border border-slate-800 text-left transition-colors flex flex-col justify-between"
+              className="p-3.5 rounded-xl bg-[#04070d]/70 hover:bg-[#080d18] border border-slate-800 hover:border-slate-700 text-left transition-all flex flex-col justify-between cursor-pointer"
             >
               <div>
                 <div className="font-bold text-slate-100 flex items-center justify-between">
                   <span>Deploy New Contract</span>
-                  <Plus className="w-4 h-4 text-emerald-400" />
+                  <Plus className="w-4 h-4 text-[#00f0a0]" />
                 </div>
                 <p className="text-slate-400 text-[11px] mt-1">
                   Configure binary, multi-outcome, or range prediction markets.
                 </p>
               </div>
-              <span className="text-emerald-400 font-mono font-semibold text-[11px] mt-3 block">
+              <span className="text-[#00f0a0] font-mono font-semibold text-[11px] mt-3 block">
                 Open Wizard &rarr;
               </span>
             </button>
 
             <button
               onClick={() => setAdminSubView('markets')}
-              className="p-3.5 rounded-lg bg-slate-950 hover:bg-slate-850 border border-slate-800 text-left transition-colors flex flex-col justify-between"
+              className="p-3.5 rounded-xl bg-[#04070d]/70 hover:bg-[#080d18] border border-slate-800 hover:border-slate-700 text-left transition-all flex flex-col justify-between cursor-pointer"
             >
               <div>
                 <div className="font-bold text-slate-100 flex items-center justify-between">
@@ -229,25 +229,25 @@ export const AdminOverview: React.FC = () => {
 
             <button
               onClick={() => setAdminSubView('revenue')}
-              className="p-3.5 rounded-lg bg-slate-950 hover:bg-slate-850 border border-slate-800 text-left transition-colors flex flex-col justify-between"
+              className="p-3.5 rounded-xl bg-[#04070d]/70 hover:bg-[#080d18] border border-slate-800 hover:border-slate-700 text-left transition-all flex flex-col justify-between cursor-pointer"
             >
               <div>
                 <div className="font-bold text-slate-100 flex items-center justify-between">
                   <span>Revenue Analytics</span>
-                  <TrendingUp className="w-4 h-4 text-blue-400" />
+                  <TrendingUp className="w-4 h-4 text-[#00d2ff]" />
                 </div>
                 <p className="text-slate-400 text-[11px] mt-1">
                   Audit 1% trading fees, bid/ask spreads, and daily revenue charts.
                 </p>
               </div>
-              <span className="text-blue-400 font-mono font-semibold text-[11px] mt-3 block">
+              <span className="text-[#00d2ff] font-mono font-semibold text-[11px] mt-3 block">
                 View Ledgers &rarr;
               </span>
             </button>
 
             <button
               onClick={() => setAdminSubView('risk')}
-              className="p-3.5 rounded-lg bg-slate-950 hover:bg-slate-850 border border-slate-800 text-left transition-colors flex flex-col justify-between"
+              className="p-3.5 rounded-xl bg-[#04070d]/70 hover:bg-[#080d18] border border-slate-800 hover:border-slate-700 text-left transition-all flex flex-col justify-between cursor-pointer"
             >
               <div>
                 <div className="font-bold text-slate-100 flex items-center justify-between">
@@ -266,13 +266,13 @@ export const AdminOverview: React.FC = () => {
         </div>
 
         {/* Live System Execution Feed */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
+        <div className="terminal-card rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300">
               Live Operator Execution Tape
             </h3>
-            <span className="text-[11px] font-mono text-emerald-400 font-bold flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[11px] font-mono text-[#00f0a0] font-bold flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#00f0a0] animate-pulse" />
               Automated MM Active
             </span>
           </div>
@@ -284,8 +284,8 @@ export const AdminOverview: React.FC = () => {
                   <span
                     className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                       t.type === 'BUY'
-                        ? 'bg-emerald-500/10 text-emerald-400'
-                        : 'bg-rose-500/10 text-rose-400'
+                        ? 'bg-[#00f0a0]/15 text-[#00f0a0]'
+                        : 'bg-[#ff3b69]/15 text-[#ff3b69]'
                     }`}
                   >
                     {t.type}
@@ -293,12 +293,12 @@ export const AdminOverview: React.FC = () => {
                   <span className="text-slate-200 font-semibold truncate max-w-[140px]">
                     {t.outcomeName}
                   </span>
-                  <span className="text-slate-400 text-[11px]">
+                  <span className="text-slate-400 text-[11px] tabular-nums">
                     ${t.amount.toFixed(0)}
                   </span>
                 </div>
-                <div className="text-right text-[11px] text-slate-400">
-                  Fee: <span className="text-emerald-400">${t.fee.toFixed(2)}</span>
+                <div className="text-right text-[11px] text-slate-400 tabular-nums">
+                  Fee: <span className="text-[#00f0a0]">${t.fee.toFixed(2)}</span>
                 </div>
               </div>
             ))}

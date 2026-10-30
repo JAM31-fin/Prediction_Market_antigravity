@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { useMarket } from '../../context/MarketContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { marketDictionary, getLocalizedOutcomeName } from '../../i18n/marketTranslations';
@@ -62,7 +63,7 @@ export const HistoryPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight text-wrap-balance">
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight text-wrap-balance">
             {language === 'es' ? 'Historial de Transacciones' : 'Transaction History & Audited Ledger'}
           </h1>
           <p className="text-slate-400 text-xs sm:text-sm mt-1 text-wrap-pretty">
@@ -72,60 +73,71 @@ export const HistoryPage: React.FC = () => {
           </p>
         </div>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleExportCSV}
           disabled={filteredTrades.length === 0}
-          className="self-start sm:self-auto px-4 py-2 min-h-[38px] rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 text-xs font-mono font-medium flex items-center gap-2 btn-tactile disabled:opacity-50 cursor-pointer shadow-sm"
+          className="self-start sm:self-auto px-4 py-2.5 min-h-[44px] rounded-xl terminal-card text-slate-200 text-xs font-mono font-bold flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-sm hover:border-[#00d2ff]/40 transition-colors"
         >
-          <Download className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+          <Download className="w-4 h-4 text-[#00d2ff] shrink-0" />
           <span>{language === 'es' ? 'Exportar Libro (CSV)' : 'Export Ledger (CSV)'}</span>
-        </button>
+        </motion.button>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono elevation-card">
+      <div className="terminal-card p-4 sm:p-5 rounded-2xl mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono elevation-card">
         
         {/* Type Filter Buttons */}
-        <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto">
+        <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto p-1 bg-[#080d18]/80 rounded-xl border border-white/[0.06]">
           {([
             { id: 'ALL', label: language === 'es' ? 'Todas' : 'All Transactions' },
             { id: 'BUY', label: language === 'es' ? 'Compras' : 'BUY' },
             { id: 'SELL', label: language === 'es' ? 'Ventas' : 'SELL' },
             { id: 'RESOLUTION', label: language === 'es' ? 'Liquidaciones' : 'RESOLUTION' },
-          ] as const).map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setFilterType(item.id as any)}
-              className={`px-3 py-1.5 min-h-[34px] rounded-lg btn-tactile font-semibold cursor-pointer whitespace-nowrap ${
-                filterType === item.id
-                  ? 'bg-slate-800 text-white border border-slate-700 font-semibold shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 bg-slate-950 border border-slate-800'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
+          ] as const).map((item) => {
+            const isActive = filterType === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setFilterType(item.id as any)}
+                className={`relative px-3.5 py-2 min-h-[38px] rounded-lg font-bold cursor-pointer whitespace-nowrap transition-colors z-10 ${
+                  isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="history-filter-active"
+                    transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                    className="absolute inset-0 rounded-lg bg-slate-800/90 border border-white/[0.12] shadow-sm -z-10"
+                  />
+                )}
+                {item.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Search inside history */}
         <div className="relative w-full sm:w-72 group">
-          <Search className="w-3.5 h-3.5 text-slate-500 group-focus-within:text-cyan-400 absolute left-3 top-1/2 -translate-y-1/2 transition-colors pointer-events-none" />
+          <Search className="w-3.5 h-3.5 text-slate-500 group-focus-within:text-[#00d2ff] absolute left-3 top-1/2 -translate-y-1/2 transition-colors pointer-events-none" />
           <input
             type="text"
+            aria-label={language === 'es' ? 'Buscar transacciones' : 'Search transactions'}
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
             placeholder={language === 'es' ? 'Buscar por contrato u opción...' : 'Search by market or outcome...'}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/70 font-sans transition-[border-color,box-shadow] duration-150 ease-out"
+            className="w-full bg-[#04070d] border border-slate-700/80 rounded-xl pl-9 pr-3 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#00d2ff] font-sans transition-all"
           />
         </div>
 
       </div>
 
       {/* Ledger Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden elevation-card">
+      <div className="terminal-card rounded-2xl overflow-hidden elevation-card">
         <div className="overflow-x-auto">
           <table className="w-full text-left font-mono text-xs tabular-nums">
-            <thead className="bg-slate-950 border-b border-slate-800 text-slate-400 text-[11px] uppercase tracking-wider">
+            <thead className="bg-[#04070d]/90 border-b border-white/[0.08] text-slate-400 text-[11px] uppercase tracking-wider">
               <tr>
                 <th className="py-3.5 px-4 font-bold">{language === 'es' ? 'Fecha' : 'Timestamp'}</th>
                 <th className="py-3.5 px-4 font-bold">{language === 'es' ? 'Operación' : 'Action'}</th>
@@ -138,10 +150,10 @@ export const HistoryPage: React.FC = () => {
                 <th className="py-3.5 px-4 text-right font-bold">{language === 'es' ? 'Neto en Saldo' : 'Net Cash'}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/80">
+            <tbody className="divide-y divide-slate-800/60">
               {filteredTrades.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-16 text-center text-slate-500">
+                  <td colSpan={9} className="py-16 text-center text-slate-500 font-sans">
                     {language === 'es' ? 'No hay operaciones que coincidan con la búsqueda.' : 'No transactions matching your criteria.'}
                   </td>
                 </tr>
@@ -160,7 +172,7 @@ export const HistoryPage: React.FC = () => {
                     <tr 
                       key={t.id} 
                       onClick={() => navigateTo('detail', t.marketId)}
-                      className="hover:bg-slate-800/50 cursor-pointer transition-colors"
+                      className="hover:bg-slate-800/40 cursor-pointer transition-colors"
                     >
                       <td className="py-3.5 px-4 text-slate-400 text-[11px] whitespace-nowrap">
                         {new Date(t.timestamp).toLocaleString(language === 'es' ? 'es-ES' : 'en-US', {
@@ -173,12 +185,12 @@ export const HistoryPage: React.FC = () => {
 
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold ${
                             isBuy
-                              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                              ? 'bg-[#00f0a0]/15 text-[#00f0a0] border border-[#00f0a0]/30'
                               : isSell
-                              ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
-                              : 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
+                              ? 'bg-[#ff3b69]/15 text-[#ff3b69] border border-[#ff3b69]/30'
+                              : 'bg-[#00d2ff]/15 text-[#00d2ff] border border-[#00d2ff]/30'
                           }`}
                         >
                           {isBuy && <ArrowDownLeft className="w-2.5 h-2.5" />}
@@ -195,7 +207,7 @@ export const HistoryPage: React.FC = () => {
                       </td>
 
                       <td className="py-3.5 px-4 font-sans text-slate-300 font-semibold">
-                        <span className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[11px]">
+                        <span className="px-2 py-0.5 rounded bg-[#04070d] border border-white/[0.08] text-[11px]">
                           {displayOutcome}
                         </span>
                       </td>
@@ -217,7 +229,7 @@ export const HistoryPage: React.FC = () => {
                       </td>
 
                       <td className="py-3.5 px-4 text-right font-bold whitespace-nowrap">
-                        <span className={netChange >= 0 ? 'text-emerald-400' : 'text-slate-200'}>
+                        <span className={netChange >= 0 ? 'text-[#00f0a0]' : 'text-slate-200'}>
                           {netChange >= 0 ? `+$${netChange.toFixed(2)}` : `-$${Math.abs(netChange).toFixed(2)}`}
                         </span>
                       </td>
