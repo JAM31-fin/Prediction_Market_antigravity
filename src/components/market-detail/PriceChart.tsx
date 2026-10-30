@@ -10,10 +10,12 @@ import {
   CartesianGrid,
 } from 'recharts';
 
-const OUTCOME_PALETTE = ['#10b981', '#e11d48', '#38bdf8', '#818cf8', '#f59e0b', '#ec4899'];
+const OUTCOME_PALETTE = ['#10b981', '#f43f5e', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'];
 
 interface PriceChartProps {
   market: Market;
+  highlightedOutcomeId?: string | null;
+  onSelectOutcome?: (outcomeId: string) => void;
 }
 
 const CustomTooltip = ({ active, payload, market }: any) => {
@@ -42,7 +44,7 @@ const CustomTooltip = ({ active, payload, market }: any) => {
           {payload.map((entry: any) => {
             const outcome = market.outcomes.find((o: any) => o.id === entry.dataKey);
             const isYes = outcome?.name?.toLowerCase().includes('yes') || outcome?.name?.toLowerCase().includes('sí');
-            const color = entry.stroke || (isYes ? '#10b981' : outcome?.color || '#e11d48');
+            const color = entry.stroke || (isYes ? '#10b981' : outcome?.color || '#f43f5e');
             return (
               <div key={entry.dataKey} className="flex items-center justify-between gap-5">
                 <div className="flex items-center gap-2 font-sans">
@@ -73,9 +75,22 @@ const CustomTooltip = ({ active, payload, market }: any) => {
   return null;
 };
 
-export const PriceChart: React.FC<PriceChartProps> = ({ market }) => {
+export const PriceChart: React.FC<PriceChartProps> = ({ 
+  market,
+  highlightedOutcomeId: externalHighlightedId,
+  onSelectOutcome 
+}) => {
   const [timeframe, setTimeframe] = useState<'1H' | '24H' | '7D' | 'ALL'>('24H');
   const [curveType, setCurveType] = useState<'stepAfter' | 'monotone'>('stepAfter');
+  const [internalHoveredId, setInternalHoveredId] = useState<string | null>(null);
+
+  const activeOutcomeId = externalHighlightedId || internalHoveredId;
+
+  // Identify leading outcome (highest probability) for the breathing live dot
+  const leadingOutcome = useMemo(() => {
+    if (!market.outcomes || market.outcomes.length === 0) return null;
+    return [...market.outcomes].sort((a, b) => b.currentPrice - a.currentPrice)[0];
+  }, [market.outcomes]);
 
   // Live ticking clock to advance time continuously on the chart
   const [currentTime, setCurrentTime] = useState<number>(Date.now());
@@ -209,22 +224,42 @@ export const PriceChart: React.FC<PriceChartProps> = ({ market }) => {
               {curveType === 'stepAfter' ? 'STEPPED LMSR' : 'SMOOTH CURVE'}
             </span>
           </div>
-          <div className="text-xl font-bold text-slate-100 font-mono tabular-nums mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
+          <div className="text-xl font-bold text-slate-100 font-mono tabular-nums mt-1 flex flex-wrap items-center gap-x-3 gap-y-1.5">
             {market.outcomes.map((o, idx) => {
               const isYes = o.name?.toLowerCase().includes('yes') || o.name?.toLowerCase().includes('sí');
               const dotColor = o.color || (isYes ? '#10b981' : OUTCOME_PALETTE[idx % OUTCOME_PALETTE.length]);
+              const isLead = leadingOutcome?.id === o.id;
+              const isHoveredOrSelected = activeOutcomeId === o.id;
+              
               return (
-                <span key={o.id} className="inline-flex items-center gap-1.5">
+                <button
+                  key={o.id}
+                  type="button"
+                  onMouseEnter={() => setInternalHoveredId(o.id)}
+                  onMouseLeave={() => setInternalHoveredId(null)}
+                  onClick={() => onSelectOutcome?.(o.id)}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 min-h-[38px] sm:min-h-[40px] rounded-lg text-xs font-mono transition-all cursor-pointer btn-tactile ${
+                    isHoveredOrSelected
+                      ? 'bg-white/[0.08] ring-1 ring-white/20 shadow-sm'
+                      : 'hover:bg-white/[0.04]'
+                  }`}
+                  title={`Click to focus ${o.name} in trading panel`}
+                >
                   <span
                     className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: dotColor }}
                   />
                   <span className="text-slate-300 font-sans text-xs">{o.name}:</span>
-                  <span style={{ color: dotColor }} className="tracking-tight" aria-label={`${o.name} probability: ${Math.round(o.currentPrice * 100)} percent`}>
+                  <span style={{ color: dotColor }} className="font-bold tracking-tight" aria-label={`${o.name} probability: ${Math.round(o.currentPrice * 100)} percent`}>
                     {Math.round(o.currentPrice * 100)}%
                   </span>
-                  {idx < market.outcomes.length - 1 && <span className="text-slate-700">{'/'}</span>}
-                </span>
+                  {isLead && (
+                    <span className="relative flex h-2 w-2 ml-0.5" title="Leading outcome pulse">
+                      <span className="animate-radar absolute inline-flex h-full w-full rounded-full opacity-80" style={{ backgroundColor: dotColor }}></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: dotColor }}></span>
+                    </span>
+                  )}
+                </button>
               );
             })}
           </div>
@@ -325,6 +360,11 @@ export const PriceChart: React.FC<PriceChartProps> = ({ market }) => {
             {market.outcomes.map((o, idx) => {
               const isYes = o.name?.toLowerCase().includes('yes') || o.name?.toLowerCase().includes('sí');
               const strokeColor = o.color || (isYes ? '#10b981' : OUTCOME_PALETTE[idx % OUTCOME_PALETTE.length]);
+              const isFocal = activeOutcomeId ? o.id === activeOutcomeId : true;
+              const strokeWidth = activeOutcomeId ? (o.id === activeOutcomeId ? 3 : 1.25) : 2;
+              const strokeOpacity = isFocal ? 1 : 0.28;
+              const fillOpacity = isFocal ? 1 : 0.08;
+
               return (
                 <Area
                   key={o.id}
@@ -332,9 +372,10 @@ export const PriceChart: React.FC<PriceChartProps> = ({ market }) => {
                   dataKey={o.id}
                   name={o.name}
                   stroke={strokeColor}
-                  strokeWidth={2}
+                  strokeWidth={strokeWidth}
+                  strokeOpacity={strokeOpacity}
                   fill={`url(#grad-${o.id})`}
-                  fillOpacity={1}
+                  fillOpacity={fillOpacity}
                   activeDot={{
                     r: 4.5,
                     strokeWidth: 2,
@@ -350,7 +391,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ market }) => {
 
       <div className="flex items-center justify-between mt-3 text-[11px] text-slate-400 font-mono border-t border-slate-800/80 pt-2.5">
         <span className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6]" />
           Continuous Pricing Engine: LMSR Discrete Updates
         </span>
         <span>Sum of Probabilities: 100%</span>

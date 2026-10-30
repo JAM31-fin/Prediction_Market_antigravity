@@ -20,14 +20,14 @@ export const HeroSection: React.FC = () => {
         {/* Main Headline & Badge */}
         <div className="max-w-3xl mb-8">
           <div className="flex flex-wrap items-center gap-2.5 mb-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0e1424] border border-amber-500/30 text-amber-300 text-xs font-mono font-medium shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#111827] border border-amber-500/30 text-amber-300 text-xs font-mono font-medium shadow-sm">
               <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span>{language === 'es' ? 'TORNEO ALFA ENTRE AMIGOS' : 'FRIENDS ALPHA TOURNAMENT'}</span>
             </div>
 
             <button
               onClick={() => setIsSlidesOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0e1424] border border-[#38bdf8]/30 hover:border-[#38bdf8]/60 text-[#38bdf8] text-xs font-mono font-medium transition-colors cursor-pointer shadow-sm hover:bg-[#38bdf8]/10"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#111827] border border-blue-500/30 hover:border-blue-500/60 text-[#3b82f6] text-xs font-mono font-medium transition-colors cursor-pointer shadow-sm hover:bg-blue-500/10"
             >
               <Sparkles className="w-3.5 h-3.5 shrink-0" />
               <span>{language === 'es' ? '¿Cómo funciona? (Slides)' : 'How it works (Slides)'}</span>
@@ -36,9 +36,9 @@ export const HeroSection: React.FC = () => {
 
           <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-3 text-wrap-balance">
             {language === 'es' ? (
-              <>Pronostica y Compite con <span className="text-[#10b981]">Tus Amigos</span></>
+              <>Pronostica y Compite con <span className="text-[#3b82f6]">Tus Amigos</span></>
             ) : (
-              <>Predict & Compete with <span className="text-[#10b981]">Your Friends</span></>
+              <>Predict & Compete with <span className="text-[#3b82f6]">Your Friends</span></>
             )}
           </h1>
 
@@ -52,18 +52,18 @@ export const HeroSection: React.FC = () => {
         {/* Central Search Input with Focus Ring & Concentric Radius */}
         <form onSubmit={handleSearch} className="max-w-2xl relative mb-10">
           <div className="relative flex items-center group">
-            <Search className="w-5 h-5 text-slate-500 group-focus-within:text-[#38bdf8] transition-colors absolute left-4 pointer-events-none" />
+            <Search className="w-5 h-5 text-slate-500 group-focus-within:text-[#3b82f6] transition-colors absolute left-4 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={language === 'es' ? 'Buscar retos o eventos (ej. Reto grupal, Fútbol, Bitcoin)...' : 'Search contracts (e.g. Group challenge, Soccer, Bitcoin)...'}
-              className="w-full bg-[#0b101d] border border-white/[0.08] rounded-2xl pl-12 pr-32 py-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#38bdf8]/60 focus:ring-1 focus:ring-[#38bdf8]/20 shadow-lg shadow-black/50 transition-[border-color,box-shadow] duration-150 ease-out"
+              className="w-full bg-[#0b0f19] border border-white/[0.08] rounded-2xl pl-12 pr-32 py-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#3b82f6]/60 focus:ring-1 focus:ring-[#3b82f6]/20 shadow-lg shadow-black/50 transition-[border-color,box-shadow] duration-150 ease-out"
             />
             <div className="absolute right-2 flex items-center gap-2">
               <button
                 type="submit"
-                className="px-4 py-2 min-h-[38px] rounded-xl bg-[#10b981] hover:bg-[#059669] text-slate-950 text-xs font-bold font-mono btn-tactile flex items-center gap-1.5 cursor-pointer shadow-sm"
+                className="px-4 py-2 min-h-[38px] rounded-xl bg-[#3b82f6] hover:bg-blue-600 text-white text-xs font-bold font-mono btn-tactile flex items-center gap-1.5 cursor-pointer shadow-sm"
               >
                 <span>{language === 'es' ? 'BUSCAR' : 'EXPLORE'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -95,7 +95,7 @@ export const HeroSection: React.FC = () => {
             <div className="text-xl font-bold font-mono tabular-nums text-slate-100 tracking-tight">
               {metrics.activeMarkets}
             </div>
-            <div className="text-[11px] font-mono text-[#38bdf8] flex items-center gap-1 mt-0.5">
+            <div className="text-[11px] font-mono text-[#3b82f6] flex items-center gap-1 mt-0.5">
               <span>●</span> Binary & Multi
             </div>
           </div>

@@ -46,17 +46,27 @@ export const MarketDetailPage: React.FC = () => {
     shares?: string;
   } | null>(null);
 
+  // Synchronized active outcome focus across Chart, TradingPanel, and Breakdown
+  const [focusedOutcomeId, setFocusedOutcomeId] = useState<string | null>(null);
+
   // Trades on this market across all platform participants
-  const marketTrades = (allTrades && allTrades.length > 0 ? allTrades : trades).filter(
-    (t) => t.marketId === market?.id
+  const marketTrades = useMemo(
+    () => (allTrades && allTrades.length > 0 ? allTrades : trades).filter((t) => t.marketId === market?.id),
+    [allTrades, trades, market?.id]
   );
 
   // Unique active traders on this contract
-  const distinctMarketTraders = new Set(marketTrades.map((t) => t.userId).filter(Boolean)).size;
+  const distinctMarketTraders = useMemo(
+    () => new Set(marketTrades.map((t) => t.userId).filter(Boolean)).size,
+    [marketTrades]
+  );
   const activeTradersDisplay = market ? Math.max(market.totalTraders || 0, distinctMarketTraders) : 0;
 
   // Positions on this market
-  const marketPositions = positions.filter((p) => p.marketId === market?.id);
+  const marketPositions = useMemo(
+    () => positions.filter((p) => p.marketId === market?.id),
+    [positions, market?.id]
+  );
 
   if (!market) {
     return (
@@ -102,13 +112,13 @@ export const MarketDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 sm:pb-8">
       
       {/* Back to Markets Breadcrumbs */}
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={() => navigateTo('markets')}
-          className="inline-flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-[#10b981] btn-tactile cursor-pointer group py-2 px-3 -ml-3 rounded-xl min-h-[44px] hover:bg-[#0e1424] transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-[#10b981] btn-tactile cursor-pointer group py-2 px-3 -ml-3 rounded-xl min-h-[44px] hover:bg-[#111827] transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform shrink-0" />
           <span>{language === 'es' ? 'VOLVER A TODOS LOS MERCADOS' : 'BACK TO ALL MARKETS'}</span>
@@ -190,8 +200,8 @@ export const MarketDetailPage: React.FC = () => {
                     : market.status === 'resolving'
                     ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                     : market.status === 'resolved'
-                    ? 'bg-[#38bdf8]/15 text-[#38bdf8] border border-[#38bdf8]/30'
-                    : 'bg-[#e11d48]/15 text-rose-300 border border-[#e11d48]/30'
+                    ? 'bg-[#3b82f6]/15 text-[#3b82f6] border border-[#3b82f6]/30'
+                    : 'bg-[#f43f5e]/15 text-rose-300 border border-[#f43f5e]/30'
                 }`}
               >
                 {market.status === 'open' && <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />}
@@ -220,8 +230,8 @@ export const MarketDetailPage: React.FC = () => {
                   />
                 </div>
               ) : market.status === 'resolved' ? (
-                <div className="flex items-center gap-1.5 text-xs text-[#38bdf8] font-mono tabular-nums bg-[#38bdf8]/10 px-2 py-0.5 rounded border border-[#38bdf8]/20">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#38bdf8] shrink-0" />
+                <div className="flex items-center gap-1.5 text-xs text-[#3b82f6] font-mono tabular-nums bg-[#3b82f6]/10 px-2 py-0.5 rounded border border-[#3b82f6]/20">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#3b82f6] shrink-0" />
                   <span>{language === 'es' ? 'Contrato Liquidado y Resuelto' : 'Contract Resolved & Settled'}</span>
                 </div>
               ) : null}
@@ -238,7 +248,7 @@ export const MarketDetailPage: React.FC = () => {
 
           {/* Key Metrics Columns */}
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-4 lg:pt-0 border-t lg:border-t-0 border-white/[0.08] text-xs font-mono shrink-0">
-            <div className="p-3.5 rounded-xl bg-[#0b101d] border border-white/[0.08] min-w-[130px]">
+            <div className="p-3.5 rounded-xl bg-[#0b0f19] border border-white/[0.08] min-w-[130px]">
               <div className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
                 {language === 'es' ? 'Volumen Total' : 'Total Volume'}
               </div>
@@ -248,21 +258,21 @@ export const MarketDetailPage: React.FC = () => {
               <div className="text-[10px] text-[#10b981] font-mono mt-0.5">● USD Virtual</div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#0b101d] border border-white/[0.08] min-w-[130px]">
+            <div className="p-3.5 rounded-xl bg-[#0b0f19] border border-white/[0.08] min-w-[130px]">
               <div className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
                 {language === 'es' ? 'Participantes' : 'Active Traders'}
               </div>
               <div className="text-lg font-bold text-slate-100 tabular-nums mt-0.5">
                 {activeTradersDisplay}
               </div>
-              <div className="text-[10px] text-[#38bdf8] font-mono mt-0.5">● {language === 'es' ? 'Pronósticos' : 'Traders'}</div>
+              <div className="text-[10px] text-[#3b82f6] font-mono mt-0.5">● {language === 'es' ? 'Pronósticos' : 'Traders'}</div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#0b101d] border border-white/[0.08] min-w-[130px]">
+            <div className="p-3.5 rounded-xl bg-[#0b0f19] border border-white/[0.08] min-w-[130px]">
               <div className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
                 {language === 'es' ? 'Liquidez LMSR' : 'LMSR Liquidity'}
               </div>
-              <div className="text-lg font-bold text-[#38bdf8] tabular-nums mt-0.5">
+              <div className="text-lg font-bold text-[#3b82f6] tabular-nums mt-0.5">
                 b = {market.liquidityParameter}
               </div>
               <div className="text-[10px] text-purple-400 font-mono mt-0.5">● Algorithmic</div>
@@ -276,21 +286,43 @@ export const MarketDetailPage: React.FC = () => {
         
         {/* Left Column (8 cols): Chart, Outcome Probability Bars, Rules */}
         <div className="lg:col-span-7 xl:col-span-8 space-y-6">
-          {/* Interactive Price Chart */}
-          <PriceChart market={market} />
+          {/* Interactive Price Chart with Cross-Component Highlighting */}
+          <PriceChart 
+            market={market} 
+            highlightedOutcomeId={focusedOutcomeId}
+            onSelectOutcome={(id) => {
+              setFocusedOutcomeId(id);
+              setTradeIntent((prev) => ({ mode: prev?.mode || 'BUY', outcomeId: id }));
+            }}
+          />
 
           {/* Outcome Probabilities Breakdown */}
           <div className="terminal-card rounded-2xl p-5 sm:p-6 elevation-card">
             <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
-              <Activity className="w-3.5 h-3.5 text-[#38bdf8]" />
+              <Activity className="w-3.5 h-3.5 text-[#3b82f6]" />
               {language === 'es' ? 'Precios y Probabilidades en Tiempo Real' : 'Outcome Pricing & Probability Distribution'}
             </h2>
             <div className="space-y-3">
               {market.outcomes.map((outcome) => {
                 const pct = Math.round(outcome.currentPrice * 100);
                 const color = outcome.color || '#10b981';
+                const isSelected = focusedOutcomeId === outcome.id;
+
                 return (
-                  <div key={outcome.id} className="p-3.5 rounded-xl bg-[#0b101d] border border-white/[0.08] hover:border-slate-700 transition-colors">
+                  <div 
+                    key={outcome.id} 
+                    onMouseEnter={() => setFocusedOutcomeId(outcome.id)}
+                    onMouseLeave={() => setFocusedOutcomeId(null)}
+                    onClick={() => {
+                      setFocusedOutcomeId(outcome.id);
+                      setTradeIntent({ mode: 'BUY', outcomeId: outcome.id });
+                    }}
+                    className={`p-3.5 rounded-xl bg-[#0b0f19] border transition-all cursor-pointer ${
+                      isSelected 
+                        ? 'border-blue-500/60 ring-1 ring-blue-500/30 bg-[#162032]' 
+                        : 'border-white/[0.08] hover:border-slate-700'
+                    }`}
+                  >
                     <div className="flex items-center justify-between text-xs mb-2">
                       <div className="flex items-center gap-2">
                         <span
@@ -312,7 +344,7 @@ export const MarketDetailPage: React.FC = () => {
                       </div>
                     </div>
                     {/* Progress Bar without Fuzzy Glow */}
-                    <div className="w-full bg-[#0c1424] h-2 rounded-full overflow-hidden flex">
+                    <div className="w-full bg-[#0b0f19] h-2 rounded-full overflow-hidden flex border border-white/[0.06]">
                       <div
                         className="h-full transition-[width] duration-300 ease-out"
                         style={{
@@ -357,7 +389,12 @@ export const MarketDetailPage: React.FC = () => {
         {/* Right Column (5 cols): Trading Execution Panel, Recent Trades */}
         <div className="lg:col-span-5 xl:col-span-4 space-y-6">
           {/* Main Trading Panel */}
-          <TradingPanel key={market.id} market={market} tradeIntent={tradeIntent} />
+          <TradingPanel 
+            key={market.id} 
+            market={market} 
+            tradeIntent={tradeIntent} 
+            onOutcomeChange={setFocusedOutcomeId}
+          />
 
           {/* Live Trades Stream for this Market */}
           <MarketTradesFeed trades={marketTrades} />

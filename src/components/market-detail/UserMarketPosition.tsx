@@ -49,7 +49,7 @@ export const UserMarketPosition: React.FC<UserMarketPositionProps> = ({
           return (
             <div
               key={pos.id}
-              className="p-3.5 rounded-xl bg-[#0b101d] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+              className="p-3.5 rounded-xl bg-[#0b0f19] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
             >
               <div>
                 <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ export const UserMarketPosition: React.FC<UserMarketPositionProps> = ({
                   </div>
                   <div
                     className={`text-[11px] font-bold flex items-center justify-end gap-1 ${
-                      isProfitable ? 'text-[#10b981]' : 'text-[#e11d48]'
+                      isProfitable ? 'text-[#10b981]' : 'text-[#f43f5e]'
                     }`}
                   >
                     {isProfitable ? (
@@ -89,7 +89,7 @@ export const UserMarketPosition: React.FC<UserMarketPositionProps> = ({
                 {isMarketOpen ? (
                   <button
                     onClick={() => onSellClick(pos)}
-                    className="px-3.5 py-1.5 min-h-[34px] rounded-lg bg-[#e11d48]/15 hover:bg-[#e11d48]/25 text-[#e11d48] border border-[#e11d48]/30 text-xs font-mono font-bold btn-tactile cursor-pointer"
+                    className="px-3.5 py-1.5 min-h-[34px] rounded-lg bg-[#f43f5e]/15 hover:bg-[#f43f5e]/25 text-[#f43f5e] border border-[#f43f5e]/30 text-xs font-mono font-bold btn-tactile cursor-pointer"
                   >
                     SELL
                   </button>

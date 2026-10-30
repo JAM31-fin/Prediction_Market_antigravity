@@ -206,7 +206,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
       >
         
         {/* Sticky Header */}
-        <div className="shrink-0 bg-[#0e1424]/90 border-b border-white/[0.08] px-5 pt-4 pb-3 relative">
+        <div className="shrink-0 bg-[#111827]/90 border-b border-white/[0.08] px-5 pt-4 pb-3 relative">
           <button
             onClick={onClose}
             className="absolute top-3 right-3 min-w-[36px] min-h-[36px] rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer transition-colors"
@@ -296,7 +296,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
             
             {/* Active Session Indicator */}
             {user && !adminStep && (
-              <div className="p-3 rounded-xl bg-[#090d16]/80 border border-slate-800 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-[#0b0f19]/80 border border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div
                     className={`w-7 h-7 rounded-full border flex items-center justify-center font-mono font-bold text-xs ${
@@ -397,7 +397,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                       onChange={(e) => setAdminPin(e.target.value)}
                       placeholder=""
                       maxLength={12}
-                      className="w-full bg-[#090d16] border border-amber-500/40 rounded-xl px-3.5 py-3 text-sm text-center tracking-[0.3em] text-amber-300 focus:outline-none focus:border-amber-400 font-mono transition-all shadow-inner"
+                      className="w-full bg-[#0b0f19] border border-amber-500/40 rounded-xl px-3.5 py-3 text-sm text-center tracking-[0.3em] text-amber-300 focus:outline-none focus:border-amber-400 font-mono transition-all shadow-inner"
                       autoComplete="one-time-code"
                     />
                   </div>
@@ -420,7 +420,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder=""
-                      className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
+                      className="w-full bg-[#0b0f19] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
                       autoComplete="username"
                     />
                   </div>
@@ -456,7 +456,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder=""
-                      className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
+                      className="w-full bg-[#0b0f19] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
                       autoComplete="current-password"
                     />
                   </div>
@@ -479,7 +479,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder=""
-                    className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
+                    className="w-full bg-[#0b0f19] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
                     autoComplete="username"
                   />
                 </div>
@@ -499,7 +499,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     placeholder=""
-                    className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
+                    className="w-full bg-[#0b0f19] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
                     autoComplete="tel"
                   />
                   <p className="text-[10px] text-slate-400 font-mono mt-1">
@@ -541,7 +541,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder=""
-                      className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
+                      className="w-full bg-[#0b0f19] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
                       autoComplete="new-password"
                     />
                   </div>
@@ -560,7 +560,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder=""
-                    className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
+                    className="w-full bg-[#0b0f19] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
                   />
                   <p className="text-[10px] text-slate-500 font-mono mt-1">
                     Nombre visible en la clasificación y perfil del torneo.
@@ -572,7 +572,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
           </div>
 
           {/* Sticky Action Footer */}
-          <div className="shrink-0 bg-[#0e1424]/90 border-t border-white/[0.08] px-5 py-3.5 space-y-2">
+          <div className="shrink-0 bg-[#111827]/90 border-t border-white/[0.08] px-5 py-3.5 space-y-2">
             {adminStep ? (
               <>
                 <motion.button
@@ -633,7 +633,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
             {/* Persistence Status */}
             <div className="pt-1 flex items-center justify-between text-[10px] text-slate-400 font-mono">
               <span className="flex items-center gap-1">
-                <Database className="w-3 h-3 text-[#38bdf8]" />
+                <Database className="w-3 h-3 text-[#3b82f6]" />
                 PostgreSQL / Supabase Cloud
               </span>
               <span>Anti-Sybil + PIN 2FA</span>

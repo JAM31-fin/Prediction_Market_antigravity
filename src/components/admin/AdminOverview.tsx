@@ -88,7 +88,7 @@ export const AdminOverview: React.FC = () => {
 
         <div className="terminal-card p-4 rounded-2xl">
           <div className="text-[11px] text-slate-400 uppercase font-bold">Active Contracts</div>
-          <div className="text-xl sm:text-2xl font-black text-[#38bdf8] mt-1 tabular-nums">
+          <div className="text-xl sm:text-2xl font-black text-[#3b82f6] mt-1 tabular-nums">
             {metrics?.activeMarkets ?? 0} Open
           </div>
           <div className="text-[10px] text-slate-400 mt-1">{markets?.length ?? 0} total deployed</div>
@@ -113,7 +113,7 @@ export const AdminOverview: React.FC = () => {
                 ? 'bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30'
                 : platformAggregates.riskCoverageRatio >= 0.5
                 ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                : 'bg-[#e11d48]/15 text-[#e11d48] border border-[#e11d48]/30'
+                : 'bg-[#f43f5e]/15 text-[#f43f5e] border border-[#f43f5e]/30'
             }`}>
               {platformAggregates.riskCoverageRatio >= 1.0 ? 'SOLVENTE' : 'ALERTA'}
             </span>
@@ -193,7 +193,7 @@ export const AdminOverview: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-sans">
             <button
               onClick={() => setAdminSubView('create')}
-              className="p-3.5 rounded-xl bg-[#090d16]/70 hover:bg-[#0e1424] border border-slate-800 hover:border-slate-700 text-left transition-all flex flex-col justify-between cursor-pointer"
+              className="p-3.5 rounded-xl bg-[#0b0f19]/70 hover:bg-[#111827] border border-slate-800 hover:border-slate-700 text-left transition-all flex flex-col justify-between cursor-pointer"
             >
               <div>
                 <div className="font-bold text-slate-100 flex items-center justify-between">
@@ -211,7 +211,7 @@ export const AdminOverview: React.FC = () => {
 
             <button
               onClick={() => setAdminSubView('markets')}
-              className="p-3.5 rounded-xl bg-[#090d16]/70 hover:bg-[#0e1424] border border-slate-800 hover:border-slate-700 text-left transition-all flex flex-col justify-between cursor-pointer"
+              className="p-3.5 rounded-xl bg-[#0b0f19]/70 hover:bg-[#111827] border border-slate-800 hover:border-slate-700 text-left transition-all flex flex-col justify-between cursor-pointer"
             >
               <div>
                 <div className="font-bold text-slate-100 flex items-center justify-between">
@@ -229,25 +229,25 @@ export const AdminOverview: React.FC = () => {
 
             <button
               onClick={() => setAdminSubView('revenue')}
-              className="p-3.5 rounded-xl bg-[#090d16]/70 hover:bg-[#0e1424] border border-slate-800 hover:border-slate-700 text-left transition-all flex flex-col justify-between cursor-pointer"
+              className="p-3.5 rounded-xl bg-[#0b0f19]/70 hover:bg-[#111827] border border-slate-800 hover:border-slate-700 text-left transition-all flex flex-col justify-between cursor-pointer"
             >
               <div>
                 <div className="font-bold text-slate-100 flex items-center justify-between">
                   <span>Revenue Analytics</span>
-                  <TrendingUp className="w-4 h-4 text-[#38bdf8]" />
+                  <TrendingUp className="w-4 h-4 text-[#3b82f6]" />
                 </div>
                 <p className="text-slate-400 text-[11px] mt-1">
                   Audit 1% trading fees, bid/ask spreads, and daily revenue charts.
                 </p>
               </div>
-              <span className="text-[#38bdf8] font-mono font-semibold text-[11px] mt-3 block">
+              <span className="text-[#3b82f6] font-mono font-semibold text-[11px] mt-3 block">
                 View Ledgers &rarr;
               </span>
             </button>
 
             <button
               onClick={() => setAdminSubView('risk')}
-              className="p-3.5 rounded-xl bg-[#090d16]/70 hover:bg-[#0e1424] border border-slate-800 hover:border-slate-700 text-left transition-all flex flex-col justify-between cursor-pointer"
+              className="p-3.5 rounded-xl bg-[#0b0f19]/70 hover:bg-[#111827] border border-slate-800 hover:border-slate-700 text-left transition-all flex flex-col justify-between cursor-pointer"
             >
               <div>
                 <div className="font-bold text-slate-100 flex items-center justify-between">
@@ -285,7 +285,7 @@ export const AdminOverview: React.FC = () => {
                     className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                       t.type === 'BUY'
                         ? 'bg-[#10b981]/15 text-[#10b981]'
-                        : 'bg-[#e11d48]/15 text-[#e11d48]'
+                        : 'bg-[#f43f5e]/15 text-[#f43f5e]'
                     }`}
                   >
                     {t.type}

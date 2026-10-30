@@ -2,14 +2,15 @@
 
 @layer base {
   :root {
-    --color-background: #090d16;
-    --color-card: #0e1424;
-    --color-card-hover: #131b2e;
+    --color-background: #0b0f19;
+    --color-card: #111827;
+    --color-card-hover: #162032;
     --color-border: #1e293b;
     --color-border-hover: #334155;
-    --color-accent: #38bdf8;
+    --color-brand: #3b82f6;
+    --color-accent: #3b82f6;
     --color-yes: #10b981;
-    --color-no: #e11d48;
+    --color-no: #f43f5e;
   }
 
   html {
@@ -19,7 +20,7 @@
   }
 
   body {
-    background-color: #090d16;
+    background-color: #0b0f19;
     color: #f1f5f9;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
@@ -56,11 +57,11 @@
   transform: scale(0.97);
 }
 
-/* Linear / Vercel Modern Obsidian Card Surfaces (Zero Neon Glow) */
+/* Polymarket Pro Surface Cards (Cobalt & Emerald Edition) */
 .terminal-card {
-  background-color: #0e1424;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 2px 8px -2px rgba(0, 0, 0, 0.4);
+  background-color: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.04), 0 2px 8px -2px rgba(0, 0, 0, 0.4);
 }
 
 .terminal-card-hover {
@@ -70,15 +71,15 @@
 }
 
 .terminal-card-hover:hover {
-  background-color: #12192c;
-  border-color: rgba(255, 255, 255, 0.14);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 8px 20px -4px rgba(0, 0, 0, 0.5);
+  background-color: #162032;
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 8px 24px -4px rgba(0, 0, 0, 0.5);
   transform: translateY(-1px);
 }
 
 /* Translucent Glass Capsule (Navbar, Popovers, Modals) */
 .glass-terminal {
-  background: rgba(14, 20, 36, 0.85);
+  background: rgba(17, 24, 39, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.09);
@@ -93,11 +94,11 @@
   box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 8px 24px -4px rgba(0, 0, 0, 0.5), 0 20px 48px -8px rgba(0, 0, 0, 0.7);
 }
 
-/* Radar pulse animation for live timestamp indicators */
+/* Radar pulse animation for live timestamp indicators (Breathing Dot) */
 @keyframes radar-ping {
   0% {
     transform: scale(0.9);
-    opacity: 0.8;
+    opacity: 0.85;
   }
   70% {
     transform: scale(2.4);
@@ -111,6 +112,25 @@
 
 .animate-radar {
   animation: radar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Micro-flash feedback on trade executions */
+@keyframes trade-flash-green {
+  0% { background-color: rgba(16, 185, 129, 0.35); }
+  100% { background-color: transparent; }
+}
+
+@keyframes trade-flash-red {
+  0% { background-color: rgba(244, 63, 94, 0.35); }
+  100% { background-color: transparent; }
+}
+
+.flash-buy-yes {
+  animation: trade-flash-green 750ms ease-out;
+}
+
+.flash-buy-no {
+  animation: trade-flash-red 750ms ease-out;
 }
 
 /* Technical Monospace Micro-Badges */
@@ -132,7 +152,7 @@
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #0b0f19;
 }
 ::-webkit-scrollbar-thumb {
   background: #1e293b;
@@ -144,7 +164,7 @@
 
 /* Accessibility: High contrast keyboard focus rings */
 :focus-visible {
-  outline: 2px solid #38bdf8;
+  outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
 

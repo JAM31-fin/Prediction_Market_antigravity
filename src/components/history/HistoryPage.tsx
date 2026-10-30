@@ -78,9 +78,9 @@ export const HistoryPage: React.FC = () => {
           whileTap={{ scale: 0.98 }}
           onClick={handleExportCSV}
           disabled={filteredTrades.length === 0}
-          className="self-start sm:self-auto px-4 py-2.5 min-h-[44px] rounded-xl terminal-card text-slate-200 text-xs font-mono font-bold flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-sm hover:border-[#38bdf8]/40 transition-colors"
+          className="self-start sm:self-auto px-4 py-2.5 min-h-[44px] rounded-xl terminal-card text-slate-200 text-xs font-mono font-bold flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-sm hover:border-[#3b82f6]/40 transition-colors"
         >
-          <Download className="w-4 h-4 text-[#38bdf8] shrink-0" />
+          <Download className="w-4 h-4 text-[#3b82f6] shrink-0" />
           <span>{language === 'es' ? 'Exportar Libro (CSV)' : 'Export Ledger (CSV)'}</span>
         </motion.button>
       </div>
@@ -89,7 +89,7 @@ export const HistoryPage: React.FC = () => {
       <div className="terminal-card p-4 sm:p-5 rounded-2xl mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono elevation-card">
         
         {/* Type Filter Buttons */}
-        <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto p-1 bg-[#0e1424]/80 rounded-xl border border-white/[0.06]">
+        <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto p-1 bg-[#111827]/80 rounded-xl border border-white/[0.06]">
           {([
             { id: 'ALL', label: language === 'es' ? 'Todas' : 'All Transactions' },
             { id: 'BUY', label: language === 'es' ? 'Compras' : 'BUY' },
@@ -120,14 +120,14 @@ export const HistoryPage: React.FC = () => {
 
         {/* Search inside history */}
         <div className="relative w-full sm:w-72 group">
-          <Search className="w-3.5 h-3.5 text-slate-500 group-focus-within:text-[#38bdf8] absolute left-3 top-1/2 -translate-y-1/2 transition-colors pointer-events-none" />
+          <Search className="w-3.5 h-3.5 text-slate-500 group-focus-within:text-[#3b82f6] absolute left-3 top-1/2 -translate-y-1/2 transition-colors pointer-events-none" />
           <input
             type="text"
             aria-label={language === 'es' ? 'Buscar transacciones' : 'Search transactions'}
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
             placeholder={language === 'es' ? 'Buscar por contrato u opción...' : 'Search by market or outcome...'}
-            className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl pl-9 pr-3 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#38bdf8] font-sans transition-all"
+            className="w-full bg-[#0b0f19] border border-slate-700/80 rounded-xl pl-9 pr-3 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#3b82f6] font-sans transition-all"
           />
         </div>
 
@@ -137,7 +137,7 @@ export const HistoryPage: React.FC = () => {
       <div className="terminal-card rounded-2xl overflow-hidden elevation-card">
         <div className="overflow-x-auto">
           <table className="w-full text-left font-mono text-xs tabular-nums">
-            <thead className="bg-[#090d16]/90 border-b border-white/[0.08] text-slate-400 text-[11px] uppercase tracking-wider">
+            <thead className="bg-[#0b0f19]/90 border-b border-white/[0.08] text-slate-400 text-[11px] uppercase tracking-wider">
               <tr>
                 <th className="py-3.5 px-4 font-bold">{language === 'es' ? 'Fecha' : 'Timestamp'}</th>
                 <th className="py-3.5 px-4 font-bold">{language === 'es' ? 'Operación' : 'Action'}</th>
@@ -189,8 +189,8 @@ export const HistoryPage: React.FC = () => {
                             isBuy
                               ? 'bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30'
                               : isSell
-                              ? 'bg-[#e11d48]/15 text-[#e11d48] border border-[#e11d48]/30'
-                              : 'bg-[#38bdf8]/15 text-[#38bdf8] border border-[#38bdf8]/30'
+                              ? 'bg-[#f43f5e]/15 text-[#f43f5e] border border-[#f43f5e]/30'
+                              : 'bg-[#3b82f6]/15 text-[#3b82f6] border border-[#3b82f6]/30'
                           }`}
                         >
                           {isBuy && <ArrowDownLeft className="w-2.5 h-2.5" />}
@@ -207,7 +207,7 @@ export const HistoryPage: React.FC = () => {
                       </td>
 
                       <td className="py-3.5 px-4 font-sans text-slate-300 font-semibold">
-                        <span className="px-2 py-0.5 rounded bg-[#090d16] border border-white/[0.08] text-[11px]">
+                        <span className="px-2 py-0.5 rounded bg-[#0b0f19] border border-white/[0.08] text-[11px]">
                           {displayOutcome}
                         </span>
                       </td>

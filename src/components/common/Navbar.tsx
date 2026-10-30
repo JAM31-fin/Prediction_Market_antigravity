@@ -48,7 +48,7 @@ export const Navbar: React.FC = () => {
   ] as const;
 
   return (
-    <header className="sticky top-0 z-40 bg-[#090d16]/90 border-b border-white/[0.08] backdrop-blur-md">
+    <header className="sticky top-0 z-40 bg-[#0b0f19]/90 border-b border-white/[0.08] backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           
@@ -58,15 +58,15 @@ export const Navbar: React.FC = () => {
               onClick={() => navigateTo('home')}
               className="flex items-center gap-2.5 text-left group cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-[#10b981] group-hover:border-emerald-500/50 group-hover:shadow-sm transition-all">
+              <div className="w-8 h-8 rounded-lg bg-blue-600/15 border border-blue-500/30 flex items-center justify-center text-[#3b82f6] group-hover:border-blue-500/60 group-hover:shadow-sm transition-all">
                 <TrendingUp className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-sm tracking-tight text-white font-sans">
-                    CENTRA<span className="text-[#10b981]">MARKETS</span>
+                    CENTRA<span className="text-[#3b82f6]">MARKETS</span>
                   </span>
-                  <span className="hud-tag text-[#38bdf8] bg-sky-950/40 border-sky-500/20">
+                  <span className="hud-tag text-[#3b82f6] bg-blue-950/40 border-blue-500/25">
                     LMSR
                   </span>
                 </div>
@@ -90,11 +90,11 @@ export const Navbar: React.FC = () => {
                     {isActive && (
                       <motion.div
                         layoutId="navbar-tab-active"
-                        className="absolute inset-0 bg-white/[0.08] border border-white/[0.12] rounded-lg shadow-sm"
+                        className="absolute inset-0 bg-blue-500/15 border border-blue-500/30 rounded-lg shadow-sm"
                         transition={{ type: 'spring', stiffness: 450, damping: 35 }}
                       />
                     )}
-                    <span className={`relative z-10 ${isActive ? 'text-white font-semibold' : 'text-slate-400 hover:text-slate-200'}`}>
+                    <span className={`relative z-10 ${isActive ? 'text-blue-400 font-semibold' : 'text-slate-400 hover:text-slate-200'}`}>
                       {item.label}
                     </span>
                   </button>
@@ -121,14 +121,14 @@ export const Navbar: React.FC = () => {
 
           {/* Quick Search Bar */}
           <form onSubmit={handleSearchSubmit} className="hidden lg:flex items-center flex-1 max-w-xs relative group">
-            <Search className="w-3.5 h-3.5 text-slate-500 group-focus-within:text-[#38bdf8] absolute left-3 top-1/2 -translate-y-1/2 transition-colors pointer-events-none" />
+            <Search className="w-3.5 h-3.5 text-slate-500 group-focus-within:text-[#3b82f6] absolute left-3 top-1/2 -translate-y-1/2 transition-colors pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search contracts..."
               aria-label={language === 'es' ? 'Buscar contratos y retos' : 'Search contracts and markets'}
-              className="w-full bg-[#0b101d] border border-white/[0.08] rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#38bdf8]/60 focus:ring-1 focus:ring-[#38bdf8]/20 transition-[border-color,box-shadow] duration-150 ease-out"
+              className="w-full bg-[#0b0f19] border border-white/[0.08] rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#3b82f6]/60 focus:ring-1 focus:ring-[#3b82f6]/20 transition-[border-color,box-shadow] duration-150 ease-out"
             />
           </form>
 
@@ -167,7 +167,7 @@ export const Navbar: React.FC = () => {
                       ? 'bg-amber-400 animate-pulse'
                       : realtimeStatus === 'reconnecting'
                       ? 'bg-orange-500 animate-pulse'
-                      : 'bg-[#e11d48]'
+                      : 'bg-[#f43f5e]'
                   }`}
                 />
               </span>
@@ -179,7 +179,7 @@ export const Navbar: React.FC = () => {
                     ? 'text-amber-400'
                     : realtimeStatus === 'reconnecting'
                     ? 'text-orange-400'
-                    : 'text-[#e11d48]'
+                    : 'text-[#f43f5e]'
                 }`}
               >
                 {realtimeStatus === 'connected' ? 'LIVE' : realtimeStatus.toUpperCase()}
@@ -190,11 +190,11 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#0e1424] hover:bg-[#1a2333] border border-white/[0.08] hover:border-white/[0.16] text-xs font-mono font-bold text-slate-200 btn-tactile cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#111827] hover:bg-[#162032] border border-white/[0.08] hover:border-blue-500/30 text-xs font-mono font-bold text-slate-200 btn-tactile cursor-pointer"
               title={language === 'es' ? 'Cambiar idioma / Switch language' : 'Switch language / Cambiar idioma'}
               aria-label={language === 'es' ? 'Cambiar idioma a inglés' : 'Switch language to Spanish'}
             >
-              <Globe className="w-3.5 h-3.5 text-[#38bdf8] shrink-0" />
+              <Globe className="w-3.5 h-3.5 text-[#3b82f6] shrink-0" />
               <span>{language.toUpperCase()}</span>
             </button>
 
@@ -203,7 +203,7 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo(user.role === 'admin' ? 'admin' : 'portfolio')}
-                className="flex items-center gap-2 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#0e1424] hover:bg-[#1a2333] border border-white/[0.08] hover:border-white/[0.16] cursor-pointer btn-tactile shadow-sm text-left"
+                className="flex items-center gap-2 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#111827] hover:bg-[#162032] border border-white/[0.08] hover:border-blue-500/30 cursor-pointer btn-tactile shadow-sm text-left"
                 title={user.role === 'admin' ? 'Platform Treasury Balance' : 'Virtual Balance - Click to view portfolio'}
                 aria-label={user.role === 'admin' ? `Treasury balance: $${(user.virtualBalance ?? 0).toFixed(2)} USD` : `Account balance: $${(user.virtualBalance ?? 0).toFixed(2)} USD`}
               >
@@ -225,13 +225,13 @@ export const Navbar: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
-                className="relative min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] p-2 rounded-xl bg-[#0e1424] hover:bg-[#1a2333] border border-white/[0.08] hover:border-white/[0.16] text-slate-300 hover:text-white btn-tactile flex items-center justify-center cursor-pointer"
+                className="relative min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] p-2 rounded-xl bg-[#111827] hover:bg-[#162032] border border-white/[0.08] hover:border-blue-500/30 text-slate-300 hover:text-white btn-tactile flex items-center justify-center cursor-pointer"
                 title="Notifications"
                 aria-label="Toggle notifications"
               >
                 <Bell className="w-4 h-4" />
                 {unreadNotifs > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#38bdf8] text-[10px] font-mono font-bold text-slate-950 flex items-center justify-center tabular-nums shadow-sm">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#3b82f6] text-[10px] font-mono font-bold text-white flex items-center justify-center tabular-nums shadow-sm">
                     {unreadNotifs}
                   </span>
                 )}
@@ -243,13 +243,13 @@ export const Navbar: React.FC = () => {
             {user ? (
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#0e1424] hover:bg-[#1a2333] border border-white/[0.08] hover:border-white/[0.16] text-slate-200 btn-tactile cursor-pointer"
+                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#111827] hover:bg-[#162032] border border-white/[0.08] hover:border-blue-500/30 text-slate-200 btn-tactile cursor-pointer"
                 title="Account Settings"
               >
                 <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold font-mono shrink-0 ${
                   user.role === 'admin'
                     ? 'bg-amber-500/20 border-amber-500/40 text-amber-400'
-                    : 'bg-cyan-500/20 border-cyan-500/40 text-cyan-400'
+                    : 'bg-blue-500/20 border-blue-500/40 text-blue-400'
                 }`}>
                   {(user.username || user.name || 'U').charAt(0).toUpperCase()}
                 </div>
@@ -286,7 +286,7 @@ export const Navbar: React.FC = () => {
                 key={item.id}
                 onClick={() => navigateTo(item.id)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`px-3 py-2.5 min-h-[44px] flex items-center font-semibold btn-tactile ${isActive ? 'text-[#10b981]' : 'text-slate-400'}`}
+                className={`px-3 py-2.5 min-h-[44px] flex items-center font-semibold btn-tactile ${isActive ? 'text-[#3b82f6]' : 'text-slate-400'}`}
               >
                 {item.label}
               </button>

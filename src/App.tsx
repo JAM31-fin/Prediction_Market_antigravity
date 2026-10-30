@@ -26,7 +26,7 @@ const AppContent: React.FC = () => {
   const { currentView, user, authStatus, navigateTo, isAuthModalOpen, setIsAuthModalOpen } = useMarket();
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col font-sans selection:bg-[#10b981]/30 selection:text-white">
+    <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex flex-col font-sans selection:bg-[#3b82f6]/30 selection:text-white">
       {/* Top Demo Environment Disclaimer Banner */}
       <DemoBanner />
 

@@ -316,7 +316,7 @@ export const CANONICAL_SEED_MARKETS: Market[] = [
     rules: 'FOMC target federal funds rate upper bound change.',
     outcomesConfig: [
       { id: 'cut-25', name: '25 bps Rate Cut', price: 0.58, initialPrice: 0.45, color: '#10b981' },
-      { id: 'hold', name: 'Hold / Pause (0 bps)', price: 0.31, initialPrice: 0.42, color: '#38bdf8' },
+      { id: 'hold', name: 'Hold / Pause (0 bps)', price: 0.31, initialPrice: 0.42, color: '#3b82f6' },
       { id: 'cut-50', name: '50+ bps Rate Cut', price: 0.08, initialPrice: 0.10, color: '#a855f7' },
       { id: 'hike', name: 'Rate Hike', price: 0.03, initialPrice: 0.03, color: '#f43f5e' },
     ],

@@ -41,7 +41,7 @@ export const SlidesModal: React.FC<SlidesModalProps> = ({
   const howItWorksSlides = [
     {
       badge: language === 'es' ? 'PASO 1 • INTRODUCCIÓN' : 'STEP 1 • INTRODUCTION',
-      icon: <BookOpen className="w-5 h-5 text-[#38bdf8]" />,
+      icon: <BookOpen className="w-5 h-5 text-[#3b82f6]" />,
       title: language === 'es' ? '¿Qué es CentraMarkets?' : 'What is CentraMarkets?',
       subtitle: language === 'es' 
         ? 'Una plataforma de predicciones descentralizada para ti y tu grupo.'
@@ -73,7 +73,7 @@ export const SlidesModal: React.FC<SlidesModalProps> = ({
     },
     {
       badge: language === 'es' ? 'PASO 3 • COMPRA Y VENTA' : 'STEP 3 • TRADING & POSITION MGMT',
-      icon: <TrendingUp className="w-5 h-5 text-[#38bdf8]" />,
+      icon: <TrendingUp className="w-5 h-5 text-[#3b82f6]" />,
       title: language === 'es' ? 'Especula y Asegura Ganancias' : 'Trade & Lock In Profits',
       subtitle: language === 'es'
         ? 'No necesitas esperar a que el evento concluya para tomar beneficios.'
@@ -204,8 +204,8 @@ export const SlidesModal: React.FC<SlidesModalProps> = ({
         className="terminal-card glass-terminal rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl elevation-popover border border-white/[0.09] overflow-hidden"
       >
         {/* Top Header & Deck Switcher */}
-        <div className="p-4 sm:p-5 border-b border-white/[0.08] bg-[#090d16]/80 flex items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-1.5 p-1 bg-[#090d16] rounded-xl border border-white/[0.06] text-xs font-mono">
+        <div className="p-4 sm:p-5 border-b border-white/[0.08] bg-[#0b0f19]/80 flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 p-1 bg-[#0b0f19] rounded-xl border border-white/[0.06] text-xs font-mono">
             <button
               onClick={() => {
                 setDeck('how-it-works');
@@ -273,7 +273,7 @@ export const SlidesModal: React.FC<SlidesModalProps> = ({
                   <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                     {slide.title}
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#38bdf8] font-medium">
+                  <p className="text-xs sm:text-sm text-[#3b82f6] font-medium">
                     {slide.subtitle}
                   </p>
                 </div>
@@ -288,7 +288,7 @@ export const SlidesModal: React.FC<SlidesModalProps> = ({
                 {slide.highlights.map((h, i) => (
                   <div 
                     key={i} 
-                    className="p-3.5 rounded-xl bg-[#090d16] border border-white/[0.06] flex flex-col justify-between gap-1"
+                    className="p-3.5 rounded-xl bg-[#0b0f19] border border-white/[0.06] flex flex-col justify-between gap-1"
                   >
                     <span className="text-[10px] font-mono text-slate-400 uppercase font-bold tracking-wider">
                       {h.label}
@@ -304,7 +304,7 @@ export const SlidesModal: React.FC<SlidesModalProps> = ({
         </div>
 
         {/* Footer Navigation Bar */}
-        <div className="p-4 sm:p-5 border-t border-white/[0.08] bg-[#090d16]/80 flex items-center justify-between gap-4 shrink-0">
+        <div className="p-4 sm:p-5 border-t border-white/[0.08] bg-[#0b0f19]/80 flex items-center justify-between gap-4 shrink-0">
           <button
             onClick={handlePrev}
             disabled={currentSlide === 0}
@@ -322,7 +322,7 @@ export const SlidesModal: React.FC<SlidesModalProps> = ({
                 onClick={() => setCurrentSlide(i)}
                 className={`transition-all rounded-full cursor-pointer ${
                   currentSlide === i 
-                    ? 'w-6 h-2 bg-[#38bdf8]' 
+                    ? 'w-6 h-2 bg-[#3b82f6]' 
                     : 'w-2 h-2 bg-slate-700 hover:bg-slate-600'
                 }`}
                 aria-label={`Slide ${i + 1}`}
