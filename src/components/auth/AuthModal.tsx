@@ -206,7 +206,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
       >
         
         {/* Sticky Header */}
-        <div className="shrink-0 bg-[#080d18]/90 border-b border-white/[0.08] px-5 pt-4 pb-3 relative">
+        <div className="shrink-0 bg-[#0e1424]/90 border-b border-white/[0.08] px-5 pt-4 pb-3 relative">
           <button
             onClick={onClose}
             className="absolute top-3 right-3 min-w-[36px] min-h-[36px] rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer transition-colors"
@@ -219,7 +219,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
           {/* Platform branding & tag */}
           <div className="flex items-center gap-2 mb-1.5">
             <div className={`w-5 h-5 rounded flex items-center justify-center font-bold font-mono text-[11px] ${
-              adminStep ? 'bg-amber-500 text-slate-950' : 'bg-[#00f0a0] text-slate-950'
+              adminStep ? 'bg-amber-500 text-slate-950' : 'bg-[#10b981] text-slate-950'
             }`}>
               {adminStep ? 'A' : 'C'}
             </div>
@@ -253,7 +253,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                 onClick={() => switchMode('login')}
                 className={`relative pb-2.5 px-3 font-bold transition-colors cursor-pointer ${
                   mode === 'login'
-                    ? 'text-[#00f0a0]'
+                    ? 'text-[#10b981]'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
@@ -261,7 +261,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                   <motion.div
                     layoutId="auth-tab-indicator"
                     transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#00f0a0]"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#10b981]"
                   />
                 )}
                 Iniciar Sesión
@@ -271,7 +271,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                 onClick={() => switchMode('register')}
                 className={`relative pb-2.5 px-3 font-bold transition-colors cursor-pointer ${
                   mode === 'register'
-                    ? 'text-[#00f0a0]'
+                    ? 'text-[#10b981]'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
@@ -279,7 +279,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                   <motion.div
                     layoutId="auth-tab-indicator"
                     transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#00f0a0]"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#10b981]"
                   />
                 )}
                 Registrarse
@@ -296,13 +296,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
             
             {/* Active Session Indicator */}
             {user && !adminStep && (
-              <div className="p-3 rounded-xl bg-[#04070d]/80 border border-slate-800 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-[#090d16]/80 border border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div
                     className={`w-7 h-7 rounded-full border flex items-center justify-center font-mono font-bold text-xs ${
                       user.role === 'admin'
                         ? 'bg-amber-500/20 border-amber-500/40 text-amber-400'
-                        : 'bg-[#00f0a0]/20 border-[#00f0a0]/40 text-[#00f0a0]'
+                        : 'bg-[#10b981]/20 border-[#10b981]/40 text-[#10b981]'
                     }`}
                   >
                     {(user.username || user.name || 'U').charAt(0).toUpperCase()}
@@ -314,7 +314,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                         className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${
                           user.role === 'admin'
                             ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                            : 'bg-[#00f0a0]/20 text-[#00f0a0] border border-[#00f0a0]/30'
+                            : 'bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/30'
                         }`}
                       >
                         {user.role ? user.role.toUpperCase() : 'USER'}
@@ -397,7 +397,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                       onChange={(e) => setAdminPin(e.target.value)}
                       placeholder=""
                       maxLength={12}
-                      className="w-full bg-[#04070d] border border-amber-500/40 rounded-xl px-3.5 py-3 text-sm text-center tracking-[0.3em] text-amber-300 focus:outline-none focus:border-amber-400 font-mono transition-all shadow-inner"
+                      className="w-full bg-[#090d16] border border-amber-500/40 rounded-xl px-3.5 py-3 text-sm text-center tracking-[0.3em] text-amber-300 focus:outline-none focus:border-amber-400 font-mono transition-all shadow-inner"
                       autoComplete="one-time-code"
                     />
                   </div>
@@ -420,7 +420,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder=""
-                      className="w-full bg-[#04070d] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#00f0a0] font-mono transition-all"
+                      className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
                       autoComplete="username"
                     />
                   </div>
@@ -456,7 +456,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder=""
-                      className="w-full bg-[#04070d] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#00f0a0] font-mono transition-all"
+                      className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
                       autoComplete="current-password"
                     />
                   </div>
@@ -471,7 +471,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                     <label className="block text-xs font-mono font-semibold text-slate-300">
                       Nombre de usuario
                     </label>
-                    <span className="text-[10px] font-mono text-[#00f0a0] font-medium">Obligatorio</span>
+                    <span className="text-[10px] font-mono text-[#10b981] font-medium">Obligatorio</span>
                   </div>
                   <input
                     type="text"
@@ -479,7 +479,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder=""
-                    className="w-full bg-[#04070d] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#00f0a0] font-mono transition-all"
+                    className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
                     autoComplete="username"
                   />
                 </div>
@@ -488,10 +488,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="block text-xs font-mono font-semibold text-slate-300 flex items-center gap-1.5">
-                      <Phone className="w-3.5 h-3.5 text-[#00f0a0]" />
+                      <Phone className="w-3.5 h-3.5 text-[#10b981]" />
                       <span>Número de celular</span>
                     </label>
-                    <span className="text-[10px] font-mono text-[#00f0a0] font-medium">Obligatorio</span>
+                    <span className="text-[10px] font-mono text-[#10b981] font-medium">Obligatorio</span>
                   </div>
                   <input
                     type="tel"
@@ -499,7 +499,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     placeholder=""
-                    className="w-full bg-[#04070d] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#00f0a0] font-mono transition-all"
+                    className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
                     autoComplete="tel"
                   />
                   <p className="text-[10px] text-slate-400 font-mono mt-1">
@@ -514,7 +514,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                       <label className="block text-xs font-mono font-semibold text-slate-300">
                         Contraseña
                       </label>
-                      <span className="text-[10px] font-mono text-[#00f0a0] font-medium">Obligatoria</span>
+                      <span className="text-[10px] font-mono text-[#10b981] font-medium">Obligatoria</span>
                     </div>
                     <button
                       type="button"
@@ -541,7 +541,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder=""
-                      className="w-full bg-[#04070d] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#00f0a0] font-mono transition-all"
+                      className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
                       autoComplete="new-password"
                     />
                   </div>
@@ -560,7 +560,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder=""
-                    className="w-full bg-[#04070d] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#00f0a0] font-mono transition-all"
+                    className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#10b981] font-mono transition-all"
                   />
                   <p className="text-[10px] text-slate-500 font-mono mt-1">
                     Nombre visible en la clasificación y perfil del torneo.
@@ -572,7 +572,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
           </div>
 
           {/* Sticky Action Footer */}
-          <div className="shrink-0 bg-[#080d18]/90 border-t border-white/[0.08] px-5 py-3.5 space-y-2">
+          <div className="shrink-0 bg-[#0e1424]/90 border-t border-white/[0.08] px-5 py-3.5 space-y-2">
             {adminStep ? (
               <>
                 <motion.button
@@ -607,7 +607,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 rounded-xl bg-[#00f0a0] hover:bg-[#00f0a0]/90 text-slate-950 font-black font-mono text-xs shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer min-h-[44px] transition-colors"
+                  className="w-full py-3 rounded-xl bg-[#10b981] hover:bg-[#059669] text-slate-950 font-black font-mono text-xs shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer min-h-[44px] transition-colors"
                 >
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
@@ -633,7 +633,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
             {/* Persistence Status */}
             <div className="pt-1 flex items-center justify-between text-[10px] text-slate-400 font-mono">
               <span className="flex items-center gap-1">
-                <Database className="w-3 h-3 text-[#00d2ff]" />
+                <Database className="w-3 h-3 text-[#38bdf8]" />
                 PostgreSQL / Supabase Cloud
               </span>
               <span>Anti-Sybil + PIN 2FA</span>

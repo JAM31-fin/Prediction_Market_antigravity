@@ -367,7 +367,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
           {tradeMode === 'BUY' && (
             <motion.div
               layoutId="trading-mode-pill"
-              className="absolute inset-0 bg-[#00f0a0] rounded-lg shadow-[0_0_16px_rgba(0,240,160,0.35)] -z-10"
+              className="absolute inset-0 bg-[#10b981] rounded-lg shadow-sm -z-10"
               transition={{ type: 'spring', stiffness: 450, damping: 35 }}
             />
           )}
@@ -390,14 +390,14 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
           }}
           className={`relative flex-1 py-2.5 text-xs font-bold font-mono rounded-lg transition-colors cursor-pointer z-10 ${
             tradeMode === 'SELL'
-              ? 'text-slate-950'
+              ? 'text-white'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           {tradeMode === 'SELL' && (
             <motion.div
               layoutId="trading-mode-pill"
-              className="absolute inset-0 bg-[#ff3b69] rounded-lg shadow-[0_0_16px_rgba(255,59,105,0.35)] -z-10"
+              className="absolute inset-0 bg-[#e11d48] rounded-lg shadow-sm -z-10"
               transition={{ type: 'spring', stiffness: 450, damping: 35 }}
             />
           )}
@@ -409,7 +409,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
       <div className="mb-4">
         <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
           <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400">Choose Outcome:</span>
-          <span className="font-mono text-[#00d2ff] font-medium tabular-nums text-xs">
+          <span className="font-mono text-[#38bdf8] font-medium tabular-nums text-xs">
             Mid: {Math.round((selectedOutcome?.currentPrice || 0.5) * 100)}&cent;
           </span>
         </div>
@@ -427,12 +427,12 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
                 }}
                 className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-[#0c1626] border-[#00d2ff] text-slate-100 shadow-[0_0_12px_rgba(0,210,255,0.2)] ring-1 ring-[#00d2ff]/40'
-                    : 'bg-[#050811] border-[#151e2e] text-slate-400 hover:border-slate-700 hover:bg-[#090f1c]'
+                    ? 'bg-[#0e172a] border-[#38bdf8] text-slate-100 ring-1 ring-[#38bdf8]/40 shadow-sm'
+                    : 'bg-[#0b101d] border-white/[0.08] text-slate-400 hover:border-slate-700 hover:bg-[#0f172a]'
                 }`}
               >
                 <div className="font-semibold text-xs truncate text-slate-200">{outcome.name}</div>
-                <div className="font-mono text-xs font-bold mt-1 tabular-nums" style={{ color: outcome.color || '#00f0a0' }}>
+                <div className="font-mono text-xs font-bold mt-1 tabular-nums" style={{ color: outcome.color || '#10b981' }}>
                   {tradeMode === 'BUY' ? `${Math.round(outcome.buyPrice * 100)}¢ Ask` : `${Math.round(outcome.sellPrice * 100)}¢ Bid`}
                 </div>
               </button>
@@ -481,11 +481,11 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
               {isTournamentMarket ? (
                 <>
                   {language === 'es' ? 'Saldo Torneo: ' : 'Tournament Bal: '}
-                  <span className="text-[#00f0a0] font-bold">${userBalance.toFixed(2)}</span>
+                  <span className="text-[#10b981] font-bold">${userBalance.toFixed(2)}</span>
                 </>
               ) : (
                 <>
-                  Available: <span className="text-[#00f0a0] font-bold">${userBalance.toFixed(2)}</span>
+                  Available: <span className="text-[#10b981] font-bold">${userBalance.toFixed(2)}</span>
                 </>
               )}
             </span>
@@ -505,10 +505,10 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
               value={dollarAmount}
               onChange={(e) => setDollarAmount(e.target.value)}
               placeholder="0.00"
-              className={`w-full bg-[#050811] border rounded-lg pl-8 pr-16 py-2.5 text-base font-mono font-bold text-slate-100 focus:outline-none transition-colors tabular-nums ${
+              className={`w-full bg-[#0b101d] border rounded-lg pl-8 pr-16 py-2.5 text-base font-mono font-bold text-slate-100 focus:outline-none transition-colors tabular-nums ${
                 isInsufficientBalance
                   ? 'border-rose-500 focus:border-rose-500'
-                  : 'border-slate-700 focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff]/30'
+                  : 'border-slate-700 focus:border-[#38bdf8] focus:ring-1 focus:ring-[#38bdf8]/30'
               }`}
             />
             <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400 font-semibold">
@@ -530,14 +530,14 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
               <button
                 key={amt}
                 onClick={() => setDollarAmount(amt)}
-                className="flex-1 py-1.5 min-h-[38px] sm:min-h-[40px] rounded-lg bg-[#060a14] hover:bg-[#0d1627] border border-[#151e2e] text-[11px] font-mono tabular-nums text-slate-300 btn-tactile cursor-pointer"
+                className="flex-1 py-1.5 min-h-[38px] sm:min-h-[40px] rounded-lg bg-[#0e1424] hover:bg-[#1a2333] border border-white/[0.08] text-[11px] font-mono tabular-nums text-slate-300 btn-tactile cursor-pointer"
               >
                 ${amt}
               </button>
             ))}
             <button
               onClick={() => setDollarAmount(Math.floor(userBalance).toString())}
-              className="px-3 py-1.5 min-h-[38px] sm:min-h-[40px] rounded-lg bg-[#060a14] hover:bg-[#00f0a0]/10 border border-[#00f0a0]/30 hover:border-[#00f0a0]/60 text-[11px] font-mono text-[#00f0a0] btn-tactile font-bold cursor-pointer"
+              className="px-3 py-1.5 min-h-[38px] sm:min-h-[40px] rounded-lg bg-[#0e1424] hover:bg-[#10b981]/15 border border-[#10b981]/30 hover:border-[#10b981]/60 text-[11px] font-mono text-[#10b981] btn-tactile font-bold cursor-pointer"
             >
               MAX
             </button>
@@ -549,7 +549,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
           <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
             <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400">Shares to Sell:</span>
             <span className="font-mono text-[11px] text-slate-400 tabular-nums">
-              Available: <span className="text-[#00f0a0] font-bold">{availableShares > 0 ? availableShares.toFixed(3) : '0'} shares</span>
+              Available: <span className="text-[#10b981] font-bold">{availableShares > 0 ? availableShares.toFixed(3) : '0'} shares</span>
             </span>
           </div>
 
@@ -566,10 +566,10 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
               value={sellShares}
               onChange={(e) => setSellShares(e.target.value)}
               placeholder="0.00"
-              className={`w-full bg-[#050811] border rounded-lg px-3.5 py-2.5 text-base font-mono font-bold text-slate-100 focus:outline-none transition-colors tabular-nums ${
+              className={`w-full bg-[#0b101d] border rounded-lg px-3.5 py-2.5 text-base font-mono font-bold text-slate-100 focus:outline-none transition-colors tabular-nums ${
                 isExceedingOwnedShares
                   ? 'border-rose-500 focus:border-rose-500'
-                  : 'border-slate-700 focus:border-[#ff3b69] focus:ring-1 focus:ring-[#ff3b69]/30'
+                  : 'border-slate-700 focus:border-[#e11d48] focus:ring-1 focus:ring-[#e11d48]/30'
               }`}
             />
             <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400 font-semibold">
@@ -604,7 +604,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
                       onClick={() => {
                         setSellShares(sh.toString());
                       }}
-                      className="flex-1 py-1.5 min-h-[38px] sm:min-h-[40px] rounded-lg bg-[#060a14] hover:bg-[#0d1627] border border-[#151e2e] text-[11px] font-mono tabular-nums text-slate-300 btn-tactile cursor-pointer"
+                      className="flex-1 py-1.5 min-h-[38px] sm:min-h-[40px] rounded-lg bg-[#0e1424] hover:bg-[#1a2333] border border-white/[0.08] text-[11px] font-mono tabular-nums text-slate-300 btn-tactile cursor-pointer"
                     >
                       {sh} sh
                     </button>
@@ -631,8 +631,8 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
                     }}
                     className={`py-1.5 min-h-[38px] sm:min-h-[40px] rounded-lg border text-[11px] font-mono btn-tactile cursor-pointer tabular-nums ${
                       btn.isAll
-                        ? 'flex-[1.5] bg-[#ff3b69]/15 hover:bg-[#ff3b69]/25 border-[#ff3b69]/40 text-[#ff3b69] font-bold'
-                        : 'flex-1 bg-[#060a14] hover:bg-[#0d1627] border-[#151e2e] text-slate-300'
+                        ? 'flex-[1.5] bg-[#e11d48]/15 hover:bg-[#e11d48]/25 border-[#e11d48]/40 text-[#e11d48] font-bold'
+                        : 'flex-1 bg-[#0e1424] hover:bg-[#1a2333] border-white/[0.08] text-slate-300'
                     }`}
                   >
                     {btn.label}
@@ -650,17 +650,17 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
           role="status" 
           aria-live="polite" 
           aria-atomic="true"
-          className="bg-[#04070e] border border-[#151e2e] rounded-xl p-4 mb-5 space-y-3 text-xs"
+          className="bg-[#090d16] border border-white/[0.08] rounded-xl p-4 mb-5 space-y-3 text-xs"
         >
           {tradeMode === 'BUY' ? (
             <>
               {/* Highlighted Profit Card */}
-              <div className="p-3.5 rounded-xl bg-[#00f0a0]/10 border border-[#00f0a0]/25 flex items-center justify-between">
+              <div className="p-3.5 rounded-xl bg-[#10b981]/10 border border-[#10b981]/25 flex items-center justify-between">
                 <div>
                   <div className="text-[11px] font-mono text-slate-400">
                     {language === 'es' ? 'Si tu predicción gana, cobras:' : 'Payout if your prediction wins:'}
                   </div>
-                  <div className="text-lg font-mono font-extrabold text-[#00f0a0] mt-0.5 tabular-nums">
+                  <div className="text-lg font-mono font-extrabold text-[#10b981] mt-0.5 tabular-nums">
                     ${quote.potentialPayout.toFixed(2)}
                   </div>
                 </div>
@@ -669,7 +669,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
                     {language === 'es' ? 'Ganancia neta estimada:' : 'Estimated net profit:'}
                   </div>
                   <div className="text-sm font-mono font-bold text-white mt-0.5 flex items-center gap-1 justify-end tabular-nums">
-                    <span className="text-[#00f0a0]">+{((quote.potentialProfit / quote.grossAmount) * 100).toFixed(1)}%</span>
+                    <span className="text-[#10b981]">+{((quote.potentialProfit / quote.grossAmount) * 100).toFixed(1)}%</span>
                     <span className="text-slate-400 text-xs">(+${quote.potentialProfit.toFixed(2)})</span>
                   </div>
                 </div>
@@ -686,9 +686,9 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
                 </div>
                 <div className="flex items-center justify-between">
                   <span>{language === 'es' ? 'Acciones a recibir:' : 'Shares credited:'}</span>
-                  <span className="text-[#00d2ff] font-bold">{quote.shares.toFixed(3)}</span>
+                  <span className="text-[#38bdf8] font-bold">{quote.shares.toFixed(3)}</span>
                 </div>
-                <div className="pt-2 border-t border-[#151e2e] flex items-center justify-between text-[11px] text-slate-400">
+                <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between text-[11px] text-slate-400">
                   <span>{language === 'es' ? 'Comisión y spread incluidos:' : 'Commissions & spread included:'}</span>
                   <span>${(quote.commission + quote.spreadCost).toFixed(2)}</span>
                 </div>
@@ -697,7 +697,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
           ) : (
             <>
               {/* Highlighted Sell Card */}
-              <div className="p-3.5 rounded-xl bg-[#ff3b69]/10 border border-[#ff3b69]/25 flex items-center justify-between">
+              <div className="p-3.5 rounded-xl bg-[#e11d48]/10 border border-[#e11d48]/25 flex items-center justify-between">
                 <div>
                   <div className="text-[11px] font-mono text-slate-400">
                     {language === 'es' ? 'Efectivo recibido en saldo:' : 'Cash credited to balance:'}
@@ -738,16 +738,16 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
           aria-live={tradeStatus.success ? "polite" : "assertive"}
           className={`p-3.5 rounded-xl mb-4 text-xs transition-[opacity,transform] duration-150 shadow-sm ${
             tradeStatus.success
-              ? 'bg-[#00f0a0]/15 border border-[#00f0a0]/30 text-emerald-300'
-              : 'bg-[#ff3b69]/15 border border-[#ff3b69]/30 text-rose-300'
+              ? 'bg-[#10b981]/15 border border-[#10b981]/30 text-emerald-300'
+              : 'bg-[#e11d48]/15 border border-[#e11d48]/30 text-rose-300'
           }`}
         >
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-start gap-2.5">
               {tradeStatus.success ? (
-                <Check className="w-4 h-4 shrink-0 text-[#00f0a0] mt-0.5" />
+                <Check className="w-4 h-4 shrink-0 text-[#10b981] mt-0.5" />
               ) : (
-                <AlertCircle className="w-4 h-4 shrink-0 text-[#ff3b69] mt-0.5" />
+                <AlertCircle className="w-4 h-4 shrink-0 text-[#e11d48] mt-0.5" />
               )}
               <div>
                 <div className="font-bold text-xs">
@@ -788,12 +788,12 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
             isAdmin || market.status !== 'open'
               ? 'bg-[#0b1220] text-slate-500 cursor-not-allowed border border-[#151e2e]'
               : isTournamentEnrollmentRequired
-              ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-[0_0_15px_rgba(245,158,11,0.35)]'
+              ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-sm'
               : user && userBalance <= 0
-              ? 'bg-[#00d2ff] hover:bg-[#00d2ff]/90 text-slate-950 font-bold shadow-[0_0_15px_rgba(0,210,255,0.35)]'
+              ? 'bg-[#38bdf8] hover:bg-[#0284c7] text-slate-950 font-bold shadow-sm'
               : isBuyDisabled
               ? 'bg-[#0b1220] text-slate-500 cursor-not-allowed border border-[#151e2e]'
-              : 'bg-[#00f0a0] hover:bg-[#00f0a0]/90 text-slate-950 font-bold shadow-[0_0_20px_rgba(0,240,160,0.35)] hover:shadow-[0_0_25px_rgba(0,240,160,0.5)]'
+              : 'bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold shadow-sm'
           }`}
         >
           {isExecuting ? (
@@ -826,10 +826,10 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
             isAdmin || market.status !== 'open'
               ? 'bg-[#0b1220] text-slate-500 cursor-not-allowed border border-[#151e2e]'
               : isTournamentEnrollmentRequired
-              ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-[0_0_15px_rgba(245,158,11,0.35)]'
+              ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-sm'
               : isSellDisabled
               ? 'bg-[#0b1220] text-slate-500 cursor-not-allowed border border-[#151e2e]'
-              : 'bg-[#ff3b69] hover:bg-[#ff3b69]/90 text-slate-950 font-bold shadow-[0_0_20px_rgba(255,59,105,0.35)] hover:shadow-[0_0_25px_rgba(255,59,105,0.5)]'
+              : 'bg-[#e11d48] hover:bg-[#be123c] text-white font-bold shadow-sm'
           }`}
         >
           {isExecuting ? (
@@ -860,7 +860,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
 
       {/* Position Status Reminder */}
       {userPosition && (
-        <div className="mt-4 p-3.5 rounded-xl bg-[#050811] border border-[#151e2e] flex items-center justify-between text-xs">
+        <div className="mt-4 p-3.5 rounded-xl bg-[#0b101d] border border-white/[0.08] flex items-center justify-between text-xs">
           <div>
             <div className="text-slate-400 font-mono text-[11px] uppercase tracking-wider">Your Open Position</div>
             <div className="font-semibold text-slate-200 mt-0.5 tabular-nums">
@@ -869,7 +869,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent 
           </div>
           <div className="text-right">
             <div className="text-slate-400 font-mono text-[11px] uppercase tracking-wider">Current Market Value</div>
-            <div className="font-mono font-bold text-[#00f0a0] text-sm tabular-nums mt-0.5">
+            <div className="font-mono font-bold text-[#10b981] text-sm tabular-nums mt-0.5">
               ${userPosition.currentValue.toFixed(2)}
             </div>
           </div>

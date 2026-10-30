@@ -58,7 +58,7 @@ export const AdminDashboard: React.FC = () => {
 
       {/* Operator Navigation Tabs */}
       <div className="flex items-center justify-between gap-2 overflow-x-auto border-b border-slate-800 pb-3 mb-4 font-mono text-xs no-scrollbar scrollbar-none">
-        <div className="flex items-center gap-1.5 p-1 bg-[#080d18]/80 rounded-xl border border-white/[0.06]">
+        <div className="flex items-center gap-1.5 p-1 bg-[#0e1424]/80 rounded-xl border border-white/[0.06]">
           {([
             { id: 'overview', label: 'Overview', icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
             { id: 'markets', label: 'Market Management', icon: <Layers className="w-3.5 h-3.5" /> },

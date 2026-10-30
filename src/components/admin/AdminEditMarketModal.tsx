@@ -16,7 +16,8 @@ export const AdminEditMarketModal: React.FC<AdminEditMarketModalProps> = ({ mark
   const [category, setCategory] = useState<Category>('Crypto');
   const [resolutionSource, setResolutionSource] = useState('');
   const [resolutionRules, setResolutionRules] = useState('');
-  const [closeDate, setCloseDate] = useState('');
+  const [closeTime, setCloseTime] = useState('');
+  const [resolutionTime, setResolutionTime] = useState('');
   const [liquidityParameter, setLiquidityParameter] = useState<number>(100);
   const [spread, setSpread] = useState<number>(0.02);
   const [commissionRate, setCommissionRate] = useState<number>(0.01);
@@ -32,6 +33,19 @@ export const AdminEditMarketModal: React.FC<AdminEditMarketModalProps> = ({ mark
     market && ((market.volume > 0) || ((market.totalTraders ?? 0) > 0) || ((market.totalTrades ?? 0) > 0))
   );
 
+  const toDateTimeLocal = (isoString?: string) => {
+    if (!isoString) return '';
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const year = d.getFullYear();
+    const month = pad(d.getMonth() + 1);
+    const day = pad(d.getDate());
+    const hours = pad(d.getHours());
+    const minutes = pad(d.getMinutes());
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   useEffect(() => {
     if (market) {
       setQuestion(market.question);
@@ -39,7 +53,8 @@ export const AdminEditMarketModal: React.FC<AdminEditMarketModalProps> = ({ mark
       setCategory(market.category);
       setResolutionSource(market.resolutionSource);
       setResolutionRules(market.resolutionRules || '');
-      setCloseDate(new Date(market.closeTime).toISOString().substring(0, 10));
+      setCloseTime(toDateTimeLocal(market.closeTime));
+      setResolutionTime(toDateTimeLocal(market.resolutionTime || market.closeTime));
       setLiquidityParameter(market.liquidityParameter);
       setSpread(market.spread);
       setCommissionRate(market.commissionRate);
@@ -110,6 +125,9 @@ export const AdminEditMarketModal: React.FC<AdminEditMarketModalProps> = ({ mark
     setIsSaving(true);
     setStatusMessage(null);
 
+    const isoClose = closeTime ? new Date(closeTime).toISOString() : market.closeTime;
+    const isoResolution = resolutionTime ? new Date(resolutionTime).toISOString() : isoClose;
+
     try {
       if (hasTrades) {
         // Safe operational parameters only
@@ -119,7 +137,8 @@ export const AdminEditMarketModal: React.FC<AdminEditMarketModalProps> = ({ mark
           category,
           resolutionSource,
           resolutionRules,
-          closeTime: new Date(closeDate || market.closeTime).toISOString(),
+          closeTime: isoClose,
+          resolutionTime: isoResolution,
         });
       } else {
         // Pre-trading phase: update all parameters and outcomes/probabilities
@@ -129,7 +148,8 @@ export const AdminEditMarketModal: React.FC<AdminEditMarketModalProps> = ({ mark
           category,
           resolutionSource,
           resolutionRules,
-          closeTime: new Date(closeDate || market.closeTime).toISOString(),
+          closeTime: isoClose,
+          resolutionTime: isoResolution,
           liquidityParameter: Math.max(10, liquidityParameter),
           spread: Math.max(0, spread),
           commissionRate: Math.max(0, commissionRate),
@@ -316,7 +336,7 @@ export const AdminEditMarketModal: React.FC<AdminEditMarketModalProps> = ({ mark
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-slate-300 font-semibold mb-1">Category</label>
               <select
@@ -333,14 +353,29 @@ export const AdminEditMarketModal: React.FC<AdminEditMarketModalProps> = ({ mark
             </div>
 
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Close Date</label>
+              <label className="block text-slate-300 font-semibold mb-1">Cierre de Trading (Close Time)</label>
               <input
-                type="date"
-                value={closeDate}
-                onChange={(e) => setCloseDate(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500"
+                type="datetime-local"
+                required
+                value={closeTime}
+                onChange={(e) => setCloseTime(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 font-mono text-xs"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-slate-300 font-semibold mb-1">Fecha Estimada de Resolución (Resolution Time)</label>
+            <input
+              type="datetime-local"
+              required
+              value={resolutionTime}
+              onChange={(e) => setResolutionTime(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 font-mono text-xs"
+            />
+            <p className="text-[10px] text-slate-400 font-mono mt-1">
+              Fecha en la que la autoridad u oráculo verificará el resultado oficial para liquidar los pagos.
+            </p>
           </div>
 
           <div>

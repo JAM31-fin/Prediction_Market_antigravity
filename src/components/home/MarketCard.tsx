@@ -57,7 +57,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({ market: rawMarket }) => 
           navigateTo('detail', market.id);
         }
       }}
-      className="group relative terminal-card terminal-card-hover rounded-2xl p-5 cursor-pointer flex flex-col justify-between elevation-card focus-visible:ring-2 focus-visible:ring-[#00d2ff]"
+      className="group relative terminal-card terminal-card-hover rounded-2xl p-5 cursor-pointer flex flex-col justify-between elevation-card focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
     >
       <div>
         {/* Card Header: Category, Market Type & Clean Status / Time */}
@@ -66,7 +66,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({ market: rawMarket }) => 
             <span className="hud-tag text-slate-300">
               {market.category}
             </span>
-            <span className="hud-tag text-[#00d2ff] bg-cyan-950/40 border-cyan-500/20">
+            <span className="hud-tag text-[#38bdf8] bg-sky-950/40 border-sky-500/20">
               {market.type || (market.outcomes?.length === 2 ? 'binary' : 'categorical')}
             </span>
             {market.liquidityParameter && (
@@ -102,7 +102,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({ market: rawMarket }) => 
         </div>
 
         {/* Market Question with balanced text wrap */}
-        <h3 className="font-semibold text-sm sm:text-base text-slate-100 group-hover:text-[#00d2ff] transition-colors line-clamp-2 mb-4 leading-snug tracking-tight text-wrap-balance">
+        <h3 className="font-semibold text-sm sm:text-base text-slate-100 group-hover:text-[#38bdf8] transition-colors line-clamp-2 mb-4 leading-snug tracking-tight text-wrap-balance">
           {market.question}
         </h3>
 
@@ -110,43 +110,43 @@ export const MarketCard: React.FC<MarketCardProps> = ({ market: rawMarket }) => 
         {isBinary && yesOutcome && noOutcome ? (
           <div className="space-y-3 mb-5">
             {/* Split Probability Bar without Fuzzy Glow */}
-            <div className="relative h-1.5 w-full bg-[#04070d] rounded-full overflow-hidden flex border border-[#151e2e]">
+            <div className="relative h-1.5 w-full bg-[#090d16] rounded-full overflow-hidden flex border border-white/[0.08]">
               <div
                 style={{ width: `${yesPercent}%` }}
-                className="bg-[#00f0a0] h-full transition-[width] duration-300 ease-out"
+                className="bg-[#10b981] h-full transition-[width] duration-300 ease-out"
               />
               <div
                 style={{ width: `${noPercent}%` }}
-                className="bg-[#ff3b69] h-full transition-[width] duration-300 ease-out"
+                className="bg-[#e11d48] h-full transition-[width] duration-300 ease-out"
               />
             </div>
 
-            {/* Price Pills for YES and NO with Hyperliquid Mint & Crimson */}
+            {/* Price Pills for YES and NO with Obsidian Emerald & Crimson */}
             <div className="grid grid-cols-2 gap-2.5">
-              <div className="p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/20 group-hover:border-emerald-400/40 group-hover:shadow-[0_0_12px_rgba(0,240,160,0.12)] flex items-center justify-between transition-all">
+              <div className="p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/20 group-hover:border-emerald-500/50 flex items-center justify-between transition-all">
                 <div>
-                  <span className="text-xs font-bold text-[#00f0a0] tracking-wider">
+                  <span className="text-xs font-bold text-[#10b981] tracking-wider">
                     {yesOutcome.name}
                   </span>
                   <div className="text-[11px] text-slate-400 font-mono tabular-nums">
                     {yesPercent}% {language === 'es' ? 'prob.' : 'chance'}
                   </div>
                 </div>
-                <div className="text-right font-mono font-bold text-base text-[#00f0a0] tabular-nums">
+                <div className="text-right font-mono font-bold text-base text-[#10b981] tabular-nums">
                   {yesPercent}&cent;
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-rose-500/[0.06] border border-rose-500/20 group-hover:border-rose-400/40 group-hover:shadow-[0_0_12px_rgba(255,59,105,0.12)] flex items-center justify-between transition-all">
+              <div className="p-3 rounded-xl bg-rose-500/[0.06] border border-rose-500/20 group-hover:border-rose-500/50 flex items-center justify-between transition-all">
                 <div>
-                  <span className="text-xs font-bold text-[#ff3b69] tracking-wider">
+                  <span className="text-xs font-bold text-[#e11d48] tracking-wider">
                     {noOutcome.name}
                   </span>
                   <div className="text-[11px] text-slate-400 font-mono tabular-nums">
                     {noPercent}% {language === 'es' ? 'prob.' : 'chance'}
                   </div>
                 </div>
-                <div className="text-right font-mono font-bold text-base text-[#ff3b69] tabular-nums">
+                <div className="text-right font-mono font-bold text-base text-[#e11d48] tabular-nums">
                   {noPercent}&cent;
                 </div>
               </div>
@@ -186,7 +186,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({ market: rawMarket }) => 
       </div>
 
       {/* Card Footer: Volume, Traders, Trade Button */}
-      <div className="pt-3.5 border-t border-[#151e2e] flex items-center justify-between text-xs">
+      <div className="pt-3.5 border-t border-white/[0.08] flex items-center justify-between text-xs">
         <div className="flex items-center gap-3.5 text-slate-400 font-mono text-[11px] tabular-nums">
           <div>
             <span className="text-slate-400">Vol: </span>
@@ -205,10 +205,10 @@ export const MarketCard: React.FC<MarketCardProps> = ({ market: rawMarket }) => 
             e.stopPropagation();
             navigateTo('detail', market.id);
           }}
-          className="px-3.5 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-lg bg-[#0c1424] hover:bg-[#00f0a0]/15 text-slate-200 hover:text-[#00f0a0] border border-[#1d2b42] hover:border-[#00f0a0]/40 text-xs font-mono font-semibold flex items-center gap-1.5 btn-tactile cursor-pointer group/btn"
+          className="px-3.5 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-lg bg-[#0e1424] hover:bg-[#10b981]/15 text-slate-200 hover:text-[#10b981] border border-white/[0.08] hover:border-[#10b981]/40 text-xs font-mono font-semibold flex items-center gap-1.5 btn-tactile cursor-pointer group/btn"
         >
           <span>{language === 'es' ? 'OPERAR' : 'TRADE'}</span>
-          <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-150 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 text-[#00f0a0]" />
+          <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-150 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 text-[#10b981]" />
         </button>
       </div>
     </motion.div>

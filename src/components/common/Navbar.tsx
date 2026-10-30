@@ -48,7 +48,7 @@ export const Navbar: React.FC = () => {
   ] as const;
 
   return (
-    <header className="sticky top-0 z-40 bg-[#04070d]/85 border-b border-[#151e2e] backdrop-blur-md">
+    <header className="sticky top-0 z-40 bg-[#090d16]/90 border-b border-white/[0.08] backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           
@@ -58,15 +58,15 @@ export const Navbar: React.FC = () => {
               onClick={() => navigateTo('home')}
               className="flex items-center gap-2.5 text-left group cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-[#00f0a0] group-hover:border-emerald-400/50 group-hover:shadow-[0_0_12px_rgba(0,240,160,0.25)] transition-all">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-[#10b981] group-hover:border-emerald-500/50 group-hover:shadow-sm transition-all">
                 <TrendingUp className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-sm tracking-tight text-white font-sans">
-                    CENTRA<span className="text-[#00f0a0]">MARKETS</span>
+                    CENTRA<span className="text-[#10b981]">MARKETS</span>
                   </span>
-                  <span className="hud-tag text-[#00d2ff] bg-cyan-950/40 border-cyan-500/20">
+                  <span className="hud-tag text-[#38bdf8] bg-sky-950/40 border-sky-500/20">
                     LMSR
                   </span>
                 </div>
@@ -121,14 +121,14 @@ export const Navbar: React.FC = () => {
 
           {/* Quick Search Bar */}
           <form onSubmit={handleSearchSubmit} className="hidden lg:flex items-center flex-1 max-w-xs relative group">
-            <Search className="w-3.5 h-3.5 text-slate-500 group-focus-within:text-[#00d2ff] absolute left-3 top-1/2 -translate-y-1/2 transition-colors pointer-events-none" />
+            <Search className="w-3.5 h-3.5 text-slate-500 group-focus-within:text-[#38bdf8] absolute left-3 top-1/2 -translate-y-1/2 transition-colors pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search contracts..."
               aria-label={language === 'es' ? 'Buscar contratos y retos' : 'Search contracts and markets'}
-              className="w-full bg-[#080d18] border border-[#151e2e] rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/20 transition-[border-color,box-shadow] duration-150 ease-out"
+              className="w-full bg-[#0b101d] border border-white/[0.08] rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#38bdf8]/60 focus:ring-1 focus:ring-[#38bdf8]/20 transition-[border-color,box-shadow] duration-150 ease-out"
             />
           </form>
 
@@ -146,7 +146,7 @@ export const Navbar: React.FC = () => {
               }}
               className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl border text-[11px] font-mono tabular-nums transition-[background-color,border-color,color] ${
                 realtimeStatus === 'connected'
-                  ? 'bg-black/30 border-[#151e2e] text-slate-300 hover:border-slate-700 cursor-default'
+                  ? 'bg-black/30 border-white/[0.08] text-slate-300 hover:border-slate-700 cursor-default'
                   : 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20 cursor-pointer btn-tactile'
               }`}
               title={
@@ -162,24 +162,24 @@ export const Navbar: React.FC = () => {
                 <span
                   className={`relative inline-flex rounded-full h-2 w-2 ${
                     realtimeStatus === 'connected'
-                      ? 'bg-[#00f0a0]'
+                      ? 'bg-[#10b981]'
                       : realtimeStatus === 'connecting'
                       ? 'bg-amber-400 animate-pulse'
                       : realtimeStatus === 'reconnecting'
                       ? 'bg-orange-500 animate-pulse'
-                      : 'bg-[#ff3b69]'
+                      : 'bg-[#e11d48]'
                   }`}
                 />
               </span>
               <span
                 className={`font-semibold ${
                   realtimeStatus === 'connected'
-                    ? 'text-[#00f0a0]'
+                    ? 'text-[#10b981]'
                     : realtimeStatus === 'connecting'
                     ? 'text-amber-400'
                     : realtimeStatus === 'reconnecting'
                     ? 'text-orange-400'
-                    : 'text-[#ff3b69]'
+                    : 'text-[#e11d48]'
                 }`}
               >
                 {realtimeStatus === 'connected' ? 'LIVE' : realtimeStatus.toUpperCase()}
@@ -190,11 +190,11 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#080d18] hover:bg-[#0c1424] border border-[#151e2e] hover:border-[#223048] text-xs font-mono font-bold text-slate-200 btn-tactile cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#0e1424] hover:bg-[#1a2333] border border-white/[0.08] hover:border-white/[0.16] text-xs font-mono font-bold text-slate-200 btn-tactile cursor-pointer"
               title={language === 'es' ? 'Cambiar idioma / Switch language' : 'Switch language / Cambiar idioma'}
               aria-label={language === 'es' ? 'Cambiar idioma a inglés' : 'Switch language to Spanish'}
             >
-              <Globe className="w-3.5 h-3.5 text-[#00d2ff] shrink-0" />
+              <Globe className="w-3.5 h-3.5 text-[#38bdf8] shrink-0" />
               <span>{language.toUpperCase()}</span>
             </button>
 
@@ -203,17 +203,17 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo(user.role === 'admin' ? 'admin' : 'portfolio')}
-                className="flex items-center gap-2 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#080d18] hover:bg-[#0c1424] border border-[#151e2e] hover:border-[#223048] cursor-pointer btn-tactile shadow-sm text-left"
+                className="flex items-center gap-2 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#0e1424] hover:bg-[#1a2333] border border-white/[0.08] hover:border-white/[0.16] cursor-pointer btn-tactile shadow-sm text-left"
                 title={user.role === 'admin' ? 'Platform Treasury Balance' : 'Virtual Balance - Click to view portfolio'}
                 aria-label={user.role === 'admin' ? `Treasury balance: $${(user.virtualBalance ?? 0).toFixed(2)} USD` : `Account balance: $${(user.virtualBalance ?? 0).toFixed(2)} USD`}
               >
-                <Wallet className={`w-3.5 h-3.5 shrink-0 ${user.role === 'admin' ? 'text-amber-400' : 'text-[#00f0a0]'}`} />
+                <Wallet className={`w-3.5 h-3.5 shrink-0 ${user.role === 'admin' ? 'text-amber-400' : 'text-[#10b981]'}`} />
                 <div className="text-right">
                   <div className="text-[10px] text-slate-400 leading-none">
                     {user.role === 'admin' ? 'Treasury' : 'Balance'}
                   </div>
                   <div className={`text-xs font-mono font-bold tabular-nums leading-tight mt-0.5 ${
-                    user.role === 'admin' ? 'text-amber-400' : 'text-[#00f0a0]'
+                    user.role === 'admin' ? 'text-amber-400' : 'text-[#10b981]'
                   }`}>
                     ${(user.virtualBalance ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
@@ -225,13 +225,13 @@ export const Navbar: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
-                className="relative min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] p-2 rounded-xl bg-[#080d18] hover:bg-[#0c1424] border border-[#151e2e] hover:border-[#223048] text-slate-300 hover:text-white btn-tactile flex items-center justify-center cursor-pointer"
+                className="relative min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] p-2 rounded-xl bg-[#0e1424] hover:bg-[#1a2333] border border-white/[0.08] hover:border-white/[0.16] text-slate-300 hover:text-white btn-tactile flex items-center justify-center cursor-pointer"
                 title="Notifications"
                 aria-label="Toggle notifications"
               >
                 <Bell className="w-4 h-4" />
                 {unreadNotifs > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#00d2ff] text-[10px] font-mono font-bold text-slate-950 flex items-center justify-center tabular-nums shadow-sm">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#38bdf8] text-[10px] font-mono font-bold text-slate-950 flex items-center justify-center tabular-nums shadow-sm">
                     {unreadNotifs}
                   </span>
                 )}
@@ -243,7 +243,7 @@ export const Navbar: React.FC = () => {
             {user ? (
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#080d18] hover:bg-[#0c1424] border border-[#151e2e] hover:border-[#223048] text-slate-200 btn-tactile cursor-pointer"
+                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#0e1424] hover:bg-[#1a2333] border border-white/[0.08] hover:border-white/[0.16] text-slate-200 btn-tactile cursor-pointer"
                 title="Account Settings"
               >
                 <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold font-mono shrink-0 ${
@@ -286,7 +286,7 @@ export const Navbar: React.FC = () => {
                 key={item.id}
                 onClick={() => navigateTo(item.id)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`px-3 py-2.5 min-h-[44px] flex items-center font-semibold btn-tactile ${isActive ? 'text-[#00f0a0]' : 'text-slate-400'}`}
+                className={`px-3 py-2.5 min-h-[44px] flex items-center font-semibold btn-tactile ${isActive ? 'text-[#10b981]' : 'text-slate-400'}`}
               >
                 {item.label}
               </button>

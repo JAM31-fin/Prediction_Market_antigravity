@@ -245,7 +245,14 @@ export const AdminMarketList: React.FC = () => {
                       </td>
 
                       <td className="py-3 px-4 text-right text-slate-400 whitespace-nowrap">
-                        {m.closeTime ? new Date(m.closeTime).toLocaleDateString() : 'N/A'}
+                        <div title={`Cierre: ${new Date(m.closeTime).toLocaleString()}`}>
+                          {m.closeTime ? new Date(m.closeTime).toLocaleDateString() : 'N/A'}
+                        </div>
+                        {m.resolutionTime && (
+                          <div className="text-[10px] text-slate-500 font-mono" title={`Resolución: ${new Date(m.resolutionTime).toLocaleString()}`}>
+                            Res: {new Date(m.resolutionTime).toLocaleDateString()}
+                          </div>
+                        )}
                       </td>
 
                       <td className="py-3 px-4 text-right whitespace-nowrap">

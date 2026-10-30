@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CentraMarkets — Rediseño de Paleta & Visual Slides</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===========================================
+       VIEWPORT FITTING: MANDATORY BASE STYLES
+       =========================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+      background-color: #080c14;
+      color: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    html {
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
+
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: radial-gradient(circle at 50% 0%, #0d1527 0%, #060911 100%);
+    }
+
+    .slide-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-height: 100%;
+      overflow: hidden;
+      padding: var(--slide-padding);
+      max-width: min(92vw, 1200px);
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    :root {
+      --title-size: clamp(1.6rem, 4.5vw, 3.2rem);
+      --h2-size: clamp(1.2rem, 3vw, 2.2rem);
+      --h3-size: clamp(1rem, 2vw, 1.4rem);
+      --body-size: clamp(0.75rem, 1.25vw, 1rem);
+      --small-size: clamp(0.65rem, 0.9vw, 0.85rem);
+
+      --slide-padding: clamp(1rem, 3.5vw, 3.5rem);
+      --content-gap: clamp(0.6rem, 1.8vw, 1.8rem);
+      --element-gap: clamp(0.3rem, 1vw, 0.9rem);
+    }
+
+    /* Common Card Surface */
+    .card {
+      background: rgba(14, 21, 37, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 8px 32px -8px rgba(0, 0, 0, 0.5);
+      padding: clamp(0.8rem, 2vw, 1.6rem);
+    }
+
+    .hud-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--small-size);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tabular {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* UI Mockup Blocks */
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--content-gap);
+      margin-top: var(--element-gap);
+    }
+
+    .mock-preview {
+      border-radius: 14px;
+      padding: clamp(0.8rem, 1.5vw, 1.4rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .mock-preview:hover {
+      transform: translateY(-3px);
+    }
+
+    /* Navigation overlay */
+    .nav-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(9, 14, 26, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 8px 18px;
+      border-radius: 9999px;
+      backdrop-filter: blur(16px);
+      z-index: 100;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-dot.active {
+      width: 24px;
+      border-radius: 6px;
+      background: #38bdf8;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: color 0.15s;
+    }
+
+    .nav-btn:hover {
+      color: #fff;
+    }
+
+    .key-hint {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #64748b;
+      margin-left: 8px;
+    }
+
+    @media (max-width: 800px) {
+      .mockup-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.1s !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== SLIDE 1: DIAGNÓSTICO ==================== -->
+  <section class="slide" id="slide-1">
+    <div class="slide-content" style="gap: var(--content-gap);">
+      <div>
+        <span class="hud-badge" style="background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);">
+          Auditoría de Diseño & Antipatrones
+        </span>
+      </div>
+
+      <h1 style="font-size: var(--title-size); font-weight: 800; line-height: 1.15; letter-spacing: -0.02em;">
+        Erradicación de <span style="color: #f87171;">Neon IA-Slop</span> en CentraMarkets
+      </h1>
+
+      <p style="font-size: var(--body-size); color: #94a3b8; max-width: 780px; line-height: 1.6;">
+        Los colores fluorescentes saturados (<span class="mono" style="color: #00f0a0;">#00f0a0 Electric Mint</span>, <span class="mono" style="color: #00d2ff;">#00d2ff Cyan</span>) y los efectos de resplandor (<span class="mono">glow-shadows</span>) transmiten una estética de <em>videojuego / crypto-casino</em> que resta credibilidad institucional.
+      </p>
+
+      <div class="card" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <div style="border-right: 1px solid rgba(255,255,255,0.08); padding-right: 16px;">
+          <div style="font-size: var(--small-size); font-family: 'JetBrains Mono'; font-weight: 700; color: #f87171; margin-bottom: 8px;">
+            ❌ ANTIPATRONES DETECTADOS (IA SLOP)
+          </div>
+          <ul style="font-size: var(--small-size); color: #cbd5e1; list-style: none; display: flex; flex-direction: column; gap: 8px;">
+            <li>• Verdes menta fosforescentes cegadores (#00f0a0) sin peso visual.</li>
+            <li>• Cianos de alta saturación (#00d2ff) que compiten con el contenido.</li>
+            <li>• Sombras halo con brillo difuminado (glow) que degradan el contraste.</li>
+            <li>• Fondos negros OLED 100% que generan vibración óptica en pantallas.</li>
+          </ul>
+        </div>
+
+        <div>
+          <div style="font-size: var(--small-size); font-family: 'JetBrains Mono'; font-weight: 700; color: #34d399; margin-bottom: 8px;">
+            ✅ ESTÁNDAR INSTITUCIONAL FINANCIERO (LINEAR / POLYMARKET)
+          </div>
+          <ul style="font-size: var(--small-size); color: #cbd5e1; list-style: none; display: flex; flex-direction: column; gap: 8px;">
+            <li>• Esmeralda natural (<span class="mono">#10b981 / #059669</span>) y Carmesí quirúrgico (<span class="mono">#e11d48</span>).</li>
+            <li>• Fondo Obsidiana suave (<span class="mono">#090d16 / #0b1120</span>) con escala de grises slate.</li>
+            <li>• Cero sombras glow: contraste mediante líneas de pelo de 1px (<span class="mono">hairline</span>).</li>
+            <li>• Tipografía con peso editorial y micro-badges mate de baja saturación.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SLIDE 2: MULTI-PLAN PROPUESTAS ==================== -->
+  <section class="slide" id="slide-2">
+    <div class="slide-content" style="gap: var(--content-gap);">
+      <div>
+        <span class="hud-badge" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+          Fase Multi-Plan: 3 Paletas Maduras
+        </span>
+      </div>
+
+      <h2 style="font-size: var(--h2-size); font-weight: 800; letter-spacing: -0.02em;">
+        Elige tu Nueva Identidad Cromática Institucional
+      </h2>
+
+      <div class="mockup-grid">
+        <!-- PLAN A -->
+        <div class="mock-preview" style="background: #090d16; border: 1px solid rgba(16, 185, 129, 0.3); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span class="mono" style="font-size: 11px; font-weight: 700; color: #10b981;">PLAN A</span>
+              <span style="font-size: 10px; color: #94a3b8; font-family: 'JetBrains Mono';">Linear Obsidian</span>
+            </div>
+            <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 6px;">Minimalismo Quirúrgico</h3>
+            <p style="font-size: 11px; color: #94a3b8; line-height: 1.4;">
+              Inspirado en Linear & Vercel. Fondo obsidiana profundo, esmeralda sobrio (<span class="mono">#10b981</span>), rubí carmesí (<span class="mono">#e11d48</span>) y bordes hairline de precisión.
+            </p>
+          </div>
+
+          <div style="background: #0e1424; border-radius: 8px; padding: 10px; border: 1px solid rgba(255,255,255,0.06);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+              <span class="mono" style="font-size: 11px; color: #10b981; font-weight: 700;">SÍ 74%</span>
+              <span class="mono" style="font-size: 11px; color: #e11d48; font-weight: 700;">NO 26%</span>
+            </div>
+            <div style="height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; display: flex;">
+              <div style="width: 74%; background: #10b981;"></div>
+              <div style="width: 26%; background: #e11d48;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PLAN B -->
+        <div class="mock-preview" style="background: #0b1120; border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span class="mono" style="font-size: 11px; font-weight: 700; color: #38bdf8;">PLAN B</span>
+              <span style="font-size: 10px; color: #94a3b8; font-family: 'JetBrains Mono';">Polymarket Clean</span>
+            </div>
+            <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 6px;">Predicción Institucional</h3>
+            <p style="font-size: 11px; color: #94a3b8; line-height: 1.4;">
+              Inspirado en Polymarket & Kalshi. Azul marino pizarra (<span class="mono">#0b1120</span>), verde jade confiable (<span class="mono">#059669</span>), coral coralino (<span class="mono">#ef4444</span>) y badges de datos nítidos.
+            </p>
+          </div>
+
+          <div style="background: #111a30; border-radius: 8px; padding: 10px; border: 1px solid rgba(255,255,255,0.08);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+              <span class="mono" style="font-size: 11px; color: #059669; font-weight: 700;">SÍ 74%</span>
+              <span class="mono" style="font-size: 11px; color: #ef4444; font-weight: 700;">NO 26%</span>
+            </div>
+            <div style="height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; display: flex;">
+              <div style="width: 74%; background: #059669;"></div>
+              <div style="width: 26%; background: #ef4444;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PLAN C -->
+        <div class="mock-preview" style="background: #12161f; border: 1px solid rgba(245, 158, 11, 0.3); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span class="mono" style="font-size: 11px; font-weight: 700; color: #f59e0b;">PLAN C</span>
+              <span style="font-size: 10px; color: #94a3b8; font-family: 'JetBrains Mono';">Apple Pro Charcoal</span>
+            </div>
+            <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 6px;">Antracita & Vidrio Mate</h3>
+            <p style="font-size: 11px; color: #94a3b8; line-height: 1.4;">
+              Inspirado en hardware Pro de Apple. Fondo gris antracita (<span class="mono">#12161f</span>), verde orgánico (<span class="mono">#34d399</span>), rojo terracota (<span class="mono">#f43f5e</span>) y toques ambarinos de torneo.
+            </p>
+          </div>
+
+          <div style="background: #1a202c; border-radius: 8px; padding: 10px; border: 1px solid rgba(255,255,255,0.08);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+              <span class="mono" style="font-size: 11px; color: #34d399; font-weight: 700;">SÍ 74%</span>
+              <span class="mono" style="font-size: 11px; color: #f43f5e; font-weight: 700;">NO 26%</span>
+            </div>
+            <div style="height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; display: flex;">
+              <div style="width: 74%; background: #34d399;"></div>
+              <div style="width: 26%; background: #f43f5e;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SLIDE 3: FRONTEND-SLIDES IN-APP ==================== -->
+  <section class="slide" id="slide-3">
+    <div class="slide-content" style="gap: var(--content-gap);">
+      <div>
+        <span class="hud-badge" style="background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
+          Integración en la App
+        </span>
+      </div>
+
+      <h2 style="font-size: var(--h2-size); font-weight: 800; letter-spacing: -0.02em;">
+        ¿Dónde integrar Frontend-Slides en CentraMarkets?
+      </h2>
+
+      <p style="font-size: var(--body-size); color: #94a3b8; max-width: 800px; line-height: 1.5;">
+        La tecnología de diapositivas interactivas en el navegador (<span class="mono">frontend-slides</span>) resuelve dos necesidades críticas de comunicación con usuarios y amigos:
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--content-gap);">
+        <div class="card" style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(56, 189, 248, 0.15); display: flex; align-items: center; justify-content: center; color: #38bdf8; font-weight: 700;">1</div>
+            <h3 style="font-size: var(--h3-size); font-weight: 700; color: #fff;">Guía Interactiva "Cómo Operar"</h3>
+          </div>
+          <p style="font-size: var(--small-size); color: #94a3b8; line-height: 1.5;">
+            En la sección Home / Hero, un botón abre un carrusel interactivo a pantalla completa que explica con gráficos simples:
+          </p>
+          <ul style="font-size: var(--small-size); color: #cbd5e1; list-style: none; display: flex; flex-direction: column; gap: 6px;">
+            <li>• Diapositiva 1: Qué es una cuota LMSR y cómo se calcula.</li>
+            <li>• Diapositiva 2: Cómo comprar y vender tus contratos antes del cierre.</li>
+            <li>• Diapositiva 3: Cómo se liquidan las ganancias cuando el oráculo resuelve.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(245, 158, 11, 0.15); display: flex; align-items: center; justify-content: center; color: #f59e0b; font-weight: 700;">2</div>
+            <h3 style="font-size: var(--h3-size); font-weight: 700; color: #fff;">Reglas & Premios de Torneos</h3>
+          </div>
+          <p style="font-size: var(--small-size); color: #94a3b8; line-height: 1.5;">
+            En la página de Torneos, los participantes pueden abrir una presentación visual con las reglas oficiales pactadas para el grupo:
+          </p>
+          <ul style="font-size: var(--small-size); color: #cbd5e1; list-style: none; display: flex; flex-direction: column; gap: 6px;">
+            <li>• Diapositiva 1: Fechas límite estrictas y freeze de rankings.</li>
+            <li>• Diapositiva 2: Subcarteras aisladas (saldo virtual no contaminado).</li>
+            <li>• Diapositiva 3: Entrega del premio al 1er lugar del podio.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SLIDE 4: PLAN DE MIGRACIÓN TÉCNICA ==================== -->
+  <section class="slide" id="slide-4">
+    <div class="slide-content" style="gap: var(--content-gap);">
+      <div>
+        <span class="hud-badge" style="background: rgba(147, 51, 234, 0.12); color: #c084fc; border: 1px solid rgba(147, 51, 234, 0.3);">
+          Hoja de Ruta de Ejecución
+        </span>
+      </div>
+
+      <h2 style="font-size: var(--h2-size); font-weight: 800; letter-spacing: -0.02em;">
+        Reemplazo Limpio de Tokens & Código
+      </h2>
+
+      <div class="card" style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-family: 'JetBrains Mono'; font-size: var(--small-size);">
+          <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2);">
+            <div style="color: #f87171; font-weight: 700; margin-bottom: 6px;">ELIMINAR TOKENS NEON:</div>
+            <div style="color: #94a3b8; line-height: 1.6;">
+              --color-mint: #00f0a0;<br>
+              --color-crimson: #ff3b69;<br>
+              --color-accent: #00d2ff;<br>
+              .glow-mint, .glow-cyan, .glow-crimson;<br>
+              text-emerald-300 / text-rose-400 (heterogéneos);
+            </div>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2);">
+            <div style="color: #34d399; font-weight: 700; margin-bottom: 6px;">REEMPLAZAR CON ESTÁNDAR SELECCIONADO:</div>
+            <div style="color: #94a3b8; line-height: 1.6;">
+              --color-yes: #10b981 (Emerald sólido);<br>
+              --color-no: #e11d48 (Warm Crimson);<br>
+              --color-primary: #38bdf8 (Slate Sky);<br>
+              Líneas hairline sutiles sin halo de luz;<br>
+              Total preservación del gráfico LMSR continuo;
+            </div>
+          </div>
+        </div>
+
+        <div style="padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: var(--small-size); color: #94a3b8;">
+            Presiona <strong style="color: #fff;">[Espacio]</strong> o las flechas para navegar entre diapositivas.
+          </span>
+          <span class="hud-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
+            Ready for Multi-Plan Choice
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CONTROLLER NAVIGATION ==================== -->
+  <div class="nav-bar">
+    <button class="nav-btn" onclick="prevSlide()">&#8592; PREV</button>
+    <div class="nav-dot active" onclick="goToSlide(0)"></div>
+    <div class="nav-dot" onclick="goToSlide(1)"></div>
+    <div class="nav-dot" onclick="goToSlide(2)"></div>
+    <div class="nav-dot" onclick="goToSlide(3)"></div>
+    <button class="nav-btn" onclick="nextSlide()">NEXT &#8594;</button>
+    <span class="key-hint">[Teclas &#8592; &#8594; o Scroll]</span>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.nav-dot');
+    let currentSlide = 0;
+    let isThrottled = false;
+
+    function updateNav(index) {
+      dots.forEach((d, i) => {
+        d.classList.toggle('active', i === index);
+      });
+      currentSlide = index;
+    }
+
+    function goToSlide(index) {
+      if (index < 0 || index >= slides.length) return;
+      slides[index].scrollIntoView({ behavior: 'smooth' });
+      updateNav(index);
+    }
+
+    function nextSlide() {
+      goToSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      goToSlide(currentSlide - 1);
+    }
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevSlide();
+      }
+    });
+
+    // Intersection observer for dots
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          const index = parseInt(id.replace('slide-', '')) - 1;
+          updateNav(index);
+        }
+      });
+    }, { threshold: 0.6 });
+
+    slides.forEach(slide => observer.observe(slide));
+  </script>
+</body>
+</html>

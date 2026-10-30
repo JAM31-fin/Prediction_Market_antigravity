@@ -760,6 +760,9 @@ export class DatabaseService {
     const current = await this.getMarket(id);
     if (!current) throw new Error(`Market "${id}" not found.`);
 
+    const closeTime = updates.closeTime || (updates as any).close_time || (updates as any).closeDate;
+    const resolutionTime = updates.resolutionTime || (updates as any).resolution_time || (updates as any).resolutionDate;
+
     await dbTransaction(async (client) => {
       await client.query(
         `UPDATE markets SET
@@ -777,19 +780,41 @@ export class DatabaseService {
          WHERE id = $12;`,
         [
           updates.question || null,
-          updates.description || null,
+          updates.description !== undefined ? updates.description : null,
           updates.category || null,
           updates.status || null,
-          updates.closeTime || null,
-          updates.resolutionTime || null,
+          closeTime || null,
+          resolutionTime || null,
           updates.resolutionSource || null,
-          updates.resolutionRules || null,
+          updates.resolutionRules !== undefined ? updates.resolutionRules : null,
           updates.liquidityParameter || null,
           updates.commissionRate || null,
           updates.spread || null,
           id,
         ]
       );
+
+      // If pre-trading and outcomesUpdates provided, update outcomes
+      if (Array.isArray((updates as any).outcomesUpdates) && (updates as any).outcomesUpdates.length > 0) {
+        for (const ou of (updates as any).outcomesUpdates) {
+          if (ou.id) {
+            await client.query(
+              `UPDATE market_outcomes SET
+                 name = COALESCE($1, name),
+                 color = COALESCE($2, color),
+                 initial_probability = COALESCE($3, initial_probability)
+               WHERE market_id = $4 AND id = $5;`,
+              [
+                ou.name || null,
+                ou.color || null,
+                ou.initialProbability !== undefined && ou.initialProbability !== null ? ou.initialProbability : null,
+                id,
+                ou.id,
+              ]
+            );
+          }
+        }
+      }
     });
 
     const updated = (await this.getMarket(id))!;

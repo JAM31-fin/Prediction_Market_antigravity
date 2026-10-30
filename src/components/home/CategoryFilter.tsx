@@ -55,16 +55,16 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({ showCounts = tru
             {isSelected && (
               <motion.div
                 layoutId="category-active-pill"
-                className="absolute inset-0 bg-[#0c1626] border border-[#00d2ff]/40 rounded-xl shadow-[0_0_14px_rgba(0,210,255,0.18)]"
+                className="absolute inset-0 bg-[#0e172a] border border-[#38bdf8]/40 rounded-xl shadow-sm"
                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
               />
             )}
             {!isSelected && (
-              <div className="absolute inset-0 bg-[#050811] border border-[#151e2e] rounded-xl hover:border-slate-700 hover:bg-[#090f1d] transition-colors" />
+              <div className="absolute inset-0 bg-[#0b101d] border border-white/[0.08] rounded-xl hover:border-slate-700 hover:bg-[#0f172a] transition-colors" />
             )}
 
             <span className={`relative z-10 flex items-center gap-1.5 ${isSelected ? 'text-white font-semibold' : 'text-slate-400'}`}>
-              <span className={`shrink-0 flex items-center ${isSelected ? 'text-[#00d2ff]' : 'text-slate-500'}`}>
+              <span className={`shrink-0 flex items-center ${isSelected ? 'text-[#38bdf8]' : 'text-slate-500'}`}>
                 {cat.icon}
               </span>
               <span>{cat.label}</span>
@@ -74,8 +74,8 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({ showCounts = tru
               <span
                 className={`relative z-10 px-1.5 py-0.5 rounded-md text-[10px] font-mono tabular-nums font-semibold ${
                   isSelected
-                    ? 'bg-[#00d2ff]/20 text-[#00d2ff]'
-                    : 'bg-[#0c1322] text-slate-500'
+                    ? 'bg-[#38bdf8]/20 text-[#38bdf8]'
+                    : 'bg-[#0e1424] text-slate-500'
                 }`}
               >
                 {count}

@@ -4,6 +4,7 @@ import { useMarket } from '../../context/MarketContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Tournament, LeaderboardUser, TournamentStatus } from '../../types';
 import { AdminTournamentModal } from './AdminTournamentModal';
+import { SlidesModal } from '../common/SlidesModal';
 import { 
   Trophy, 
   Clock, 
@@ -66,6 +67,7 @@ export const TournamentsPage: React.FC = () => {
   const [searchTrader, setSearchTrader] = useState('');
   const [isJoining, setIsJoining] = useState(false);
   const [joinSuccess, setJoinSuccess] = useState(false);
+  const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
 
   // Tournament Markets linking state
   const [isLinkMarketsModalOpen, setIsLinkMarketsModalOpen] = useState(false);
@@ -220,9 +222,18 @@ export const TournamentsPage: React.FC = () => {
             </p>
           </div>
 
-          {/* Admin Action: Organize Tournament */}
-          {isAdmin && (
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+          {/* Actions: Visual Rules (Slides) & Admin Create */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsRulesModalOpen(true)}
+              className="px-4 py-2.5 min-h-[44px] rounded-xl bg-[#0e1424] hover:bg-[#1a2333] border border-[#38bdf8]/30 hover:border-[#38bdf8]/60 text-[#38bdf8] font-mono font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+            >
+              <Sparkles className="w-4 h-4 text-[#38bdf8]" />
+              <span>{language === 'es' ? 'Reglamento Visual (Slides)' : 'Visual Rules (Slides)'}</span>
+            </button>
+
+            {isAdmin && (
               <motion.button
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
@@ -230,24 +241,24 @@ export const TournamentsPage: React.FC = () => {
                   setEditingTournament(null);
                   setIsModalOpen(true);
                 }}
-                className="px-5 py-2.5 min-h-[44px] rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-mono font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer"
+                className="px-5 py-2.5 min-h-[44px] rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>{language === 'es' ? 'Crear / Organizar Torneo' : 'Create / Organize Tournament'}</span>
               </motion.button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
       {/* Tournament Selection & Status Tabs */}
       <div className="space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-4 border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none font-mono text-xs p-1 bg-[#080d18]/80 rounded-xl border border-white/[0.06]">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none font-mono text-xs p-1 bg-[#0e1424]/80 rounded-xl border border-white/[0.06]">
             {([
-              { id: 'active', label: language === 'es' ? 'En Curso' : 'Active', icon: <span className="w-2 h-2 rounded-full bg-[#00f0a0] animate-pulse" /> },
+              { id: 'active', label: language === 'es' ? 'En Curso' : 'Active', icon: <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" /> },
               { id: 'upcoming', label: language === 'es' ? 'Próximos' : 'Upcoming', icon: <Clock className="w-3.5 h-3.5 text-amber-400" /> },
-              { id: 'completed', label: language === 'es' ? 'Finalizados' : 'Completed', icon: <CheckCircle2 className="w-3.5 h-3.5 text-[#00d2ff]" /> },
+              { id: 'completed', label: language === 'es' ? 'Finalizados' : 'Completed', icon: <CheckCircle2 className="w-3.5 h-3.5 text-[#38bdf8]" /> },
               { id: 'all', label: language === 'es' ? 'Todos' : 'All', icon: null },
             ] as const).map((tab) => {
               const isActive = activeTab === tab.id;
@@ -281,7 +292,7 @@ export const TournamentsPage: React.FC = () => {
         {/* Tournaments Grid or Empty State */}
         {filteredTournaments.length === 0 ? (
           <div className="terminal-card rounded-2xl p-8 sm:p-12 text-center space-y-4">
-            <div className="w-14 h-14 mx-auto rounded-full bg-[#080d18] border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <div className="w-14 h-14 mx-auto rounded-full bg-[#0e1424] border border-amber-500/30 flex items-center justify-center text-amber-400">
               <Trophy className="w-7 h-7" />
             </div>
             <div className="max-w-md mx-auto space-y-1.5">
@@ -302,7 +313,7 @@ export const TournamentsPage: React.FC = () => {
                   setEditingTournament(null);
                   setIsModalOpen(true);
                 }}
-                className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-mono font-extrabold cursor-pointer shadow-md shadow-amber-500/20"
+                className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-mono font-extrabold cursor-pointer shadow-sm"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>{language === 'es' ? 'Crear Primer Torneo' : 'Create First Tournament'}</span>
@@ -321,7 +332,7 @@ export const TournamentsPage: React.FC = () => {
                   onClick={() => setSelectedTournamentId(t.id)}
                   className={`relative terminal-card rounded-2xl p-5 cursor-pointer flex flex-col justify-between gap-4 elevation-card transition-all ${
                     isSelected
-                      ? 'border-amber-400/60 ring-1 ring-amber-400/40 shadow-[0_0_24px_rgba(245,158,11,0.18)] bg-[#080d18]'
+                      ? 'border-amber-400/60 ring-1 ring-amber-400/40 shadow-sm bg-[#0e1424]'
                       : 'terminal-card-hover'
                   }`}
                 >
@@ -331,15 +342,15 @@ export const TournamentsPage: React.FC = () => {
                       <span
                         className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider ${
                           t.status === 'active'
-                            ? 'bg-[#00f0a0]/15 text-[#00f0a0] border border-[#00f0a0]/30'
+                            ? 'bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30'
                             : t.status === 'upcoming'
                             ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                            : 'bg-[#00d2ff]/15 text-[#00d2ff] border border-[#00d2ff]/30'
+                            : 'bg-[#38bdf8]/15 text-[#38bdf8] border border-[#38bdf8]/30'
                         }`}
                       >
-                        {t.status === 'active' && <span className="w-1.5 h-1.5 rounded-full bg-[#00f0a0] animate-pulse" />}
+                        {t.status === 'active' && <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse" />}
                         {t.status === 'upcoming' && <Clock className="w-3 h-3 text-amber-400" />}
-                        {t.status === 'completed' && <CheckCircle2 className="w-3 h-3 text-[#00d2ff]" />}
+                        {t.status === 'completed' && <CheckCircle2 className="w-3 h-3 text-[#38bdf8]" />}
                         {language === 'es'
                           ? t.status === 'active' ? 'EN CURSO' : t.status === 'upcoming' ? 'PRÓXIMO' : 'FINALIZADO'
                           : t.status.toUpperCase()}
@@ -360,7 +371,7 @@ export const TournamentsPage: React.FC = () => {
                     </p>
 
                     {/* Highlights with Concentric Radius */}
-                    <div className="space-y-1.5 text-xs font-mono bg-[#04070d]/60 rounded-xl p-3 border border-white/[0.06]">
+                    <div className="space-y-1.5 text-xs font-mono bg-[#090d16]/60 rounded-xl p-3 border border-white/[0.06]">
                       <div className="flex items-center justify-between text-slate-300">
                         <span className="text-slate-400 flex items-center gap-1">
                           <Trophy className="w-3 h-3 text-amber-400 shrink-0" />
@@ -373,7 +384,7 @@ export const TournamentsPage: React.FC = () => {
 
                       <div className="flex items-center justify-between text-slate-300">
                         <span className="text-slate-400 flex items-center gap-1">
-                          <Zap className="w-3 h-3 text-[#00f0a0]" />
+                          <Zap className="w-3 h-3 text-[#10b981]" />
                           {language === 'es' ? 'Saldo inicial:' : 'Bankroll:'}
                         </span>
                         <span className="font-bold font-mono text-slate-200 tabular-nums">
@@ -383,10 +394,10 @@ export const TournamentsPage: React.FC = () => {
 
                       <div className="flex items-center justify-between text-slate-300">
                         <span className="text-slate-400 flex items-center gap-1">
-                          <Users className="w-3 h-3 text-[#00d2ff]" />
+                          <Users className="w-3 h-3 text-[#38bdf8]" />
                           {language === 'es' ? 'Mercados:' : 'Markets:'}
                         </span>
-                        <span className="text-[#00d2ff] font-semibold">
+                        <span className="text-[#38bdf8] font-semibold">
                           {t.categoryFilter === 'ALL'
                             ? (language === 'es' ? 'Todos' : 'All')
                             : t.categoryFilter}
@@ -414,7 +425,7 @@ export const TournamentsPage: React.FC = () => {
                           <button
                             onClick={() => handleStatusChange(t.id, 'completed')}
                             title={language === 'es' ? 'Finalizar torneo' : 'End tournament'}
-                            className="px-2.5 py-1 rounded-lg bg-[#00d2ff]/15 border border-[#00d2ff]/30 text-[#00d2ff] hover:bg-[#00d2ff]/25 transition-colors cursor-pointer text-[10px] font-bold"
+                            className="px-2.5 py-1 rounded-lg bg-[#38bdf8]/15 border border-[#38bdf8]/30 text-[#38bdf8] hover:bg-[#38bdf8]/25 transition-colors cursor-pointer text-[10px] font-bold"
                           >
                             {language === 'es' ? 'Cerrar' : 'Close'}
                           </button>
@@ -422,7 +433,7 @@ export const TournamentsPage: React.FC = () => {
                           <button
                             onClick={() => handleStatusChange(t.id, 'active')}
                             title={language === 'es' ? 'Activar torneo' : 'Activate tournament'}
-                            className="px-2.5 py-1 rounded-lg bg-[#00f0a0]/15 border border-[#00f0a0]/30 text-[#00f0a0] hover:bg-[#00f0a0]/25 transition-colors cursor-pointer text-[10px] font-bold"
+                            className="px-2.5 py-1 rounded-lg bg-[#10b981]/15 border border-[#10b981]/30 text-[#10b981] hover:bg-[#10b981]/25 transition-colors cursor-pointer text-[10px] font-bold"
                           >
                             {language === 'es' ? 'Activar' : 'Activate'}
                           </button>
@@ -530,14 +541,14 @@ export const TournamentsPage: React.FC = () => {
                       whileTap={{ scale: 0.98 }}
                       onClick={handleJoin}
                       disabled={isJoining}
-                      className="flex-1 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#00f0a0] hover:bg-[#00f0a0]/90 text-slate-950 font-mono font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-[#00f0a0]/20 cursor-pointer disabled:opacity-50"
+                      className="flex-1 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#10b981] hover:bg-[#059669] text-slate-950 font-mono font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       <span>{isJoining ? (language === 'es' ? 'Inscribiendo...' : 'Joining...') : (language === 'es' ? 'Unirme al Torneo' : 'Join Tournament')}</span>
                     </motion.button>
                   ) : (
-                    <div className="flex-1 px-3 py-2 min-h-[44px] rounded-xl bg-[#00f0a0]/15 border border-[#00f0a0]/30 text-[#00f0a0] font-mono font-bold text-xs flex items-center justify-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-[#00f0a0]" />
+                    <div className="flex-1 px-3 py-2 min-h-[44px] rounded-xl bg-[#10b981]/15 border border-[#10b981]/30 text-[#10b981] font-mono font-bold text-xs flex items-center justify-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-[#10b981]" />
                       <span>{language === 'es' ? 'Inscrito' : 'Joined'}</span>
                     </div>
                   )}
@@ -548,18 +559,18 @@ export const TournamentsPage: React.FC = () => {
                     className="flex-1 px-4 py-2.5 min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-slate-700"
                   >
                     <span>{language === 'es' ? 'Operar' : 'Trade'}</span>
-                    <ArrowUpRight className="w-4 h-4 text-[#00d2ff]" />
+                    <ArrowUpRight className="w-4 h-4 text-[#38bdf8]" />
                   </motion.button>
                 </div>
 
                 {/* Subcartera Aislada del Torneo */}
                 {isUserJoined && (
-                  <div className="p-3.5 rounded-xl bg-[#080d18]/90 border border-[#00f0a0]/30 text-center">
+                  <div className="p-3.5 rounded-xl bg-[#0e1424]/90 border border-[#10b981]/30 text-center">
                     <div className="text-[10px] font-mono uppercase text-slate-400 font-semibold flex items-center justify-center gap-1">
-                      <Coins className="w-3.5 h-3.5 text-[#00f0a0]" />
+                      <Coins className="w-3.5 h-3.5 text-[#10b981]" />
                       {language === 'es' ? 'Tu Saldo en este Torneo' : 'Your Tournament Balance'}
                     </div>
-                    <div className="text-base font-bold font-mono text-[#00f0a0] mt-0.5 tabular-nums">
+                    <div className="text-base font-bold font-mono text-[#10b981] mt-0.5 tabular-nums">
                       ${(userTournamentParticipant?.tournamentBalance ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[11px] text-slate-400 font-normal">USD</span>
                     </div>
                     <div className="text-[10px] font-mono text-slate-400 mt-0.5">
@@ -569,7 +580,7 @@ export const TournamentsPage: React.FC = () => {
                 )}
 
                 {joinSuccess && (
-                  <div className="text-[11px] font-mono text-[#00f0a0] text-center animate-pulse">
+                  <div className="text-[11px] font-mono text-[#10b981] text-center animate-pulse">
                     {language === 'es' ? '¡Te has unido exitosamente al torneo!' : 'Successfully joined tournament!'}
                   </div>
                 )}
@@ -618,7 +629,7 @@ export const TournamentsPage: React.FC = () => {
                     className="px-3.5 py-2 min-h-[40px] rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-mono font-bold text-xs flex items-center gap-1.5 border border-slate-700 cursor-pointer"
                     title={language === 'es' ? 'Vincular o desvincular mercados existentes a este torneo' : 'Link or unlink existing markets'}
                   >
-                    <Link2 className="w-3.5 h-3.5 text-[#00d2ff]" />
+                    <Link2 className="w-3.5 h-3.5 text-[#38bdf8]" />
                     <span>{language === 'es' ? 'Vincular Mercados' : 'Link Markets'}</span>
                   </motion.button>
                 </div>
@@ -630,7 +641,7 @@ export const TournamentsPage: React.FC = () => {
                 {language === 'es' ? 'Cargando mercados del torneo...' : 'Loading tournament markets...'}
               </div>
             ) : tournamentMarkets.length === 0 ? (
-              <div className="py-10 text-center rounded-xl bg-[#04070d]/60 border border-slate-800/80 p-6">
+              <div className="py-10 text-center rounded-xl bg-[#090d16]/60 border border-slate-800/80 p-6">
                 <AlertCircle className="w-8 h-8 text-slate-600 mx-auto mb-2" />
                 <div className="font-bold text-slate-300 text-sm">
                   {language === 'es' ? 'No hay mercados vinculados a este torneo' : 'No markets linked to this tournament yet'}
@@ -648,7 +659,7 @@ export const TournamentsPage: React.FC = () => {
                   <div className="mt-4 flex items-center justify-center gap-3">
                     <button
                       onClick={() => setIsLinkMarketsModalOpen(true)}
-                      className="px-4 py-2 min-h-[40px] rounded-xl bg-[#00d2ff]/15 border border-[#00d2ff]/30 text-[#00d2ff] hover:bg-[#00d2ff]/25 font-mono text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                      className="px-4 py-2 min-h-[40px] rounded-xl bg-[#38bdf8]/15 border border-[#38bdf8]/30 text-[#38bdf8] hover:bg-[#38bdf8]/25 font-mono text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                     >
                       <Link2 className="w-3.5 h-3.5" />
                       <span>{language === 'es' ? 'Vincular Mercados Ahora' : 'Link Markets Now'}</span>
@@ -659,11 +670,6 @@ export const TournamentsPage: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {tournamentMarkets.map((m) => {
-                  const yesOutcome = m.outcomes[0];
-                  const noOutcome = m.outcomes[1];
-                  const yesProb = Math.round((yesOutcome?.currentPrice || 0.5) * 100);
-                  const noProb = Math.round((noOutcome?.currentPrice || 0.5) * 100);
-
                   return (
                     <div
                       key={m.id}
@@ -671,12 +677,17 @@ export const TournamentsPage: React.FC = () => {
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="hud-tag">
-                            {m.category}
-                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="hud-tag">
+                              {m.category}
+                            </span>
+                            <span className="hud-tag text-[#38bdf8] bg-sky-950/40 border-sky-500/20">
+                              {m.outcomes?.length === 2 ? 'binary' : `${m.outcomes?.length || 0} opciones`}
+                            </span>
+                          </div>
                           <span className={`text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full ${
                             m.status === 'open' 
-                              ? 'bg-[#00f0a0]/15 text-[#00f0a0] border border-[#00f0a0]/30' 
+                              ? 'bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30' 
                               : 'bg-slate-800 text-slate-400'
                           }`}>
                             {m.status}
@@ -687,26 +698,58 @@ export const TournamentsPage: React.FC = () => {
                           {m.question}
                         </h4>
 
-                        {/* Outcomes & Probabilities */}
-                        <div className="grid grid-cols-2 gap-2 font-mono text-xs mb-3">
-                          <div className="p-2.5 rounded-xl bg-[#00f0a0]/10 border border-[#00f0a0]/25 text-center">
-                            <div className="text-[10px] text-[#00f0a0] uppercase font-bold truncate">
-                              {yesOutcome?.name || 'SÍ'}
+                        {/* Outcomes & Probabilities (Binary vs Multi-Outcome) */}
+                        {m.outcomes.length === 2 ? (
+                          <div className="grid grid-cols-2 gap-2 font-mono text-xs mb-3">
+                            <div className="p-2.5 rounded-xl bg-[#10b981]/10 border border-[#10b981]/25 text-center">
+                              <div className="text-[10px] text-[#10b981] uppercase font-bold truncate">
+                                {m.outcomes[0]?.name || 'SÍ'}
+                              </div>
+                              <div className="text-base font-black text-white mt-0.5 tabular-nums">
+                                {Math.round((m.outcomes[0]?.currentPrice || 0.5) * 100)}%
+                              </div>
                             </div>
-                            <div className="text-base font-black text-white mt-0.5 tabular-nums">
-                              {yesProb}%
-                            </div>
-                          </div>
 
-                          <div className="p-2.5 rounded-xl bg-[#ff3b69]/10 border border-[#ff3b69]/25 text-center">
-                            <div className="text-[10px] text-[#ff3b69] uppercase font-bold truncate">
-                              {noOutcome?.name || 'NO'}
-                            </div>
-                            <div className="text-base font-black text-white mt-0.5 tabular-nums">
-                              {noProb}%
+                            <div className="p-2.5 rounded-xl bg-[#e11d48]/10 border border-[#e11d48]/25 text-center">
+                              <div className="text-[10px] text-[#e11d48] uppercase font-bold truncate">
+                                {m.outcomes[1]?.name || 'NO'}
+                              </div>
+                              <div className="text-base font-black text-white mt-0.5 tabular-nums">
+                                {Math.round((m.outcomes[1]?.currentPrice || 0.5) * 100)}%
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="space-y-1.5 mb-3 font-mono text-xs max-h-44 overflow-y-auto pr-0.5">
+                            {m.outcomes.map((outcome, idx) => {
+                              const prob = Math.round((outcome.currentPrice || 0) * 100);
+                              return (
+                                <div
+                                  key={outcome.id}
+                                  className="relative overflow-hidden p-2 rounded-xl bg-[#090d16]/80 border border-slate-800 flex items-center justify-between text-xs"
+                                >
+                                  <div
+                                    className="absolute inset-y-0 left-0 bg-slate-800/70 rounded-l-xl transition-[width] duration-300 ease-out"
+                                    style={{ width: `${prob}%` }}
+                                  />
+                                  <div className="relative z-10 flex items-center gap-2 truncate pr-2">
+                                    <span
+                                      className="w-2 h-2 rounded-full shrink-0"
+                                      style={{ backgroundColor: outcome.color || (idx === 0 ? '#10b981' : idx === 1 ? '#38bdf8' : '#e11d48') }}
+                                    />
+                                    <span className="font-bold text-slate-200 truncate">
+                                      {outcome.name}
+                                    </span>
+                                  </div>
+                                  <div className="relative z-10 flex items-center gap-2 font-mono tabular-nums shrink-0">
+                                    <span className="text-slate-400">{prob}%</span>
+                                    <span className="font-bold text-[#10b981]">{prob}&cent;</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
 
                       <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
@@ -720,7 +763,7 @@ export const TournamentsPage: React.FC = () => {
                               onClick={() => handleToggleMarketLink(m.id, true)}
                               disabled={linkingMarketId === m.id}
                               title={language === 'es' ? 'Desvincular del torneo' : 'Unlink from tournament'}
-                              className="p-2 rounded-lg bg-slate-900 hover:bg-[#ff3b69]/15 text-slate-400 hover:text-[#ff3b69] border border-slate-800 hover:border-[#ff3b69]/30 transition-colors cursor-pointer"
+                              className="p-2 rounded-lg bg-slate-900 hover:bg-[#e11d48]/15 text-slate-400 hover:text-[#e11d48] border border-slate-800 hover:border-[#e11d48]/30 transition-colors cursor-pointer"
                             >
                               <Unlink className="w-3.5 h-3.5" />
                             </button>
@@ -730,7 +773,7 @@ export const TournamentsPage: React.FC = () => {
                             className="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-mono font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors"
                           >
                             <span>{language === 'es' ? 'Operar' : 'Trade'}</span>
-                            <ArrowUpRight className="w-3.5 h-3.5 text-[#00d2ff]" />
+                            <ArrowUpRight className="w-3.5 h-3.5 text-[#38bdf8]" />
                           </button>
                         </div>
                       </div>
@@ -754,7 +797,7 @@ export const TournamentsPage: React.FC = () => {
                 {top3[0] && (
                   <motion.div
                     whileHover={{ y: -3 }}
-                    className="order-1 sm:order-2 p-5 rounded-2xl terminal-card border-amber-500/40 relative shadow-xl text-center flex flex-col justify-between bg-gradient-to-b from-amber-500/15 via-[#080d18] to-[#04070d]"
+                    className="order-1 sm:order-2 p-5 rounded-2xl terminal-card border-amber-500/40 relative shadow-xl text-center flex flex-col justify-between bg-gradient-to-b from-amber-500/15 via-[#0e1424] to-[#090d16]"
                   >
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[11px] font-mono font-black uppercase shadow-md flex items-center gap-1">
                       🥇 {language === 'es' ? '1er Lugar' : '1st Place'}
@@ -780,7 +823,7 @@ export const TournamentsPage: React.FC = () => {
                       <div className="text-lg font-black font-mono text-amber-300 tabular-nums">
                         ${top3[0].totalEquity.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </div>
-                      <div className="text-[#00f0a0] font-bold text-[11px] tabular-nums">
+                      <div className="text-[#10b981] font-bold text-[11px] tabular-nums">
                         +{top3[0].roiPercent}% ROI
                       </div>
                     </div>
@@ -791,7 +834,7 @@ export const TournamentsPage: React.FC = () => {
                 {top3[1] && (
                   <motion.div
                     whileHover={{ y: -3 }}
-                    className="order-2 sm:order-1 p-5 rounded-2xl terminal-card border-slate-600/40 relative shadow-md text-center flex flex-col justify-between bg-gradient-to-b from-slate-400/10 via-[#080d18] to-[#04070d]"
+                    className="order-2 sm:order-1 p-5 rounded-2xl terminal-card border-slate-600/40 relative shadow-md text-center flex flex-col justify-between bg-gradient-to-b from-slate-400/10 via-[#0e1424] to-[#090d16]"
                   >
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-slate-400 text-slate-950 text-[11px] font-mono font-black uppercase shadow-md flex items-center gap-1">
                       🥈 {language === 'es' ? '2do Lugar' : '2nd Place'}
@@ -817,7 +860,7 @@ export const TournamentsPage: React.FC = () => {
                       <div className="text-base font-bold font-mono text-slate-100 tabular-nums">
                         ${top3[1].totalEquity.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </div>
-                      <div className={`font-bold text-[11px] tabular-nums ${top3[1].roiPercent >= 0 ? 'text-[#00f0a0]' : 'text-[#ff3b69]'}`}>
+                      <div className={`font-bold text-[11px] tabular-nums ${top3[1].roiPercent >= 0 ? 'text-[#10b981]' : 'text-[#e11d48]'}`}>
                         {top3[1].roiPercent >= 0 ? `+${top3[1].roiPercent}%` : `${top3[1].roiPercent}%`} ROI
                       </div>
                     </div>
@@ -828,7 +871,7 @@ export const TournamentsPage: React.FC = () => {
                 {top3[2] && (
                   <motion.div
                     whileHover={{ y: -3 }}
-                    className="order-3 sm:order-3 p-5 rounded-2xl terminal-card border-amber-800/40 relative shadow-md text-center flex flex-col justify-between bg-gradient-to-b from-amber-700/10 via-[#080d18] to-[#04070d]"
+                    className="order-3 sm:order-3 p-5 rounded-2xl terminal-card border-amber-800/40 relative shadow-md text-center flex flex-col justify-between bg-gradient-to-b from-amber-700/10 via-[#0e1424] to-[#090d16]"
                   >
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-amber-700 text-amber-100 text-[11px] font-mono font-black uppercase shadow-md flex items-center gap-1">
                       🥉 {language === 'es' ? '3er Lugar' : '3rd Place'}
@@ -854,7 +897,7 @@ export const TournamentsPage: React.FC = () => {
                       <div className="text-base font-bold font-mono text-slate-100 tabular-nums">
                         ${top3[2].totalEquity.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </div>
-                      <div className={`font-bold text-[11px] tabular-nums ${top3[2].roiPercent >= 0 ? 'text-[#00f0a0]' : 'text-[#ff3b69]'}`}>
+                      <div className={`font-bold text-[11px] tabular-nums ${top3[2].roiPercent >= 0 ? 'text-[#10b981]' : 'text-[#e11d48]'}`}>
                         {top3[2].roiPercent >= 0 ? `+${top3[2].roiPercent}%` : `${top3[2].roiPercent}%`} ROI
                       </div>
                     </div>
@@ -869,7 +912,7 @@ export const TournamentsPage: React.FC = () => {
             <div className="p-4 sm:p-5 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
-                  <Award className="w-4 h-4 text-[#00d2ff]" />
+                  <Award className="w-4 h-4 text-[#38bdf8]" />
                   <span>{language === 'es' ? 'Clasificación General en Tiempo Real' : 'Live Tournament Standings'}</span>
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
@@ -888,7 +931,7 @@ export const TournamentsPage: React.FC = () => {
                   value={searchTrader}
                   onChange={(e) => setSearchTrader(e.target.value)}
                   placeholder={language === 'es' ? 'Buscar amigo...' : 'Search participant...'}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#04070d] border border-slate-800 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-[#00d2ff] font-sans"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#090d16] border border-white/[0.08] text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-[#38bdf8] font-sans"
                 />
               </div>
             </div>
@@ -896,7 +939,7 @@ export const TournamentsPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs font-mono">
                 <thead>
-                  <tr className="bg-[#04070d]/80 border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                  <tr className="bg-[#090d16]/80 border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
                     <th className="py-3.5 px-4 w-16">#</th>
                     <th className="py-3.5 px-4 font-sans">{language === 'es' ? 'Participante' : 'Trader'}</th>
                     <th className="py-3.5 px-4 text-right">{language === 'es' ? 'Efectivo' : 'Cash'}</th>
@@ -927,7 +970,7 @@ export const TournamentsPage: React.FC = () => {
                         <tr 
                           key={u.id}
                           className={`hover:bg-slate-800/40 transition-colors ${
-                            isCurrentUser ? 'bg-[#00d2ff]/[0.06] border-l-2 border-l-[#00d2ff]' : ''
+                            isCurrentUser ? 'bg-[#38bdf8]/[0.06] border-l-2 border-l-[#38bdf8]' : ''
                           }`}
                         >
                           <td className="py-3.5 px-4 font-bold">
@@ -943,7 +986,7 @@ export const TournamentsPage: React.FC = () => {
                                 <div className="font-semibold text-slate-100 flex items-center gap-1.5 truncate">
                                   <span>{u.name || u.username}</span>
                                   {isCurrentUser && (
-                                    <span className="px-1.5 py-0.2 rounded bg-[#00d2ff]/20 text-[#00d2ff] text-[10px] font-mono font-bold">
+                                    <span className="px-1.5 py-0.2 rounded bg-[#38bdf8]/20 text-[#38bdf8] text-[10px] font-mono font-bold">
                                       {language === 'es' ? 'TÚ' : 'YOU'}
                                     </span>
                                   )}
@@ -968,7 +1011,7 @@ export const TournamentsPage: React.FC = () => {
                           </td>
 
                           <td className="py-3.5 px-4 text-right font-bold">
-                            <span className={u.roiPercent >= 0 ? 'text-[#00f0a0]' : 'text-[#ff3b69]'}>
+                            <span className={u.roiPercent >= 0 ? 'text-[#10b981]' : 'text-[#e11d48]'}>
                               {u.roiPercent >= 0 ? `+${u.roiPercent}%` : `${u.roiPercent}%`}
                             </span>
                           </td>
@@ -992,7 +1035,7 @@ export const TournamentsPage: React.FC = () => {
           {/* Rules and Determination Card */}
           <div className="terminal-card rounded-2xl p-5 text-xs space-y-2">
             <h4 className="font-mono font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-              <Info className="w-4 h-4 text-[#00d2ff]" />
+              <Info className="w-4 h-4 text-[#38bdf8]" />
               <span>{language === 'es' ? 'Reglas y Condiciones del Torneo' : 'Tournament Rules & Conditions'}</span>
             </h4>
             <p className="text-slate-400 whitespace-pre-line leading-relaxed font-mono">
@@ -1033,7 +1076,7 @@ export const TournamentsPage: React.FC = () => {
             <div className="p-5 border-b border-slate-800 flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <Link2 className="w-4 h-4 text-[#00d2ff]" />
+                  <Link2 className="w-4 h-4 text-[#38bdf8]" />
                   <h3 className="text-base font-bold text-white tracking-tight">
                     {language === 'es' ? 'Vincular Mercados al Torneo' : 'Link Markets to Tournament'}
                   </h3>
@@ -1051,7 +1094,7 @@ export const TournamentsPage: React.FC = () => {
             </div>
 
             {/* Search Input */}
-            <div className="p-4 border-b border-slate-800/80 bg-[#04070d]/60">
+            <div className="p-4 border-b border-slate-800/80 bg-[#090d16]/60">
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                 <input
@@ -1059,7 +1102,7 @@ export const TournamentsPage: React.FC = () => {
                   value={marketSearchTerm}
                   onChange={(e) => setMarketSearchTerm(e.target.value)}
                   placeholder={language === 'es' ? 'Buscar mercados por pregunta o categoría...' : 'Search markets by question or category...'}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#080d18] border border-slate-700 text-xs text-white placeholder-slate-500 outline-none focus:border-[#00d2ff] font-sans"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#0e1424] border border-slate-700 text-xs text-white placeholder-slate-500 outline-none focus:border-[#38bdf8] font-sans"
                 />
               </div>
             </div>
@@ -1082,7 +1125,7 @@ export const TournamentsPage: React.FC = () => {
                       className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-colors ${
                         isLinked
                           ? 'bg-amber-500/10 border-amber-500/30'
-                          : 'bg-[#04070d]/60 border-slate-800 hover:border-slate-700'
+                          : 'bg-[#090d16]/60 border-slate-800 hover:border-slate-700'
                       }`}
                     >
                       <div className="min-w-0 flex-1">
@@ -1104,8 +1147,8 @@ export const TournamentsPage: React.FC = () => {
                         disabled={isBusy}
                         className={`shrink-0 px-3.5 py-1.5 min-h-[36px] rounded-lg font-mono text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 ${
                           isLinked
-                            ? 'bg-[#ff3b69]/15 hover:bg-[#ff3b69]/25 border border-[#ff3b69]/30 text-[#ff3b69]'
-                            : 'bg-[#00f0a0] hover:bg-[#00f0a0]/90 text-slate-950 shadow-sm shadow-[#00f0a0]/20'
+                            ? 'bg-[#e11d48]/15 hover:bg-[#e11d48]/25 border border-[#e11d48]/30 text-[#e11d48]'
+                            : 'bg-[#10b981] hover:bg-[#059669] text-slate-950 shadow-sm'
                         }`}
                       >
                         {isBusy ? (
@@ -1128,7 +1171,7 @@ export const TournamentsPage: React.FC = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-800 bg-[#04070d]/80 flex items-center justify-between">
+            <div className="p-4 border-t border-slate-800 bg-[#090d16]/80 flex items-center justify-between">
               <span className="text-xs font-mono text-slate-400">
                 {language === 'es' ? 'Los cambios se aplican de inmediato.' : 'Changes take effect immediately.'}
               </span>
@@ -1142,6 +1185,13 @@ export const TournamentsPage: React.FC = () => {
           </motion.div>
         </div>
       )}
+
+      {/* Visual Tournament Rules Slides Modal */}
+      <SlidesModal
+        isOpen={isRulesModalOpen}
+        onClose={() => setIsRulesModalOpen(false)}
+        initialDeck="tournament-rules"
+      />
 
     </div>
   );

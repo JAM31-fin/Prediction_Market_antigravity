@@ -10,7 +10,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 
-const OUTCOME_PALETTE = ['#00f0a0', '#ff3b69', '#00d2ff', '#a855f7', '#f59e0b', '#ec4899'];
+const OUTCOME_PALETTE = ['#10b981', '#e11d48', '#38bdf8', '#818cf8', '#f59e0b', '#ec4899'];
 
 interface PriceChartProps {
   market: Market;
@@ -30,10 +30,10 @@ const CustomTooltip = ({ active, payload, market }: any) => {
       : '';
 
     return (
-      <div className="glass-terminal rounded-xl p-3.5 shadow-2xl font-mono text-xs elevation-popover min-w-[210px]">
+      <div className="glass-terminal rounded-xl p-3.5 shadow-2xl font-mono text-xs elevation-popover min-w-[210px] border border-white/[0.1]">
         <div className="text-[11px] text-slate-400 mb-2.5 border-b border-slate-800/80 pb-1.5 font-sans flex items-center justify-between gap-4">
           <span className="font-semibold text-slate-200 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse" />
             Snapshot
           </span>
           <span className="text-slate-400 font-mono text-[10px] tabular-nums">{formattedDate}</span>
@@ -41,14 +41,14 @@ const CustomTooltip = ({ active, payload, market }: any) => {
         <div className="space-y-2">
           {payload.map((entry: any) => {
             const outcome = market.outcomes.find((o: any) => o.id === entry.dataKey);
-            const isMint = outcome?.name?.toLowerCase().includes('yes') || outcome?.name?.toLowerCase().includes('sí');
-            const color = entry.stroke || (isMint ? '#00f0a0' : outcome?.color || '#ff3b69');
+            const isYes = outcome?.name?.toLowerCase().includes('yes') || outcome?.name?.toLowerCase().includes('sí');
+            const color = entry.stroke || (isYes ? '#10b981' : outcome?.color || '#e11d48');
             return (
               <div key={entry.dataKey} className="flex items-center justify-between gap-5">
                 <div className="flex items-center gap-2 font-sans">
                   <span
-                    className="w-2 h-2 rounded-full shrink-0 shadow-sm"
-                    style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}66` }}
+                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                    style={{ backgroundColor: color }}
                   />
                   <span className="text-slate-200 font-medium text-xs">{outcome?.name || entry.name}</span>
                 </div>
@@ -198,10 +198,10 @@ export const PriceChart: React.FC<PriceChartProps> = ({ market }) => {
               PROBABILITY TRAJECTORY
             </h4>
             {/* Live radar status indicator */}
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-[10px] font-bold">
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#10b981]/10 border border-[#10b981]/25 text-[#10b981] font-mono text-[10px] font-bold">
               <span className="relative flex h-2 w-2">
-                <span className="animate-radar absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span className="animate-radar absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10b981]"></span>
               </span>
               <span>LIVE FEED</span>
             </div>
@@ -211,13 +211,13 @@ export const PriceChart: React.FC<PriceChartProps> = ({ market }) => {
           </div>
           <div className="text-xl font-bold text-slate-100 font-mono tabular-nums mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
             {market.outcomes.map((o, idx) => {
-              const isMint = o.name?.toLowerCase().includes('yes') || o.name?.toLowerCase().includes('sí');
-              const dotColor = o.color || (isMint ? '#00f0a0' : OUTCOME_PALETTE[idx % OUTCOME_PALETTE.length]);
+              const isYes = o.name?.toLowerCase().includes('yes') || o.name?.toLowerCase().includes('sí');
+              const dotColor = o.color || (isYes ? '#10b981' : OUTCOME_PALETTE[idx % OUTCOME_PALETTE.length]);
               return (
                 <span key={o.id} className="inline-flex items-center gap-1.5">
                   <span
-                    className="inline-block w-2.5 h-2.5 rounded-full shrink-0 shadow-sm"
-                    style={{ backgroundColor: dotColor, boxShadow: `0 0 8px ${dotColor}88` }}
+                    className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
+                    style={{ backgroundColor: dotColor }}
                   />
                   <span className="text-slate-300 font-sans text-xs">{o.name}:</span>
                   <span style={{ color: dotColor }} className="tracking-tight" aria-label={`${o.name} probability: ${Math.round(o.currentPrice * 100)} percent`}>
@@ -283,24 +283,24 @@ export const PriceChart: React.FC<PriceChartProps> = ({ market }) => {
         {`Price chart showing ${market.question}. Current probability: ${market.outcomes.map(o => `${o.name}: ${Math.round(o.currentPrice * 100)}%`).join(', ')}`}
       </div>
 
-      {/* Recharts Area Canvas with Linear Time Scale & Phosphor Glow */}
+      {/* Recharts Area Canvas with Linear Time Scale */}
       <div className="h-64 sm:h-72 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={historyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               {market.outcomes.map((o, idx) => {
-                const isMint = o.name?.toLowerCase().includes('yes') || o.name?.toLowerCase().includes('sí');
-                const strokeColor = o.color || (isMint ? '#00f0a0' : OUTCOME_PALETTE[idx % OUTCOME_PALETTE.length]);
+                const isYes = o.name?.toLowerCase().includes('yes') || o.name?.toLowerCase().includes('sí');
+                const strokeColor = o.color || (isYes ? '#10b981' : OUTCOME_PALETTE[idx % OUTCOME_PALETTE.length]);
                 return (
                   <linearGradient key={`grad-${o.id}`} id={`grad-${o.id}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={strokeColor} stopOpacity={0.22} />
-                    <stop offset="60%" stopColor={strokeColor} stopOpacity={0.05} />
+                    <stop offset="0%" stopColor={strokeColor} stopOpacity={0.16} />
+                    <stop offset="60%" stopColor={strokeColor} stopOpacity={0.03} />
                     <stop offset="100%" stopColor={strokeColor} stopOpacity={0.0} />
                   </linearGradient>
                 );
               })}
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#151e2e" vertical={false} opacity={0.8} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} opacity={0.6} />
             <XAxis
               dataKey="timestamp"
               type="number"
@@ -311,7 +311,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ market }) => {
               stroke="#64748b"
               fontSize={11}
               tickLine={false}
-              axisLine={{ stroke: '#151e2e' }}
+              axisLine={{ stroke: '#1e293b' }}
             />
             <YAxis
               stroke="#64748b"
@@ -319,12 +319,12 @@ export const PriceChart: React.FC<PriceChartProps> = ({ market }) => {
               domain={[0, 100]}
               tickFormatter={(v) => `${v}%`}
               tickLine={false}
-              axisLine={{ stroke: '#151e2e' }}
+              axisLine={{ stroke: '#1e293b' }}
             />
             <Tooltip content={<CustomTooltip market={market} />} />
             {market.outcomes.map((o, idx) => {
-              const isMint = o.name?.toLowerCase().includes('yes') || o.name?.toLowerCase().includes('sí');
-              const strokeColor = o.color || (isMint ? '#00f0a0' : OUTCOME_PALETTE[idx % OUTCOME_PALETTE.length]);
+              const isYes = o.name?.toLowerCase().includes('yes') || o.name?.toLowerCase().includes('sí');
+              const strokeColor = o.color || (isYes ? '#10b981' : OUTCOME_PALETTE[idx % OUTCOME_PALETTE.length]);
               return (
                 <Area
                   key={o.id}
@@ -332,7 +332,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ market }) => {
                   dataKey={o.id}
                   name={o.name}
                   stroke={strokeColor}
-                  strokeWidth={2.2}
+                  strokeWidth={2}
                   fill={`url(#grad-${o.id})`}
                   fillOpacity={1}
                   activeDot={{
@@ -340,7 +340,6 @@ export const PriceChart: React.FC<PriceChartProps> = ({ market }) => {
                     strokeWidth: 2,
                     stroke: '#ffffff',
                     fill: strokeColor,
-                    style: { filter: `drop-shadow(0 0 6px ${strokeColor})` },
                   }}
                 />
               );
@@ -349,9 +348,9 @@ export const PriceChart: React.FC<PriceChartProps> = ({ market }) => {
         </ResponsiveContainer>
       </div>
 
-      <div className="flex items-center justify-between mt-3 text-[11px] text-slate-400 font-mono border-t border-[#151e2e] pt-2.5">
+      <div className="flex items-center justify-between mt-3 text-[11px] text-slate-400 font-mono border-t border-slate-800/80 pt-2.5">
         <span className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#00d2ff]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8]" />
           Continuous Pricing Engine: LMSR Discrete Updates
         </span>
         <span>Sum of Probabilities: 100%</span>

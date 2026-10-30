@@ -29,15 +29,15 @@ export const UserMarketPosition: React.FC<UserMarketPositionProps> = ({
   }
 
   return (
-    <div className="terminal-card rounded-2xl p-4 sm:p-5 elevation-card border-[#00f0a0]/30">
-      <div className="flex items-center justify-between pb-3 border-b border-[#151e2e] mb-3">
+    <div className="terminal-card rounded-2xl p-4 sm:p-5 elevation-card border-[#10b981]/30">
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.08] mb-3">
         <div className="flex items-center gap-2">
-          <Briefcase className="w-4 h-4 text-[#00f0a0] shrink-0" />
+          <Briefcase className="w-4 h-4 text-[#10b981] shrink-0" />
           <h4 className="font-semibold text-xs sm:text-sm text-slate-100 uppercase tracking-wider font-mono">
             Your Active Contract Holdings
           </h4>
         </div>
-        <span className="text-[11px] font-mono text-[#00f0a0] font-bold tabular-nums">
+        <span className="text-[11px] font-mono text-[#10b981] font-bold tabular-nums">
           {activePositions.length} Position{activePositions.length > 1 ? 's' : ''}
         </span>
       </div>
@@ -49,14 +49,14 @@ export const UserMarketPosition: React.FC<UserMarketPositionProps> = ({
           return (
             <div
               key={pos.id}
-              className="p-3.5 rounded-xl bg-[#050811] border border-[#151e2e] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+              className="p-3.5 rounded-xl bg-[#0b101d] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
             >
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-sm text-slate-100">
                     {pos.outcomeName}
                   </span>
-                  <span className="font-mono text-[#00f0a0] font-medium tabular-nums">
+                  <span className="font-mono text-[#10b981] font-medium tabular-nums">
                     {pos.quantity.toFixed(3)} shares
                   </span>
                 </div>
@@ -72,7 +72,7 @@ export const UserMarketPosition: React.FC<UserMarketPositionProps> = ({
                   </div>
                   <div
                     className={`text-[11px] font-bold flex items-center justify-end gap-1 ${
-                      isProfitable ? 'text-[#00f0a0]' : 'text-[#ff3b69]'
+                      isProfitable ? 'text-[#10b981]' : 'text-[#e11d48]'
                     }`}
                   >
                     {isProfitable ? (
@@ -89,7 +89,7 @@ export const UserMarketPosition: React.FC<UserMarketPositionProps> = ({
                 {isMarketOpen ? (
                   <button
                     onClick={() => onSellClick(pos)}
-                    className="px-3.5 py-1.5 min-h-[34px] rounded-lg bg-[#ff3b69]/15 hover:bg-[#ff3b69]/25 text-[#ff3b69] border border-[#ff3b69]/30 text-xs font-mono font-bold btn-tactile cursor-pointer"
+                    className="px-3.5 py-1.5 min-h-[34px] rounded-lg bg-[#e11d48]/15 hover:bg-[#e11d48]/25 text-[#e11d48] border border-[#e11d48]/30 text-xs font-mono font-bold btn-tactile cursor-pointer"
                   >
                     SELL
                   </button>
