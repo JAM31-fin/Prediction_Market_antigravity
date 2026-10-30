@@ -2,12 +2,14 @@
 
 @layer base {
   :root {
-    --color-background: #080c14;
-    --color-card: #0f172a;
-    --color-card-hover: #131d35;
-    --color-border: #1e293b;
-    --color-border-hover: #334155;
-    --color-accent: #06b6d4;
+    --color-background: #04070d;
+    --color-card: #080d18;
+    --color-card-hover: #0c1424;
+    --color-border: #151e2e;
+    --color-border-hover: #223048;
+    --color-accent: #00d2ff;
+    --color-mint: #00f0a0;
+    --color-crimson: #ff3b69;
   }
 
   html {
@@ -17,12 +19,12 @@
   }
 
   body {
-    background-color: #080c14;
-    color: #f8fafc;
+    background-color: #04070d;
+    color: #f1f5f9;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  /* Neutral image outline to prevent blurring into dark backgrounds */
+  /* Neutral image outline to prevent bleeding into dark pitch backgrounds */
   img {
     outline: 1px solid rgba(255, 255, 255, 0.08);
     outline-offset: -1px;
@@ -51,51 +53,123 @@
 }
 
 .btn-tactile:active:not(:disabled) {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
-/* Layered subtle shadows for cards and elevated surfaces */
+/* 80% Hyperliquid Terminal + 20% Vercel/Apple Refractive Glass Surfaces */
+.terminal-card {
+  background-color: #080d18;
+  border: 1px solid #151e2e;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+}
+
+.terminal-card-hover {
+  transition-property: border-color, background-color, transform, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.terminal-card-hover:hover {
+  background-color: #0b1220;
+  border-color: #243450;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 8px 24px -4px rgba(0, 0, 0, 0.65);
+  transform: translateY(-1px);
+}
+
+/* Translucent Glass Capsule (Navbar, Popovers, Modals) */
+.glass-terminal {
+  background: rgba(8, 13, 24, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 12px 36px -4px rgba(0, 0, 0, 0.75);
+}
+
 .elevation-card {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.35), 0 4px 12px -2px rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.5), 0 8px 20px -3px rgba(0, 0, 0, 0.4);
 }
 
 .elevation-popover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 16px 36px -6px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 8px 24px -4px rgba(0, 0, 0, 0.6), 0 20px 48px -8px rgba(0, 0, 0, 0.85);
 }
 
-.slate-panel,
-.glass-panel {
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+/* Precision Glow Accents */
+.glow-mint {
+  box-shadow: 0 0 14px -2px rgba(0, 240, 160, 0.35);
 }
 
-.slate-panel-hover,
-.glass-panel-hover {
-  transition-property: border-color, background-color, transform;
-  transition-duration: 150ms;
-  transition-timing-function: ease-out;
+.glow-crimson {
+  box-shadow: 0 0 14px -2px rgba(255, 59, 105, 0.35);
 }
 
-.slate-panel-hover:hover,
-.glass-panel-hover:hover {
-  background: #111a30;
-  border-color: #334155;
-  transform: translateY(-1px);
+.glow-cyan {
+  box-shadow: 0 0 14px -2px rgba(0, 210, 255, 0.35);
+}
+
+/* Radar pulse animation for live timestamp indicators */
+@keyframes radar-ping {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.animate-radar {
+  animation: radar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Technical Monospace Micro-Badges */
+.hud-tag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: rgba(14, 22, 38, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
 }
 
 /* Custom subtle slate scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #080c14;
+  background: #04070d;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #182338;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #253754;
+}
+
+/* Accessibility: High contrast keyboard focus rings */
+:focus-visible {
+  outline: 2px solid #00d2ff;
+  outline-offset: 2px;
+}
+
+/* Accessibility: Respect Reduced Motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-radar {
+    animation: none !important;
+  }
+  .btn-tactile:active:not(:disabled) {
+    transform: none !important;
+  }
+  .terminal-card-hover:hover {
+    transform: none !important;
+  }
 }

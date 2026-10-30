@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useMarket } from '../../context/MarketContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { getLocalizedMarket } from '../../i18n/marketTranslations';
@@ -34,7 +34,10 @@ export const MarketDetailPage: React.FC = () => {
     ? markets.find((m) => m.id === selectedMarketId)
     : markets[0];
 
-  const market = rawMarket ? getLocalizedMarket(rawMarket, language) : null;
+  const market = useMemo(
+    () => (rawMarket ? getLocalizedMarket(rawMarket, language) : null),
+    [rawMarket, language]
+  );
 
   // Active trade intent to populate TradingPanel when clicking on holdings
   const [tradeIntent, setTradeIntent] = useState<{
@@ -105,17 +108,17 @@ export const MarketDetailPage: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={() => navigateTo('markets')}
-          className="inline-flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-emerald-400 btn-tactile cursor-pointer group py-2 px-3 -ml-3 rounded-xl min-h-[38px] hover:bg-slate-900/60"
+          className="inline-flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-[#00f0a0] btn-tactile cursor-pointer group py-2 px-3 -ml-3 rounded-xl min-h-[44px] hover:bg-[#080d18] transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform shrink-0" />
           <span>{language === 'es' ? 'VOLVER A TODOS LOS MERCADOS' : 'BACK TO ALL MARKETS'}</span>
         </button>
 
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-0.5 rounded-full bg-white/[0.05] border border-white/[0.08] text-[11px] font-mono text-slate-300">
+          <span className="hud-tag">
             {market.category}
           </span>
-          <span className="px-2.5 py-0.5 rounded-full bg-slate-800/80 border border-white/[0.06] text-[11px] font-mono text-slate-400 uppercase font-semibold">
+          <span className="hud-tag uppercase font-semibold text-slate-400">
             {market.type || (market.outcomes?.length === 2 ? 'binary' : 'multi')}
           </span>
         </div>
@@ -174,24 +177,24 @@ export const MarketDetailPage: React.FC = () => {
       )}
 
       {/* Main Market Header Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-7 mb-6 elevation-card">
+      <div className="terminal-card rounded-2xl p-6 sm:p-7 mb-6 elevation-card">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2.5 mb-3">
               <span
                 className={`px-2.5 py-0.5 rounded text-[11px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm ${
                   market.status === 'open'
-                    ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                    ? 'bg-[#00f0a0]/15 text-[#00f0a0] border border-[#00f0a0]/30 shadow-[0_0_10px_rgba(0,240,160,0.2)]'
                     : market.status === 'closed'
                     ? 'bg-purple-500/15 text-purple-300 border border-purple-500/30'
                     : market.status === 'resolving'
                     ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                     : market.status === 'resolved'
-                    ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
-                    : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
+                    ? 'bg-[#00d2ff]/15 text-[#00d2ff] border border-[#00d2ff]/30'
+                    : 'bg-[#ff3b69]/15 text-rose-300 border border-[#ff3b69]/30'
                 }`}
               >
-                {market.status === 'open' && <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />}
+                {market.status === 'open' && <span className="w-2 h-2 rounded-full bg-[#00f0a0] animate-pulse" />}
                 {market.status === 'closed' && <Lock className="w-3 h-3" />}
                 {market.status === 'resolving' && <Hourglass className="w-3 h-3 animate-spin" />}
                 {market.status === 'resolved' && <CheckCircle2 className="w-3 h-3" />}
@@ -217,8 +220,8 @@ export const MarketDetailPage: React.FC = () => {
                   />
                 </div>
               ) : market.status === 'resolved' ? (
-                <div className="flex items-center gap-1.5 text-xs text-cyan-400 font-mono tabular-nums bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                <div className="flex items-center gap-1.5 text-xs text-[#00d2ff] font-mono tabular-nums bg-[#00d2ff]/10 px-2 py-0.5 rounded border border-[#00d2ff]/20">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#00d2ff] shrink-0" />
                   <span>{language === 'es' ? 'Contrato Liquidado y Resuelto' : 'Contract Resolved & Settled'}</span>
                 </div>
               ) : null}
@@ -234,32 +237,32 @@ export const MarketDetailPage: React.FC = () => {
           </div>
 
           {/* Key Metrics Columns */}
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-4 lg:pt-0 border-t lg:border-t-0 border-slate-800 text-xs font-mono shrink-0">
-            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 min-w-[125px]">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-4 lg:pt-0 border-t lg:border-t-0 border-[#151e2e] text-xs font-mono shrink-0">
+            <div className="p-3.5 rounded-xl bg-[#050811] border border-[#151e2e] min-w-[130px]">
               <div className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
                 {language === 'es' ? 'Volumen Total' : 'Total Volume'}
               </div>
               <div className="text-lg font-bold text-slate-100 tabular-nums mt-0.5">
                 ${market.volume.toLocaleString('en-US')}
               </div>
-              <div className="text-[10px] text-emerald-400 font-mono mt-0.5">● USD Virtual</div>
+              <div className="text-[10px] text-[#00f0a0] font-mono mt-0.5">● USD Virtual</div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 min-w-[125px]">
+            <div className="p-3.5 rounded-xl bg-[#050811] border border-[#151e2e] min-w-[130px]">
               <div className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
                 {language === 'es' ? 'Participantes' : 'Active Traders'}
               </div>
               <div className="text-lg font-bold text-slate-100 tabular-nums mt-0.5">
                 {activeTradersDisplay}
               </div>
-              <div className="text-[10px] text-cyan-400 font-mono mt-0.5">● {language === 'es' ? 'Pronósticos' : 'Traders'}</div>
+              <div className="text-[10px] text-[#00d2ff] font-mono mt-0.5">● {language === 'es' ? 'Pronósticos' : 'Traders'}</div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 min-w-[125px]">
+            <div className="p-3.5 rounded-xl bg-[#050811] border border-[#151e2e] min-w-[130px]">
               <div className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
                 {language === 'es' ? 'Liquidez LMSR' : 'LMSR Liquidity'}
               </div>
-              <div className="text-lg font-bold text-slate-100 tabular-nums mt-0.5">
+              <div className="text-lg font-bold text-[#00d2ff] tabular-nums mt-0.5">
                 b = {market.liquidityParameter}
               </div>
               <div className="text-[10px] text-purple-400 font-mono mt-0.5">● Algorithmic</div>
@@ -277,17 +280,17 @@ export const MarketDetailPage: React.FC = () => {
           <PriceChart market={market} />
 
           {/* Outcome Probabilities Breakdown */}
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 sm:p-6 shadow-sm">
-            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
-              <Activity className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="terminal-card rounded-2xl p-5 sm:p-6 elevation-card">
+            <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+              <Activity className="w-3.5 h-3.5 text-[#00d2ff]" />
               {language === 'es' ? 'Precios y Probabilidades en Tiempo Real' : 'Outcome Pricing & Probability Distribution'}
-            </h4>
+            </h2>
             <div className="space-y-3">
               {market.outcomes.map((outcome) => {
                 const pct = Math.round(outcome.currentPrice * 100);
-                const color = outcome.color || '#10b981';
+                const color = outcome.color || '#00f0a0';
                 return (
-                  <div key={outcome.id} className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition-colors">
+                  <div key={outcome.id} className="p-3.5 rounded-xl bg-[#050811] border border-[#151e2e] hover:border-[#1e2d45] transition-colors">
                     <div className="flex items-center justify-between text-xs mb-2">
                       <div className="flex items-center gap-2">
                         <span
@@ -309,7 +312,7 @@ export const MarketDetailPage: React.FC = () => {
                       </div>
                     </div>
                     {/* Progress Bar without Fuzzy Glow */}
-                    <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden flex">
+                    <div className="w-full bg-[#0c1424] h-2 rounded-full overflow-hidden flex">
                       <div
                         className="h-full transition-[width] duration-300 ease-out"
                         style={{
@@ -354,7 +357,7 @@ export const MarketDetailPage: React.FC = () => {
         {/* Right Column (5 cols): Trading Execution Panel, Recent Trades */}
         <div className="lg:col-span-5 xl:col-span-4 space-y-6">
           {/* Main Trading Panel */}
-          <TradingPanel market={market} tradeIntent={tradeIntent} />
+          <TradingPanel key={market.id} market={market} tradeIntent={tradeIntent} />
 
           {/* Live Trades Stream for this Market */}
           <MarketTradesFeed trades={marketTrades} />

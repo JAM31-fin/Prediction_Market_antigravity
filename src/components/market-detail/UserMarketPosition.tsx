@@ -18,7 +18,7 @@ export const UserMarketPosition: React.FC<UserMarketPositionProps> = ({
 
   if (activePositions.length === 0) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between text-xs elevation-card">
+      <div className="terminal-card rounded-2xl p-4 flex items-center justify-between text-xs elevation-card">
         <div className="flex items-center gap-2.5 text-slate-400">
           <Briefcase className="w-4 h-4 text-slate-500 shrink-0" />
           <span>You have no open positions in this contract.</span>
@@ -29,15 +29,15 @@ export const UserMarketPosition: React.FC<UserMarketPositionProps> = ({
   }
 
   return (
-    <div className="bg-slate-900 border border-emerald-500/30 rounded-2xl p-4 sm:p-5 elevation-card">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+    <div className="terminal-card rounded-2xl p-4 sm:p-5 elevation-card border-[#00f0a0]/30">
+      <div className="flex items-center justify-between pb-3 border-b border-[#151e2e] mb-3">
         <div className="flex items-center gap-2">
-          <Briefcase className="w-4 h-4 text-emerald-400 shrink-0" />
+          <Briefcase className="w-4 h-4 text-[#00f0a0] shrink-0" />
           <h4 className="font-semibold text-xs sm:text-sm text-slate-100 uppercase tracking-wider font-mono">
             Your Active Contract Holdings
           </h4>
         </div>
-        <span className="text-[11px] font-mono text-emerald-400 font-bold tabular-nums">
+        <span className="text-[11px] font-mono text-[#00f0a0] font-bold tabular-nums">
           {activePositions.length} Position{activePositions.length > 1 ? 's' : ''}
         </span>
       </div>
@@ -49,14 +49,14 @@ export const UserMarketPosition: React.FC<UserMarketPositionProps> = ({
           return (
             <div
               key={pos.id}
-              className="p-3.5 rounded-xl bg-slate-950 border border-slate-850 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+              className="p-3.5 rounded-xl bg-[#050811] border border-[#151e2e] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
             >
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-sm text-slate-100">
                     {pos.outcomeName}
                   </span>
-                  <span className="font-mono text-emerald-400 font-medium tabular-nums">
+                  <span className="font-mono text-[#00f0a0] font-medium tabular-nums">
                     {pos.quantity.toFixed(3)} shares
                   </span>
                 </div>
@@ -72,7 +72,7 @@ export const UserMarketPosition: React.FC<UserMarketPositionProps> = ({
                   </div>
                   <div
                     className={`text-[11px] font-bold flex items-center justify-end gap-1 ${
-                      isProfitable ? 'text-emerald-400' : 'text-rose-400'
+                      isProfitable ? 'text-[#00f0a0]' : 'text-[#ff3b69]'
                     }`}
                   >
                     {isProfitable ? (
@@ -89,12 +89,12 @@ export const UserMarketPosition: React.FC<UserMarketPositionProps> = ({
                 {isMarketOpen ? (
                   <button
                     onClick={() => onSellClick(pos)}
-                    className="px-3.5 py-1.5 min-h-[34px] rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-mono font-bold btn-tactile cursor-pointer"
+                    className="px-3.5 py-1.5 min-h-[34px] rounded-lg bg-[#ff3b69]/15 hover:bg-[#ff3b69]/25 text-[#ff3b69] border border-[#ff3b69]/30 text-xs font-mono font-bold btn-tactile cursor-pointer"
                   >
                     SELL
                   </button>
                 ) : (
-                  <span className="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 text-[11px] font-mono font-semibold flex items-center gap-1">
+                  <span className="px-2.5 py-1 rounded-lg bg-[#0b1220] border border-[#151e2e] text-slate-400 text-[11px] font-mono font-semibold flex items-center gap-1">
                     <Lock className="w-3 h-3 text-slate-500 shrink-0" />
                     LOCKED
                   </span>

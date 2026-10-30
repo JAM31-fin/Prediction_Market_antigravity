@@ -48,7 +48,7 @@ export const Navbar: React.FC = () => {
   ] as const;
 
   return (
-    <header className="sticky top-0 z-40 bg-[#080c14]/95 border-b border-slate-800 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 bg-[#04070d]/85 border-b border-[#151e2e] backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           
@@ -58,38 +58,39 @@ export const Navbar: React.FC = () => {
               onClick={() => navigateTo('home')}
               className="flex items-center gap-2.5 text-left group cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:border-emerald-400/50 transition-colors">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-[#00f0a0] group-hover:border-emerald-400/50 group-hover:shadow-[0_0_12px_rgba(0,240,160,0.25)] transition-all">
                 <TrendingUp className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-sm tracking-tight text-white font-sans">
-                    CENTRA<span className="text-cyan-400">MARKETS</span>
+                    CENTRA<span className="text-[#00f0a0]">MARKETS</span>
                   </span>
-                  <span className="text-[9px] font-mono uppercase px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 font-semibold tracking-wider border border-slate-700">
+                  <span className="hud-tag text-[#00d2ff] bg-cyan-950/40 border-cyan-500/20">
                     LMSR
                   </span>
                 </div>
                 <div className="text-[10px] text-slate-400 -mt-0.5 font-mono">
-                  Prediction Trading
+                  Prediction Terminal
                 </div>
               </div>
             </button>
 
             {/* Main Navigation Links with Sliding Pill */}
-            <nav className="hidden md:flex items-center gap-1 bg-slate-900 border border-slate-800 p-1 rounded-xl">
+            <nav className="hidden md:flex items-center gap-1 bg-black/40 border border-white/[0.06] p-1 rounded-xl">
               {NAV_ITEMS.map((item) => {
                 const isActive = currentView === item.id || (item.id === 'markets' && currentView === 'detail');
                 return (
                   <button
                     key={item.id}
                     onClick={() => navigateTo(item.id)}
-                    className="relative px-3 py-1.5 rounded-lg text-xs font-medium tracking-normal transition-colors cursor-pointer btn-tactile"
+                    aria-current={isActive ? 'page' : undefined}
+                    className="relative px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-medium tracking-normal transition-colors cursor-pointer btn-tactile"
                   >
                     {isActive && (
                       <motion.div
                         layoutId="navbar-tab-active"
-                        className="absolute inset-0 bg-slate-800 border border-slate-700/80 rounded-lg shadow-sm"
+                        className="absolute inset-0 bg-white/[0.08] border border-white/[0.12] rounded-lg shadow-sm"
                         transition={{ type: 'spring', stiffness: 450, damping: 35 }}
                       />
                     )}
@@ -104,7 +105,8 @@ export const Navbar: React.FC = () => {
               {user?.role === 'admin' && (
                 <button
                   onClick={() => navigateTo('admin')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold btn-tactile flex items-center gap-1.5 cursor-pointer ${
+                  aria-current={currentView === 'admin' ? 'page' : undefined}
+                  className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold btn-tactile flex items-center gap-1.5 cursor-pointer ${
                     currentView === 'admin'
                       ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                       : 'text-amber-400/80 hover:text-amber-300 hover:bg-amber-500/10'
@@ -119,20 +121,21 @@ export const Navbar: React.FC = () => {
 
           {/* Quick Search Bar */}
           <form onSubmit={handleSearchSubmit} className="hidden lg:flex items-center flex-1 max-w-xs relative group">
-            <Search className="w-3.5 h-3.5 text-slate-500 group-focus-within:text-cyan-400 absolute left-3 top-1/2 -translate-y-1/2 transition-colors pointer-events-none" />
+            <Search className="w-3.5 h-3.5 text-slate-500 group-focus-within:text-[#00d2ff] absolute left-3 top-1/2 -translate-y-1/2 transition-colors pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search contracts..."
-              className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/20 transition-[border-color,box-shadow] duration-150 ease-out"
+              aria-label={language === 'es' ? 'Buscar contratos y retos' : 'Search contracts and markets'}
+              className="w-full bg-[#080d18] border border-[#151e2e] rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/20 transition-[border-color,box-shadow] duration-150 ease-out"
             />
           </form>
 
           {/* Right Action Widgets */}
           <div className="flex items-center gap-2">
 
-            {/* Real-time SSE Live Connection Indicator */}
+            {/* Real-time SSE Live Connection Indicator with Radar Pulse */}
             <button
               type="button"
               id="navbar-realtime-status-pill"
@@ -141,9 +144,9 @@ export const Navbar: React.FC = () => {
                   retryConnection();
                 }
               }}
-              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 min-h-[38px] rounded-xl border text-[11px] font-mono tabular-nums transition-[background-color,border-color,color] ${
+              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl border text-[11px] font-mono tabular-nums transition-[background-color,border-color,color] ${
                 realtimeStatus === 'connected'
-                  ? 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700 cursor-default'
+                  ? 'bg-black/30 border-[#151e2e] text-slate-300 hover:border-slate-700 cursor-default'
                   : 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20 cursor-pointer btn-tactile'
               }`}
               title={
@@ -154,29 +157,29 @@ export const Navbar: React.FC = () => {
             >
               <span className="relative flex h-2 w-2">
                 {realtimeStatus === 'connected' && (
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="animate-radar absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 )}
                 <span
                   className={`relative inline-flex rounded-full h-2 w-2 ${
                     realtimeStatus === 'connected'
-                      ? 'bg-emerald-500'
+                      ? 'bg-[#00f0a0]'
                       : realtimeStatus === 'connecting'
                       ? 'bg-amber-400 animate-pulse'
                       : realtimeStatus === 'reconnecting'
                       ? 'bg-orange-500 animate-pulse'
-                      : 'bg-rose-500'
+                      : 'bg-[#ff3b69]'
                   }`}
                 />
               </span>
               <span
                 className={`font-semibold ${
                   realtimeStatus === 'connected'
-                    ? 'text-emerald-400'
+                    ? 'text-[#00f0a0]'
                     : realtimeStatus === 'connecting'
                     ? 'text-amber-400'
                     : realtimeStatus === 'reconnecting'
                     ? 'text-orange-400'
-                    : 'text-rose-400'
+                    : 'text-[#ff3b69]'
                 }`}
               >
                 {realtimeStatus === 'connected' ? 'LIVE' : realtimeStatus.toUpperCase()}
@@ -187,45 +190,48 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[38px] rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-xs font-mono font-bold text-slate-200 btn-tactile cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#080d18] hover:bg-[#0c1424] border border-[#151e2e] hover:border-[#223048] text-xs font-mono font-bold text-slate-200 btn-tactile cursor-pointer"
               title={language === 'es' ? 'Cambiar idioma / Switch language' : 'Switch language / Cambiar idioma'}
+              aria-label={language === 'es' ? 'Cambiar idioma a inglés' : 'Switch language to Spanish'}
             >
-              <Globe className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              <Globe className="w-3.5 h-3.5 text-[#00d2ff] shrink-0" />
               <span>{language.toUpperCase()}</span>
             </button>
 
-            {/* Virtual Cash Balance Badge */}
+            {/* Virtual Cash Balance Badge (Accessible Button) */}
             {user && (
-              <div 
+              <button
+                type="button"
                 onClick={() => navigateTo(user.role === 'admin' ? 'admin' : 'portfolio')}
-                className="flex items-center gap-2 px-3 py-1.5 min-h-[38px] rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 cursor-pointer btn-tactile shadow-sm"
+                className="flex items-center gap-2 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#080d18] hover:bg-[#0c1424] border border-[#151e2e] hover:border-[#223048] cursor-pointer btn-tactile shadow-sm text-left"
                 title={user.role === 'admin' ? 'Platform Treasury Balance' : 'Virtual Balance - Click to view portfolio'}
+                aria-label={user.role === 'admin' ? `Treasury balance: $${(user.virtualBalance ?? 0).toFixed(2)} USD` : `Account balance: $${(user.virtualBalance ?? 0).toFixed(2)} USD`}
               >
-                <Wallet className={`w-3.5 h-3.5 shrink-0 ${user.role === 'admin' ? 'text-amber-400' : 'text-cyan-400'}`} />
+                <Wallet className={`w-3.5 h-3.5 shrink-0 ${user.role === 'admin' ? 'text-amber-400' : 'text-[#00f0a0]'}`} />
                 <div className="text-right">
                   <div className="text-[10px] text-slate-400 leading-none">
                     {user.role === 'admin' ? 'Treasury' : 'Balance'}
                   </div>
                   <div className={`text-xs font-mono font-bold tabular-nums leading-tight mt-0.5 ${
-                    user.role === 'admin' ? 'text-amber-400' : 'text-slate-100'
+                    user.role === 'admin' ? 'text-amber-400' : 'text-[#00f0a0]'
                   }`}>
                     ${(user.virtualBalance ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                 </div>
-              </div>
+              </button>
             )}
 
             {/* Notifications Bell with 40x40px hit area */}
             <div className="relative">
               <button
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
-                className="relative min-w-[38px] min-h-[38px] sm:min-w-[40px] sm:min-h-[40px] p-2 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white btn-tactile flex items-center justify-center cursor-pointer"
+                className="relative min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] p-2 rounded-xl bg-[#080d18] hover:bg-[#0c1424] border border-[#151e2e] hover:border-[#223048] text-slate-300 hover:text-white btn-tactile flex items-center justify-center cursor-pointer"
                 title="Notifications"
                 aria-label="Toggle notifications"
               >
                 <Bell className="w-4 h-4" />
                 {unreadNotifs > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-cyan-500 text-[10px] font-mono font-bold text-slate-950 flex items-center justify-center tabular-nums shadow-sm">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#00d2ff] text-[10px] font-mono font-bold text-slate-950 flex items-center justify-center tabular-nums shadow-sm">
                     {unreadNotifs}
                   </span>
                 )}
@@ -237,7 +243,7 @@ export const Navbar: React.FC = () => {
             {user ? (
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 min-h-[38px] sm:min-h-[40px] rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-200 btn-tactile cursor-pointer"
+                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#080d18] hover:bg-[#0c1424] border border-[#151e2e] hover:border-[#223048] text-slate-200 btn-tactile cursor-pointer"
                 title="Account Settings"
               >
                 <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold font-mono shrink-0 ${
@@ -262,7 +268,7 @@ export const Navbar: React.FC = () => {
             ) : (
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="px-4 py-1.5 min-h-[38px] rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-sans text-xs font-semibold btn-tactile cursor-pointer shadow-sm"
+                className="px-4 py-2 min-h-[40px] sm:min-h-[44px] rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-sans text-xs font-semibold btn-tactile cursor-pointer shadow-sm flex items-center justify-center"
               >
                 Sign In
               </button>
@@ -279,7 +285,8 @@ export const Navbar: React.FC = () => {
               <button
                 key={item.id}
                 onClick={() => navigateTo(item.id)}
-                className={`px-2 py-1 font-semibold ${isActive ? 'text-emerald-400' : 'text-slate-400'}`}
+                aria-current={isActive ? 'page' : undefined}
+                className={`px-3 py-2.5 min-h-[44px] flex items-center font-semibold btn-tactile ${isActive ? 'text-[#00f0a0]' : 'text-slate-400'}`}
               >
                 {item.label}
               </button>
@@ -288,7 +295,8 @@ export const Navbar: React.FC = () => {
           {user?.role === 'admin' && (
             <button
               onClick={() => navigateTo('admin')}
-              className={`px-2 py-1 font-semibold ${currentView === 'admin' ? 'text-amber-400' : 'text-slate-400'}`}
+              aria-current={currentView === 'admin' ? 'page' : undefined}
+              className={`px-3 py-2.5 min-h-[44px] flex items-center font-semibold btn-tactile ${currentView === 'admin' ? 'text-amber-400' : 'text-slate-400'}`}
             >
               ADMIN
             </button>
