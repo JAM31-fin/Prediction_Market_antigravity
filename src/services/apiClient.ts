@@ -183,11 +183,18 @@ class ApiClient {
 
     if (!response.ok) {
       if (response.status === 401) {
-        // Automatically clear stale or revoked credentials
-        this.setToken(null);
-        this.setCachedUser(null);
+        // Automatically clear stale or revoked credentials unless it is an admin PIN challenge
+        const isPinChallenge = data?.requiresAdminPin || /Administrator master PIN is required/i.test(data?.error || '');
+        if (!isPinChallenge) {
+          this.setToken(null);
+          this.setCachedUser(null);
+        }
       }
-      throw new Error(data?.error || `Request failed with status ${response.status}`);
+      const err: any = new Error(data?.error || `Request failed with status ${response.status}`);
+      if (data?.requiresAdminPin) {
+        err.requiresAdminPin = true;
+      }
+      throw err;
     }
 
     if (!data || typeof data !== 'object') {

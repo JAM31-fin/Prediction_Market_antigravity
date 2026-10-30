@@ -143,7 +143,12 @@ export async function handleApiRequest(
         sendJson(res, 200, { success: true, ...result });
       } catch (err: any) {
         const isForbiddenOrUnauthorized = /PIN|unauthorized|invalid credentials|not found/i.test(err.message || '');
-        sendError(res, isForbiddenOrUnauthorized ? 401 : 400, err.message || 'Authentication failed.');
+        const requiresAdminPin = /Administrator master PIN is required/i.test(err.message || '');
+        if (requiresAdminPin) {
+          sendJson(res, 401, { success: false, error: err.message, requiresAdminPin: true });
+        } else {
+          sendError(res, isForbiddenOrUnauthorized ? 401 : 400, err.message || 'Authentication failed.');
+        }
       }
       return true;
     }
