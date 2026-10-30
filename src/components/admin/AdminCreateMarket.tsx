@@ -13,7 +13,8 @@ import {
   Cpu,
   Layers,
   HelpCircle,
-  Trophy
+  Trophy,
+  DollarSign
 } from 'lucide-react';
 
 export const AdminCreateMarket: React.FC = () => {
@@ -34,6 +35,8 @@ export const AdminCreateMarket: React.FC = () => {
   const [resolutionRules, setResolutionRules] = useState('');
   const [liquidityParameter, setLiquidityParameter] = useState<number>(100);
   const [subsidyBudget, setSubsidyBudget] = useState<number>(69.31);
+  const [liquidityInput, setLiquidityInput] = useState<string>('100');
+  const [subsidyInput, setSubsidyInput] = useState<string>('69.31');
   const [commissionRate, setCommissionRate] = useState<number>(0.01);
   const [spread, setSpread] = useState<number>(0.015);
 
@@ -57,20 +60,30 @@ export const AdminCreateMarket: React.FC = () => {
       : customOutcomes.map((o) => (Number(o.initialProb) || 1) / 100);
   };
 
-  const handleSubsidyChange = (val: number) => {
-    const s = Math.max(1, Math.round(val));
-    setSubsidyBudget(s);
-    const probs = getCurrentProbs();
-    const derivedB = LMSREngine.calculateBFromSubsidy(s, probs);
-    setLiquidityParameter(derivedB);
+  const handleSubsidyInputChange = (rawVal: string) => {
+    setSubsidyInput(rawVal);
+    const parsed = parseFloat(rawVal);
+    if (!isNaN(parsed) && parsed > 0) {
+      const s = Number(parsed.toFixed(2));
+      setSubsidyBudget(s);
+      const probs = getCurrentProbs();
+      const derivedB = LMSREngine.calculateBFromSubsidy(s, probs);
+      setLiquidityParameter(derivedB);
+      setLiquidityInput(derivedB.toString());
+    }
   };
 
-  const handleLiquidityChange = (val: number) => {
-    const bVal = Math.max(1, Math.round(val));
-    setLiquidityParameter(bVal);
-    const probs = getCurrentProbs();
-    const derivedLoss = LMSREngine.calculateMaxLoss(bVal, probs);
-    setSubsidyBudget(derivedLoss);
+  const handleLiquidityInputChange = (rawVal: string) => {
+    setLiquidityInput(rawVal);
+    const parsed = parseFloat(rawVal);
+    if (!isNaN(parsed) && parsed > 0) {
+      const bVal = Number(parsed.toFixed(2));
+      setLiquidityParameter(bVal);
+      const probs = getCurrentProbs();
+      const derivedLoss = LMSREngine.calculateMaxLoss(bVal, probs);
+      setSubsidyBudget(derivedLoss);
+      setSubsidyInput(derivedLoss.toFixed(2));
+    }
   };
 
   const handleBinaryYesChange = (val: number) => {
@@ -80,6 +93,7 @@ export const AdminCreateMarket: React.FC = () => {
     const probs = [clamped / 100, (100 - clamped) / 100];
     const derivedLoss = LMSREngine.calculateMaxLoss(liquidityParameter, probs);
     setSubsidyBudget(derivedLoss);
+    setSubsidyInput(derivedLoss.toFixed(2));
   };
 
   const handleBinaryNoChange = (val: number) => {
@@ -89,6 +103,7 @@ export const AdminCreateMarket: React.FC = () => {
     const probs = [(100 - clamped) / 100, clamped / 100];
     const derivedLoss = LMSREngine.calculateMaxLoss(liquidityParameter, probs);
     setSubsidyBudget(derivedLoss);
+    setSubsidyInput(derivedLoss.toFixed(2));
   };
 
   const totalMultiProb = Math.round(customOutcomes.reduce((acc, o) => acc + (Number(o.initialProb) || 0), 0));
@@ -107,6 +122,10 @@ export const AdminCreateMarket: React.FC = () => {
       return { ...o, initialProb: rounded };
     });
     setCustomOutcomes(normalized);
+    const probs = normalized.map((o) => (Number(o.initialProb) || 1) / 100);
+    const derivedLoss = LMSREngine.calculateMaxLoss(liquidityParameter, probs);
+    setSubsidyBudget(derivedLoss);
+    setSubsidyInput(derivedLoss.toFixed(2));
   };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -140,6 +159,10 @@ export const AdminCreateMarket: React.FC = () => {
       setResolutionSource('Chat grupal y hora presencial acordada');
       setResolutionRules('Resuelve SÍ a los 15:00 minutos exactos de retraso sobre la hora pactada.');
       setLiquidityParameter(150);
+      setLiquidityInput('150');
+      const s = LMSREngine.calculateMaxLoss(150, [0.65, 0.35]);
+      setSubsidyBudget(s);
+      setSubsidyInput(s.toFixed(2));
     } else if (type === 'weather') {
       setQuestion('Will precipitation exceed 2.0 mm in Central London tomorrow?');
       setDescription('Contract tracks official Met Office rainfall measurement at St. James Park observation station.');
@@ -150,6 +173,10 @@ export const AdminCreateMarket: React.FC = () => {
       setResolutionSource('UK Met Office Official Weather Bulletins');
       setResolutionRules('Resolves YES if registered precipitation between 00:00 and 23:59 UTC exceeds 2.0mm. Otherwise resolves NO.');
       setLiquidityParameter(120);
+      setLiquidityInput('120');
+      const s = LMSREngine.calculateMaxLoss(120, [0.5, 0.5]);
+      setSubsidyBudget(s);
+      setSubsidyInput(s.toFixed(2));
     } else if (type === 'fed') {
       setQuestion('What will be the Federal Reserve policy rate change at the upcoming FOMC?');
       setDescription('Traders forecast the benchmark federal funds target range adjustment.');
@@ -157,13 +184,18 @@ export const AdminCreateMarket: React.FC = () => {
       setMarketType('multi');
       setResolutionSource('Federal Reserve Board Statement');
       setResolutionRules('Resolves based on the official target range announcement following the FOMC meeting.');
-      setCustomOutcomes([
+      const outcomes = [
         { name: 'Hold / No Change', initialProb: 55, color: '#10b981' },
         { name: '25 bps Cut', initialProb: 35, color: '#3b82f6' },
         { name: '50+ bps Cut', initialProb: 8, color: '#f59e0b' },
         { name: 'Rate Hike', initialProb: 2, color: '#ef4444' },
-      ]);
+      ];
+      setCustomOutcomes(outcomes);
       setLiquidityParameter(150);
+      setLiquidityInput('150');
+      const s = LMSREngine.calculateMaxLoss(150, [0.55, 0.35, 0.08, 0.02]);
+      setSubsidyBudget(s);
+      setSubsidyInput(s.toFixed(2));
     } else if (type === 'bitcoin') {
       setQuestion('Will Bitcoin reach $150,000 before December 31, 2026?');
       setDescription('Tracks continuous spot index price on major centralized spot exchanges.');
@@ -174,6 +206,10 @@ export const AdminCreateMarket: React.FC = () => {
       setResolutionSource('CME CF Bitcoin Reference Rate (BRR)');
       setResolutionRules('Resolves YES if the price index touches or breaches $150,000.00 at any point prior to expiration.');
       setLiquidityParameter(200);
+      setLiquidityInput('200');
+      const s = LMSREngine.calculateMaxLoss(200, [0.7, 0.3]);
+      setSubsidyBudget(s);
+      setSubsidyInput(s.toFixed(2));
     }
   };
 
@@ -312,7 +348,7 @@ export const AdminCreateMarket: React.FC = () => {
       )}
 
       {/* Main Creation Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} noValidate className="space-y-6">
         
         {/* Section 1: Core Contract Definition */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
@@ -669,34 +705,45 @@ export const AdminCreateMarket: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-xs">
             <div>
-              <label className="block text-slate-300 mb-1 font-bold text-amber-300">
-                Presupuesto Subsidio ($ USD):
+              <label className="block text-slate-300 mb-1 font-bold text-amber-300 flex items-center justify-between">
+                <span className="flex items-center gap-1">
+                  <DollarSign className="w-3.5 h-3.5 text-amber-400" />
+                  Presupuesto Subsidio ($ USD):
+                </span>
+                <span className="text-[10px] text-amber-400 font-normal">Tope Máx Riesgo</span>
               </label>
               <input
                 type="number"
-                min="5"
-                max="50000"
-                step="5"
-                value={subsidyBudget}
-                onChange={(e) => handleSubsidyChange(parseFloat(e.target.value) || 50)}
+                min="0.01"
+                max="500000"
+                step="any"
+                value={subsidyInput}
+                onChange={(e) => handleSubsidyInputChange(e.target.value)}
+                onBlur={() => {
+                  if (subsidyBudget > 0) setSubsidyInput(subsidyBudget.toFixed(2));
+                }}
                 className="w-full bg-slate-950 border border-amber-500/40 rounded-lg px-3 py-2 text-amber-300 font-bold focus:outline-none focus:border-amber-400"
               />
               <span className="text-[10px] text-amber-400/80 mt-1 block">
-                Tope máximo de riesgo ($S) asumido
+                Tope de subsidio ($S) asumido por la plataforma
               </span>
             </div>
 
             <div>
-              <label className="block text-slate-300 mb-1">
-                Liquidity Parameter (b):
+              <label className="block text-slate-300 mb-1 flex items-center justify-between">
+                <span>Parámetro de Liquidez (b):</span>
+                <span className="text-[10px] text-slate-500 font-normal">LMSR Scale</span>
               </label>
               <input
                 type="number"
-                min="1"
-                max="5000"
-                step="1"
-                value={liquidityParameter}
-                onChange={(e) => handleLiquidityChange(parseInt(e.target.value) || 100)}
+                min="0.1"
+                max="50000"
+                step="any"
+                value={liquidityInput}
+                onChange={(e) => handleLiquidityInputChange(e.target.value)}
+                onBlur={() => {
+                  if (liquidityParameter > 0) setLiquidityInput(liquidityParameter.toString());
+                }}
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-bold focus:outline-none focus:border-emerald-500"
               />
               <span className="text-[10px] text-slate-500 mt-1 block">
