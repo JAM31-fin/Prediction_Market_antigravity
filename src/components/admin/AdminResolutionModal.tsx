@@ -57,7 +57,7 @@ export const AdminResolutionModal: React.FC<AdminResolutionModalProps> = ({ mark
       setResolutionProof(market.resolutionProof || '');
       setError(null);
     }
-  }, [market]);
+  }, [market?.id]);
 
   if (!market) return null;
 
@@ -86,7 +86,10 @@ export const AdminResolutionModal: React.FC<AdminResolutionModalProps> = ({ mark
   const mmPnL = lmsrCashFlow - totalPayout;
   const platformNetResult = mmPnL + totalFees;
 
-  const selectedOutcome = market.outcomes.find((o) => o.id === selectedOutcomeId);
+  const selectedOutcome = market.outcomes.find((o) => o.id === selectedOutcomeId) || market.outcomes[0];
+  const proposedOutcome = market.outcomes.find((o) => o.id === market.proposedOutcomeId);
+
+  const showProposalConfig = !isResolvingState || !market.proposedOutcomeId || selectedOutcomeId !== market.proposedOutcomeId;
 
   const handleProposeResolution = async () => {
     if (!selectedOutcomeId) return;
@@ -191,7 +194,15 @@ export const AdminResolutionModal: React.FC<AdminResolutionModalProps> = ({ mark
               </span>
             </div>
             <div className="text-slate-300 leading-relaxed text-[11px]">
-              El resultado propuesto es <span className="font-bold text-emerald-400">{selectedOutcome?.name}</span>. Durante este período los saldos permanecen protegidos y no han sido distribuidos.
+              {proposedOutcome ? (
+                <>
+                  El resultado propuesto actualmente es <span className="font-bold text-amber-400">{proposedOutcome.name}</span>. Durante este período los saldos permanecen protegidos en escrow y no han sido distribuidos.
+                </>
+              ) : (
+                <>
+                  El mercado se encuentra en estado de resolución pero aún no tiene un resultado propuesto registrado. Selecciona un resultado a continuación para formalizar la propuesta.
+                </>
+              )}
             </div>
             {market.resolutionProof && (
               <div className="text-[11px] text-slate-400 font-mono">
@@ -212,18 +223,17 @@ export const AdminResolutionModal: React.FC<AdminResolutionModalProps> = ({ mark
         {/* Choose Winning Outcome */}
         <div className="mb-5">
           <label className="block text-xs font-mono text-slate-300 mb-2 font-semibold">
-            {isResolvingState ? 'Resultado Propuesto Actualmente:' : 'Seleccionar Resultado Ganador:'}
+            {isResolvingState ? 'Simular / Seleccionar Resultado Ganador:' : 'Seleccionar Resultado Ganador:'}
           </label>
           <div className="space-y-2">
             {market.outcomes.map((outcome) => {
               const isSelected = outcome.id === selectedOutcomeId;
+              const isProposed = outcome.id === market.proposedOutcomeId;
               return (
                 <div
                   key={outcome.id}
-                  onClick={() => !isResolvingState && setSelectedOutcomeId(outcome.id)}
-                  className={`p-3 rounded-xl border flex items-center justify-between ${
-                    !isResolvingState ? 'cursor-pointer btn-tactile' : 'opacity-85'
-                  } ${
+                  onClick={() => setSelectedOutcomeId(outcome.id)}
+                  className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer btn-tactile ${
                     isSelected
                       ? 'bg-emerald-500/15 border-emerald-500 text-slate-100 ring-1 ring-emerald-500/40'
                       : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
@@ -238,6 +248,11 @@ export const AdminResolutionModal: React.FC<AdminResolutionModalProps> = ({ mark
                       {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />}
                     </div>
                     <span className="font-bold text-xs">{outcome.name}</span>
+                    {isProposed && (
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold uppercase">
+                        Propuesta Activa
+                      </span>
+                    )}
                   </div>
                   <span className="font-mono text-xs text-slate-400 tabular-nums">
                     Last price: {Math.round(outcome.currentPrice * 100)}&cent;
@@ -278,12 +293,12 @@ export const AdminResolutionModal: React.FC<AdminResolutionModalProps> = ({ mark
           </div>
         </div>
 
-        {!isResolvingState && (
+        {showProposalConfig && (
           <>
             {/* Dispute Window Configuration */}
             <div className="mb-4">
               <label className="block text-xs font-mono text-slate-300 mb-1">
-                Ventana de Disputa Optimista:
+                {isResolvingState ? 'Nueva Ventana de Disputa:' : 'Ventana de Disputa Optimista:'}
               </label>
               <select
                 disabled={immediateResolution}
@@ -337,7 +352,7 @@ export const AdminResolutionModal: React.FC<AdminResolutionModalProps> = ({ mark
         )}
 
         {/* Action Buttons */}
-        {isResolvingState ? (
+        {isResolvingState && market.proposedOutcomeId && selectedOutcomeId === market.proposedOutcomeId ? (
           <div className="flex items-center gap-3">
             <button
               onClick={handleDispute}
@@ -362,6 +377,55 @@ export const AdminResolutionModal: React.FC<AdminResolutionModalProps> = ({ mark
               )}
             </button>
           </div>
+        ) : isResolvingState && market.proposedOutcomeId && selectedOutcomeId !== market.proposedOutcomeId ? (
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSelectedOutcomeId(market.proposedOutcomeId!)}
+              disabled={isResolving}
+              className="flex-1 py-2.5 min-h-[38px] rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs font-mono btn-tactile cursor-pointer"
+            >
+              Ver Propuesta Actual
+            </button>
+            <button
+              onClick={handleProposeResolution}
+              disabled={isResolving}
+              className="flex-1 py-2.5 min-h-[38px] rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-mono font-bold btn-tactile flex items-center justify-center gap-1.5 shadow-md disabled:opacity-50 cursor-pointer"
+            >
+              {isResolving ? (
+                <span>Actualizando...</span>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{immediateResolution ? `LIQUIDAR "${selectedOutcome?.name}"` : `CAMBIAR A "${selectedOutcome?.name}"`}</span>
+                </>
+              )}
+            </button>
+          </div>
+        ) : isResolvingState && !market.proposedOutcomeId ? (
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleDispute}
+              disabled={isResolving}
+              className="flex-1 py-2.5 min-h-[38px] rounded-xl bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-300 text-xs font-mono font-bold btn-tactile flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+            >
+              <RotateCcw className="w-4 h-4 text-rose-400" />
+              <span>REVERTIR ESTADO</span>
+            </button>
+            <button
+              onClick={handleProposeResolution}
+              disabled={isResolving}
+              className="flex-1 py-2.5 min-h-[38px] rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-mono font-bold btn-tactile flex items-center justify-center gap-1.5 shadow-md disabled:opacity-50 cursor-pointer"
+            >
+              {isResolving ? (
+                <span>Procesando...</span>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{immediateResolution ? `LIQUIDAR "${selectedOutcome?.name}"` : `PROPONER "${selectedOutcome?.name}"`}</span>
+                </>
+              )}
+            </button>
+          </div>
         ) : (
           <div className="flex items-center gap-3">
             <button
@@ -380,7 +444,7 @@ export const AdminResolutionModal: React.FC<AdminResolutionModalProps> = ({ mark
               ) : (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>{immediateResolution ? 'CONFIRMAR SETTLEMENT' : 'PROPONER RESOLUCIÓN'}</span>
+                  <span>{immediateResolution ? `CONFIRMAR "${selectedOutcome?.name}"` : `PROPONER "${selectedOutcome?.name}"`}</span>
                 </>
               )}
             </button>

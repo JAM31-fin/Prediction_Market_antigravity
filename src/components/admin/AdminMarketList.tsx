@@ -272,25 +272,25 @@ export const AdminMarketList: React.FC = () => {
                             </button>
                           )}
 
-                          {/* [START RESOLUTION] */}
-                          {(m.status === 'closed' || m.status === 'open') && (
-                            <button
-                              onClick={() => handleSetStatus(m.id, 'resolving')}
-                              className="btn-tactile px-2.5 py-1 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-bold font-mono"
-                              title="Initiate oracle verification"
-                            >
-                              START RESOLUTION
-                            </button>
-                          )}
-
                           {/* [RESOLVE] */}
-                          {m.status !== 'resolved' && m.status !== 'cancelled' && (
+                          {(m.status === 'open' || m.status === 'closed') && (
                             <button
                               onClick={() => setMarketToResolve(m)}
                               className="btn-tactile px-2.5 py-1 rounded-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[10px] font-bold font-mono"
                               title="Resolve winning outcome & settle payouts"
                             >
                               RESOLVE
+                            </button>
+                          )}
+
+                          {/* [RESOLVING STATUS / MANAGE] */}
+                          {m.status === 'resolving' && (
+                            <button
+                              onClick={() => setMarketToResolve(m)}
+                              className="btn-tactile px-2.5 py-1 rounded-md bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40 text-[10px] font-bold font-mono"
+                              title="Ventana de disputa en curso: Gestionar o finalizar resolución"
+                            >
+                              RESOLVING...
                             </button>
                           )}
 
