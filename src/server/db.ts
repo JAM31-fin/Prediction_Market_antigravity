@@ -67,20 +67,24 @@ export function normalizeDatabaseUrl(rawUrl?: string | null): string | null {
     }
   );
 
-  // If using direct Supabase hostname (db.<project-ref>.supabase.co)
-  // Direct hosts only resolve to IPv6, so route through the IPv4 Connection Pooler (session mode)
+  // If using direct Supabase hostname (db.<project-ref>.supabase.co) or pooler host
+  // Route through the IPv4 Connection Pooler in Transaction Mode (port 6543) to prevent
+  // the EMAXCONNSSESSION 15-client limit of session mode (port 5432).
   try {
     const u = new URL(cleaned);
     const hostMatch = u.hostname.match(/^db\.([a-z0-9]+)\.supabase\.co$/i);
+    const poolerPort = process.env.SUPABASE_POOLER_PORT || '6543'; // Transaction mode pooler
     if (hostMatch) {
       const projectRef = hostMatch[1];
       const region = process.env.SUPABASE_REGION || (projectRef === 'bpccsxtmacaezjlkbrdn' ? 'sa-east-1' : 'us-east-1');
       const poolerHost = `aws-0-${region}.pooler.supabase.com`;
       const poolerUser = u.username.includes('.') ? u.username : `postgres.${projectRef}`;
-      const port = '5432'; // Session pooler port
       const dbName = u.pathname.replace(/^\//, '') || 'postgres';
 
-      cleaned = `${u.protocol}//${poolerUser}:${u.password}@${poolerHost}:${port}/${dbName}`;
+      cleaned = `${u.protocol}//${poolerUser}:${u.password}@${poolerHost}:${poolerPort}/${dbName}`;
+    } else if (u.hostname.includes('.pooler.supabase.com') && (u.port === '5432' || !u.port)) {
+      u.port = poolerPort;
+      cleaned = u.toString();
     }
   } catch {}
 
@@ -201,9 +205,10 @@ export function getDatabasePool(): {
       pgPool = new pg.Pool({
         connectionString: dbUrl,
         ssl: isLocalhost ? false : { rejectUnauthorized: false },
-        max: 20,
-        idleTimeoutMillis: 30000,
+        max: 10,
+        idleTimeoutMillis: 10000,
         connectionTimeoutMillis: 10000,
+        allowExitOnIdle: true,
       });
 
       pgPool.on('error', (err) => {
