@@ -43,7 +43,7 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [prizePool, setPrizePool] = useState('');
-  const [initialBalance, setInitialBalance] = useState('1000');
+  const [initialBalance, setInitialBalance] = useState('100');
   const [status, setStatus] = useState<TournamentStatus>('active');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -77,7 +77,7 @@ export const AdminTournamentModal: React.FC<AdminTournamentModalProps> = ({
       setTitle('');
       setDescription('');
       setPrizePool('🎁 $50 USD en efectivo / Premio acordado');
-      setInitialBalance('1000');
+      setInitialBalance('100');
       setStatus('active');
       setStartDate(formatForDateTimeInput(now.toISOString()));
       setEndDate(formatForDateTimeInput(in7Days.toISOString()));

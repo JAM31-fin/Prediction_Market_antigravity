@@ -46,6 +46,7 @@ interface MarketContextType {
   searchQuery: string;
   selectedCategory: Category | 'All';
   isAuthModalOpen: boolean;
+  isWelcomeModalOpen: boolean;
   activeRole: 'user' | 'admin';
   loading: boolean;
   systemAlert: SystemAlert | null;
@@ -78,6 +79,7 @@ interface MarketContextType {
   setSearchQuery: (q: string) => void;
   setSelectedCategory: (cat: Category | 'All') => void;
   setIsAuthModalOpen: (open: boolean) => void;
+  setIsWelcomeModalOpen: (open: boolean) => void;
   switchUserRole: (role: 'user' | 'admin') => void;
   login: (usernameOrEmail: string, password?: string, adminPin?: string) => Promise<User>;
   register: (username: string, password: string, phoneNumber: string, name?: string, email?: string) => Promise<User>;
@@ -89,6 +91,7 @@ interface MarketContextType {
     outcomeId: string;
     type: 'BUY' | 'SELL';
     amountOrShares: number;
+    isAnonymous?: boolean;
   }) => Promise<{ success: boolean; message: string }>;
   partialSellPosition: (position: Position, sharesToSell: number) => Promise<boolean>;
   createMarket: (marketData: Omit<Market, 'id' | 'createdAt' | 'volume' | 'totalTraders' | 'priceHistory'>) => Promise<Market>;
@@ -177,6 +180,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(false);
   const [activeRole, setActiveRole] = useState<'user' | 'admin'>('user');
   const [loading, setLoading] = useState<boolean>(true);
   const [realtimeStatus, setRealtimeStatus] = useState<RealtimeStatus>('connecting');
@@ -897,10 +901,11 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       navigateTo('home');
     }
     addNotification({
-      title: 'Account Created',
-      message: `Welcome, ${newUser.username || newUser.name}! Your account has been verified.`,
+      title: 'Demo Fase Beta (Gratuito) - Instrucciones',
+      message: 'Para poder participar en los mercados: 1) Ingresa al torneo (gratuito) 2) Se te asignan 100 tokens 3) ¡Opera e invierte! 4) El que quede en el podio tendrá un premio.',
       type: 'system',
     });
+    setIsWelcomeModalOpen(true);
     realtimeSubscriptionManager.updateAuth(apiClient.getToken(), newUser.id, 'user');
     return newUser;
   }, [currentView, navigateTo, addNotification]);
@@ -938,6 +943,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       outcomeId: string;
       type: 'BUY' | 'SELL';
       amountOrShares: number;
+      isAnonymous?: boolean;
     }) => {
       if (!user) {
         setIsAuthModalOpen(true);
@@ -1276,6 +1282,8 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     searchQuery,
     selectedCategory,
     isAuthModalOpen,
+    isWelcomeModalOpen,
+    setIsWelcomeModalOpen,
     activeRole,
     loading,
     systemAlert,

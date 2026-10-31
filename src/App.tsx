@@ -21,9 +21,10 @@ import { TournamentsPage } from './components/tournaments/TournamentsPage';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AdminAccessDenied } from './components/admin/AdminAccessDenied';
 import { AuthModal } from './components/auth/AuthModal';
+import { WelcomeInstructionsModal } from './components/common/WelcomeInstructionsModal';
 
 const AppContent: React.FC = () => {
-  const { currentView, user, authStatus, navigateTo, isAuthModalOpen, setIsAuthModalOpen } = useMarket();
+  const { currentView, user, authStatus, navigateTo, isAuthModalOpen, setIsAuthModalOpen, isWelcomeModalOpen, setIsWelcomeModalOpen } = useMarket();
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex flex-col font-sans selection:bg-[#3b82f6]/30 selection:text-white">
@@ -75,6 +76,12 @@ const AppContent: React.FC = () => {
 
       {/* Centralized Identity & Account Modal */}
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+
+      {/* New Account Onboarding & Beta Instructions Modal */}
+      <WelcomeInstructionsModal
+        isOpen={isWelcomeModalOpen}
+        onClose={() => setIsWelcomeModalOpen(false)}
+      />
 
       {/* Financial Platform Footer */}
       <Footer />

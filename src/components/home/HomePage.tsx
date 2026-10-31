@@ -5,7 +5,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { HeroSection } from './HeroSection';
 import { CategoryFilter } from './CategoryFilter';
 import { MarketCard } from './MarketCard';
-import { TrendingUp, Flame, Clock, Sparkles, ArrowRight, ShieldCheck, Activity, Zap } from 'lucide-react';
+import { TrendingUp, Flame, Clock, Sparkles, ArrowRight, ShieldCheck, Activity, Zap, EyeOff } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
   const { markets, selectedCategory, setSelectedCategory, navigateTo, trades } = useMarket();
@@ -87,7 +87,16 @@ export const HomePage: React.FC = () => {
             <div className="flex items-center gap-6 overflow-x-auto no-scrollbar scrollbar-none whitespace-nowrap text-slate-300 tabular-nums">
               {trades.slice(0, 6).map((trade) => (
                 <span key={trade.id} className="inline-flex items-center gap-1.5">
-                  <span className="text-slate-400">{trade.userName || 'Trader'}</span>
+                  <span className="text-slate-400">
+                    {trade.isAnonymous ? (
+                      <span className="inline-flex items-center gap-1 text-slate-400 italic">
+                        <EyeOff className="w-3 h-3 text-slate-500" />
+                        {language === 'es' ? 'Trader Anónimo' : 'Anon Trader'}
+                      </span>
+                    ) : (
+                      trade.userName || 'Trader'
+                    )}
+                  </span>
                   <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${trade.type === 'BUY' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
                     {trade.type}
                   </span>

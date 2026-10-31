@@ -412,5 +412,53 @@ describe('Centralized Prediction Market - Full Lifecycle & Accounting Invariants
       expect(typeof aggregates.riskCoverageRatio).toBe('number');
       expect(aggregates.netRemainingExposure).toBeGreaterThanOrEqual(0);
     });
+
+    it('executes anonymous trade and protects user identity on public feeds', async () => {
+      const anonMarket = await dbService.createMarket(
+        {
+          question: 'Will Mars exploration mission launch by 2030?',
+          category: 'Technology',
+          type: 'binary',
+          closeTime: new Date(Date.now() + 86400000).toISOString(),
+          resolutionTime: new Date(Date.now() + 172800000).toISOString(),
+          liquidityParameter: 100,
+          commissionRate: 0.01,
+          spread: 0.015,
+          outcomes: [
+            { id: 'mars-yes', name: 'YES', initialProbability: 0.5 },
+            { id: 'mars-no', name: 'NO', initialProbability: 0.5 },
+          ],
+        },
+        adminId
+      );
+
+      // 1. Execute an anonymous buy trade with Alice
+      const res = await dbService.executeTrade({
+        userId: aliceId,
+        marketId: anonMarket.id,
+        outcomeId: 'mars-yes',
+        type: 'BUY',
+        amountOrShares: 25.0,
+        isAnonymous: true,
+      });
+
+      expect(res.trade).toBeDefined();
+      expect(res.trade.isAnonymous).toBe(true);
+
+      // 2. In user private trade history, trade is recorded with isAnonymous = true
+      const userTrades = await dbService.getTrades(aliceId);
+      const foundTrade = userTrades.find((t) => t.id === res.trade.id);
+      expect(foundTrade).toBeDefined();
+      expect(foundTrade!.isAnonymous).toBe(true);
+      expect(foundTrade!.userId).toBe(aliceId);
+
+      // 3. In the public tape / public trades feed, identity is masked
+      const publicTrades = await dbService.getPublicTrades(anonMarket.id);
+      const publicEntry = publicTrades.find((t) => t.id === res.trade.id);
+      expect(publicEntry).toBeDefined();
+      expect(publicEntry!.isAnonymous).toBe(true);
+      expect(publicEntry!.userName).toBe('Trader Anónimo');
+      expect(publicEntry!.userId).toBe('anon');
+    });
   });
 });

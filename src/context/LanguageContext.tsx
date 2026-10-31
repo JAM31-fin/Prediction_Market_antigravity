@@ -48,7 +48,7 @@ export const dictionary: Translations = {
   'home.liveTape': { es: 'ÚLTIMOS TRADES:', en: 'LIVE TAPE:' },
 
   // Trading Panel
-  'trading.buy': { es: 'Comprar (Apostar)', en: 'Buy (Bet)' },
+  'trading.buy': { es: 'Comprar Posición', en: 'Buy Shares' },
   'trading.sell': { es: 'Vender (Cerrar)', en: 'Sell (Exit)' },
   'trading.youPay': { es: 'Pagas ahora:', en: 'You pay:' },
   'trading.payoutIfWin': { es: 'Si ganas, cobras:', en: 'If you win, you receive:' },
@@ -67,7 +67,7 @@ export const dictionary: Translations = {
   'portfolio.subtitle': { es: 'Valoración en tiempo real de tus posiciones, historial auditado y rentabilidad.', en: 'Real-time positions valuation, audited history and returns.' },
   'portfolio.totalValue': { es: 'Valor Total de Cartera', en: 'Total Portfolio Value' },
   'portfolio.availableCash': { es: 'Efectivo Disponible', en: 'Available Cash' },
-  'portfolio.invested': { es: 'Capital en Juego', en: 'Capital at Risk' },
+  'portfolio.invested': { es: 'Capital en Posiciones', en: 'Capital in Positions' },
   'portfolio.netPnl': { es: 'Rentabilidad Neta', en: 'Net P&L Return' },
   'portfolio.openPositions': { es: 'Posiciones Abiertas', en: 'Open Positions' },
   'portfolio.settledPositions': { es: 'Posiciones Finalizadas', en: 'Settled Positions' },

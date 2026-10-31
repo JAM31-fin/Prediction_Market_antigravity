@@ -432,7 +432,7 @@ export const PortfolioPage: React.FC = () => {
                         onClick={() => navigateTo('detail', pos.marketId)}
                         className="flex-1 sm:flex-none px-3.5 py-1.5 min-h-[40px] rounded-lg bg-[#111827] hover:bg-[#10b981]/15 text-slate-200 hover:text-[#10b981] border border-white/[0.08] hover:border-[#10b981]/40 text-xs font-mono font-semibold btn-tactile cursor-pointer"
                       >
-                        {language === 'es' ? 'APOSTAR MÁS' : 'BUY MORE'}
+                        {language === 'es' ? 'INVERTIR MÁS' : 'BUY MORE'}
                       </button>
                       <button
                         onClick={() => setSelectedPositionToSell(pos)}

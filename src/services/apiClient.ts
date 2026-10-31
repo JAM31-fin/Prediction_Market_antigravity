@@ -416,6 +416,7 @@ class ApiClient {
     outcomeId: string;
     type: 'BUY' | 'SELL';
     amountOrShares: number;
+    isAnonymous?: boolean;
   }): Promise<{ trade: Trade; updatedUser: User; updatedMarket: Market; updatedPosition: Position }> {
     const idempotencyKey = `idemp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
@@ -435,6 +436,7 @@ class ApiClient {
         outcomeId: params.outcomeId,
         type: params.type,
         amountOrShares: params.amountOrShares,
+        isAnonymous: params.isAnonymous,
         idempotencyKey,
       }),
     });

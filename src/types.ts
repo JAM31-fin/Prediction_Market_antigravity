@@ -114,6 +114,7 @@ export interface Trade {
   status: 'EXECUTED' | 'SETTLED' | 'REFUNDED';
   timestamp: string; // ISO
   tournamentId?: string;
+  isAnonymous?: boolean;
 }
 
 export interface User {

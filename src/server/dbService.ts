@@ -309,6 +309,7 @@ export class DatabaseService {
       status: row.status,
       timestamp: new Date(row.timestamp).toISOString(),
       tournamentId: row.tournament_id || undefined,
+      isAnonymous: Boolean(row.is_anonymous),
     };
   }
 
@@ -929,10 +930,12 @@ export class DatabaseService {
     const res = await dbQuery(sql, params);
     return res.rows.map((r) => {
       const t = this.mapRowToTrade(r);
+      const isAnon = Boolean(t.isAnonymous);
       return {
         id: t.id,
-        userId: t.userId,
-        userName: t.userName,
+        userId: isAnon ? 'anon' : t.userId,
+        userName: isAnon ? 'Trader Anónimo' : t.userName,
+        isAnonymous: isAnon,
         marketId: t.marketId,
         marketQuestion: t.marketQuestion,
         outcomeId: t.outcomeId,
@@ -1190,6 +1193,7 @@ export class DatabaseService {
     type: 'BUY' | 'SELL';
     amountOrShares: number;
     idempotencyKey?: string;
+    isAnonymous?: boolean;
   }): Promise<{ trade: Trade; updatedUser: User; updatedMarket: Market; updatedPosition: Position }> {
     // 1. Idempotency validation
     if (params.idempotencyKey) {
@@ -1553,8 +1557,8 @@ export class DatabaseService {
           `INSERT INTO trades (
              id, user_id, user_name, market_id, market_question,
              outcome_id, outcome_name, type, price, quantity,
-             amount, fee, spread_fee, lmsr_cash_flow, pnl, status, timestamp, tournament_id
-           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, 'EXECUTED', NOW(), $16);`,
+             amount, fee, spread_fee, lmsr_cash_flow, pnl, status, timestamp, tournament_id, is_anonymous
+           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, 'EXECUTED', NOW(), $16, $17);`,
           [
             tradeId,
             userRow.id,
@@ -1572,6 +1576,7 @@ export class DatabaseService {
             quote.lmsrCashFlow,
             params.type === 'SELL' ? realizedPnL : null,
             boundTournamentId,
+            Boolean(params.isAnonymous),
           ]
         );
 
@@ -1702,6 +1707,7 @@ export class DatabaseService {
           pnl: params.type === 'SELL' ? realizedPnL : undefined,
           status: 'EXECUTED',
           timestamp: new Date().toISOString(),
+          isAnonymous: Boolean(params.isAnonymous),
         };
 
         const safeUserObj: User = {
@@ -1739,17 +1745,12 @@ export class DatabaseService {
       }
 
       // Broadcast real-time updates via Supabase Realtime & local stream
-      // 1. Public Market Update (prices, volume, probabilities, trader count)
-      realtimeService.broadcast('market:update', {
-        market: fullResult.updatedMarket,
-        recentTrade: fullResult.trade,
-        action: 'trade',
-      });
-      // 2. Public Trade Tape (includes public pseudonym and details for real-time trader calculation)
+      const isAnon = Boolean(fullResult.trade.isAnonymous);
       const publicTrade: Partial<Trade> = {
         id: fullResult.trade.id,
-        userId: fullResult.trade.userId,
-        userName: fullResult.trade.userName,
+        userId: isAnon ? 'anon' : fullResult.trade.userId,
+        userName: isAnon ? 'Trader Anónimo' : fullResult.trade.userName,
+        isAnonymous: isAnon,
         marketId: fullResult.trade.marketId,
         marketQuestion: fullResult.trade.marketQuestion,
         outcomeId: fullResult.trade.outcomeId,
@@ -1764,6 +1765,14 @@ export class DatabaseService {
         timestamp: fullResult.trade.timestamp,
         tournamentId: fullResult.tournamentId,
       };
+
+      // 1. Public Market Update (prices, volume, probabilities, trader count)
+      realtimeService.broadcast('market:update', {
+        market: fullResult.updatedMarket,
+        recentTrade: isAnon ? (publicTrade as any) : fullResult.trade,
+        action: 'trade',
+      });
+      // 2. Public Trade Tape (includes public pseudonym and details for real-time trader calculation)
       realtimeService.broadcast('trade:public', {
         trade: publicTrade,
       });
@@ -2551,7 +2560,7 @@ export class DatabaseService {
       throw new Error('No es posible unirse a un torneo que ya ha finalizado o ha sido cancelado.');
     }
 
-    const initialGranted = t.initialBalance && t.initialBalance > 0 ? t.initialBalance : 1000.0;
+    const initialGranted = t.initialBalance && t.initialBalance > 0 ? t.initialBalance : 100.0;
 
     // Check if already joined
     const existingRes = await dbQuery(

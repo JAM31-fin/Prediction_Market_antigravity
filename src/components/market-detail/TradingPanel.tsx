@@ -19,7 +19,9 @@ import {
   Zap,
   DollarSign,
   Trophy,
-  Coins
+  Coins,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { MarketLifecycleStateCard } from './MarketLifecycleStateCard';
 
@@ -61,6 +63,22 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
   const [isExecuting, setIsExecuting] = useState(false);
   const [executionFlash, setExecutionFlash] = useState<'YES' | 'NO' | null>(null);
   const [tradeStatus, setTradeStatus] = useState<{ success?: boolean; message?: string } | null>(null);
+
+  // Anonymous trading preference with local storage persistence
+  const [isAnonymous, setIsAnonymous] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('centra_anonymous_trading') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleAnonymous = (value: boolean) => {
+    setIsAnonymous(value);
+    try {
+      localStorage.setItem('centra_anonymous_trading', String(value));
+    } catch {}
+  };
 
   // Notify parent on outcome change
   useEffect(() => {
@@ -263,6 +281,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
       outcomeId: selectedOutcomeId,
       type: tradeMode,
       amountOrShares,
+      isAnonymous,
     });
 
     setIsExecuting(false);
@@ -749,6 +768,50 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
         </div>
       )}
 
+      {/* Anonymous Execution Switch */}
+      <div className="mb-4 p-2.5 rounded-xl bg-slate-900/60 border border-white/[0.06] flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+            isAnonymous ? 'bg-[#3b82f6]/20 text-[#60a5fa]' : 'bg-slate-800 text-slate-400'
+          }`}>
+            {isAnonymous ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-slate-200">
+                {language === 'es' ? 'Operar de forma anónima' : 'Trade anonymously'}
+              </span>
+              {isAnonymous && (
+                <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#3b82f6]/20 text-[#60a5fa] border border-[#3b82f6]/30">
+                  {language === 'es' ? 'ACTIVO' : 'ACTIVE'}
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] text-slate-400 truncate">
+              {language === 'es'
+                ? 'Oculta tu identidad en la cinta y feed público'
+                : 'Hides your name in public trade tapes and feeds'}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          role="switch"
+          aria-checked={isAnonymous}
+          onClick={() => toggleAnonymous(!isAnonymous)}
+          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none ${
+            isAnonymous ? 'bg-[#3b82f6]' : 'bg-slate-700'
+          }`}
+        >
+          <span
+            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out mt-0.5 ${
+              isAnonymous ? 'translate-x-4 ml-0.5' : 'translate-x-0.5'
+            }`}
+          />
+        </button>
+      </div>
+
       {/* Trade Status Feedback with subtle transition */}
       {tradeStatus && (
         <div
@@ -830,7 +893,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
             </>
           ) : (
             <>
-              <span>{language === 'es' ? `APOSTAR POR ${selectedOutcome?.name} ($${parsedAmount.toFixed(2)})` : `BUY ${selectedOutcome?.name} ($${parsedAmount.toFixed(2)})`}</span>
+              <span>{language === 'es' ? `INVERTIR EN ${selectedOutcome?.name} ($${parsedAmount.toFixed(2)})` : `BUY ${selectedOutcome?.name} ($${parsedAmount.toFixed(2)})`}</span>
               <ArrowRight className="w-4 h-4" />
             </>
           )}

@@ -154,7 +154,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
         }
 
         await register(username.trim(), password, phoneNumber.trim(), name.trim() || undefined);
-        navigateTo('portfolio');
         onClose();
       }
     } catch (err: any) {

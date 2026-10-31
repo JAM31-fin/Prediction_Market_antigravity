@@ -134,6 +134,7 @@ export async function runMigrations(): Promise<{ migratedFromLegacyJson: boolean
       await dbQuery('ALTER TABLE markets ADD COLUMN IF NOT EXISTS tournament_id text;');
       await dbQuery('ALTER TABLE positions ADD COLUMN IF NOT EXISTS tournament_id text;');
       await dbQuery('ALTER TABLE trades ADD COLUMN IF NOT EXISTS tournament_id text;');
+      await dbQuery('ALTER TABLE trades ADD COLUMN IF NOT EXISTS is_anonymous boolean DEFAULT false;');
       await dbQuery('ALTER TABLE tournament_participants ADD COLUMN IF NOT EXISTS tournament_balance numeric;');
       await dbQuery('ALTER TABLE tournament_participants ADD COLUMN IF NOT EXISTS initial_granted_balance numeric;');
       if (process.env.DATABASE_URL) {

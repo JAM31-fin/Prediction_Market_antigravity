@@ -8,7 +8,7 @@ interface NotificationDropdownProps {
 }
 
 export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onClose }) => {
-  const { notifications, markNotificationAsRead, clearNotifications, navigateTo } = useMarket();
+  const { notifications, markNotificationAsRead, clearNotifications, navigateTo, setIsWelcomeModalOpen } = useMarket();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -69,6 +69,13 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
                   markNotificationAsRead(notif.id);
                   if (notif.marketId) {
                     navigateTo('detail', notif.marketId);
+                    onClose();
+                  } else if (
+                    notif.title.toLowerCase().includes('beta') || 
+                    notif.title.toLowerCase().includes('instruccion') || 
+                    notif.title.toLowerCase().includes('instruction')
+                  ) {
+                    setIsWelcomeModalOpen(true);
                     onClose();
                   }
                 }}

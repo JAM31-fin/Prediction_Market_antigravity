@@ -8,7 +8,8 @@ import {
   ArrowUpRight, 
   ArrowDownLeft, 
   CheckCircle2, 
-  Search 
+  Search,
+  EyeOff
 } from 'lucide-react';
 
 export const HistoryPage: React.FC = () => {
@@ -184,22 +185,33 @@ export const HistoryPage: React.FC = () => {
                       </td>
 
                       <td className="py-3.5 px-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold ${
-                            isBuy
-                              ? 'bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30'
-                              : isSell
-                              ? 'bg-[#f43f5e]/15 text-[#f43f5e] border border-[#f43f5e]/30'
-                              : 'bg-[#3b82f6]/15 text-[#3b82f6] border border-[#3b82f6]/30'
-                          }`}
-                        >
-                          {isBuy && <ArrowDownLeft className="w-2.5 h-2.5" />}
-                          {isSell && <ArrowUpRight className="w-2.5 h-2.5" />}
-                          {isResolution && <CheckCircle2 className="w-2.5 h-2.5" />}
-                          {language === 'es'
-                            ? isBuy ? 'COMPRA' : isSell ? 'VENTA' : 'PAGO PREMIO'
-                            : t.type}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold ${
+                              isBuy
+                                ? 'bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30'
+                                : isSell
+                                ? 'bg-[#f43f5e]/15 text-[#f43f5e] border border-[#f43f5e]/30'
+                                : 'bg-[#3b82f6]/15 text-[#3b82f6] border border-[#3b82f6]/30'
+                            }`}
+                          >
+                            {isBuy && <ArrowDownLeft className="w-2.5 h-2.5" />}
+                            {isSell && <ArrowUpRight className="w-2.5 h-2.5" />}
+                            {isResolution && <CheckCircle2 className="w-2.5 h-2.5" />}
+                            {language === 'es'
+                              ? isBuy ? 'COMPRA' : isSell ? 'VENTA' : 'PAGO PREMIO'
+                              : t.type}
+                          </span>
+                          {t.isAnonymous && (
+                            <span
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-medium bg-slate-800 text-slate-400 border border-slate-700/60"
+                              title={language === 'es' ? 'Operación ejecutada en modo anónimo' : 'Executed in anonymous mode'}
+                            >
+                              <EyeOff className="w-2.5 h-2.5 text-slate-400" />
+                              {language === 'es' ? 'Anónimo' : 'Anon'}
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       <td className="py-3.5 px-4 font-sans text-slate-200 font-medium max-w-xs truncate">

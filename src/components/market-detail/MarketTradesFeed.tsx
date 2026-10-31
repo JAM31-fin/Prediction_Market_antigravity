@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trade } from '../../types';
-import { Activity, Clock } from 'lucide-react';
+import { Activity, Clock, EyeOff } from 'lucide-react';
 
 interface MarketTradesFeedProps {
   trades: Trade[];
@@ -45,7 +45,14 @@ export const MarketTradesFeed: React.FC<MarketTradesFeedProps> = ({ trades }) =>
                     {t.outcomeName}
                   </span>
                   <span className="text-slate-500 text-[11px] hidden sm:inline">
-                    by {t.userName || 'Trader'}
+                    {t.isAnonymous ? (
+                      <span className="inline-flex items-center gap-1 text-slate-500 italic">
+                        <EyeOff className="w-3 h-3 text-slate-500" />
+                        Trader Anónimo
+                      </span>
+                    ) : (
+                      `por ${t.userName || 'Trader'}`
+                    )}
                   </span>
                 </div>
 

@@ -458,6 +458,8 @@ export async function handleApiRequest(
         return true;
       }
 
+      const isAnonymous = Boolean(body.isAnonymous);
+
       try {
         const result = await dbService.executeTrade({
           userId: req.user!.id,
@@ -466,6 +468,7 @@ export async function handleApiRequest(
           type: rawType as 'BUY' | 'SELL',
           amountOrShares: numAmount,
           idempotencyKey,
+          isAnonymous,
         });
 
         logger.info('API', `Trade executed successfully via PostgreSQL transaction`, {

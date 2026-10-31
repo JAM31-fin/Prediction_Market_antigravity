@@ -1,11 +1,11 @@
 import React from 'react';
-import { Trophy, ShieldCheck, Database, Award, ArrowUpRight } from 'lucide-react';
+import { Trophy, ShieldCheck, Database, Award, ArrowUpRight, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useMarket } from '../../context/MarketContext';
 
 export const DemoBanner: React.FC = () => {
   const { language } = useLanguage();
-  const { navigateTo } = useMarket();
+  const { navigateTo, setIsWelcomeModalOpen } = useMarket();
 
   return (
     <div className="bg-gradient-to-r from-amber-500/10 via-slate-900/95 to-cyan-500/10 border-b border-amber-500/20 text-xs text-slate-300 px-4 py-2">
@@ -27,6 +27,14 @@ export const DemoBanner: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsWelcomeModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-[11px] font-mono cursor-pointer transition-colors"
+          >
+            <Sparkles className="w-3 h-3 text-cyan-400" />
+            <span>{language === 'es' ? 'Guía Beta (4 pasos)' : 'Beta Guide (4 steps)'}</span>
+          </button>
+
           <button
             onClick={() => navigateTo('tournaments')}
             className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-800/80 hover:bg-slate-750 text-emerald-400 border border-slate-700 text-[11px] font-mono cursor-pointer transition-colors"

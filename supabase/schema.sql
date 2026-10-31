@@ -127,6 +127,8 @@ CREATE TABLE IF NOT EXISTS trades (
   lmsr_cash_flow NUMERIC(18, 4) NOT NULL DEFAULT 0.0000,
   pnl NUMERIC(18, 4),
   status TEXT NOT NULL CHECK (status IN ('EXECUTED', 'SETTLED', 'REFUNDED')),
+  tournament_id TEXT,
+  is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
   timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
