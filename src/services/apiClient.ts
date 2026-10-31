@@ -6,7 +6,7 @@
  * and ledger updates occur strictly on the server.
  */
 
-import { Market, Position, Trade, User, LeaderboardUser, Category, MarketStatus, Tournament, TournamentParticipant, PlatformMetrics } from '../types';
+import { Market, Position, Trade, User, LeaderboardUser, Category, MarketStatus, Tournament, TournamentParticipant, UserTournamentParticipation, PlatformMetrics } from '../types';
 
 const TOKEN_KEY = 'centra_auth_token_v3';
 const USER_KEY = 'centra_user_v3';
@@ -670,6 +670,17 @@ class ApiClient {
       return res.participant || null;
     } catch {
       return null;
+    }
+  }
+
+  public async getUserTournaments(): Promise<UserTournamentParticipation[]> {
+    try {
+      const res = await this.request<{ success: boolean; userTournaments: UserTournamentParticipation[] }>(
+        '/api/user/tournaments'
+      );
+      return res.userTournaments || [];
+    } catch {
+      return [];
     }
   }
 

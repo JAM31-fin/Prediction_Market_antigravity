@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useMarket } from '../../context/MarketContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { marketDictionary, getLocalizedOutcomeName } from '../../i18n/marketTranslations';
-import { Position } from '../../types';
+import { Position, LeaderboardUser } from '../../types';
 import { PartialSellModal } from './PartialSellModal';
+import confetti from 'canvas-confetti';
 import { 
   ResponsiveContainer, 
   AreaChart, 
@@ -23,51 +24,176 @@ import {
   Clock, 
   CheckCircle2, 
   ArrowRight,
-  ShieldCheck
+  ShieldCheck,
+  Trophy,
+  Coins,
+  Award,
+  Sparkles,
+  Flame,
+  AlertCircle
 } from 'lucide-react';
 
 export const PortfolioPage: React.FC = () => {
-  const { user, positions, trades, navigateTo } = useMarket();
+  const { 
+    user, 
+    positions, 
+    trades, 
+    tournaments, 
+    userTournaments,
+    selectedTournamentId,
+    setSelectedTournamentId,
+    joinTournament,
+    loadTournamentLeaderboard,
+    navigateTo 
+  } = useMarket();
   const { language, t } = useLanguage();
 
   const [selectedPositionToSell, setSelectedPositionToSell] = useState<Position | null>(null);
   const [activeTab, setActiveTab] = useState<'open' | 'settled'>('open');
   const [chartView, setChartView] = useState<'value' | 'pnl'>('value');
+  const [isJoining, setIsJoining] = useState<boolean>(false);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
+
+  // Tournament selection: prioritize selectedTournamentId, then first tournament user is in, then first available
+  const [activeTournamentId, setActiveTournamentId] = useState<string | null>(() => {
+    if (selectedTournamentId && tournaments.some((t) => t.id === selectedTournamentId)) {
+      return selectedTournamentId;
+    }
+    if (userTournaments.length > 0) {
+      return userTournaments[0].tournament.id;
+    }
+    if (tournaments.length > 0) {
+      return tournaments[0].id;
+    }
+    return null;
+  });
+
+  // Sync when selectedTournamentId or tournaments list changes
+  useEffect(() => {
+    if (selectedTournamentId && tournaments.some((t) => t.id === selectedTournamentId)) {
+      setActiveTournamentId(selectedTournamentId);
+    } else if (!activeTournamentId && tournaments.length > 0) {
+      if (userTournaments.length > 0) {
+        setActiveTournamentId(userTournaments[0].tournament.id);
+      } else {
+        setActiveTournamentId(tournaments[0].id);
+      }
+    }
+  }, [selectedTournamentId, tournaments, userTournaments, activeTournamentId]);
+
+  // Current tournament & participation metadata
+  const currentParticipation = useMemo(() => {
+    return userTournaments.find((ut) => ut.tournament.id === activeTournamentId);
+  }, [userTournaments, activeTournamentId]);
+
+  const currentTournament = useMemo(() => {
+    return tournaments.find((t) => t.id === activeTournamentId) || currentParticipation?.tournament;
+  }, [tournaments, activeTournamentId, currentParticipation]);
+
+  const isEnrolled = Boolean(currentParticipation);
+  const tournamentBalance = currentParticipation?.participant.tournamentBalance ?? 0;
+  const initialGrantedBalance = currentParticipation?.participant.initialGrantedBalance 
+    ?? currentTournament?.initialBalance 
+    ?? 100.0;
+
+  // Load leaderboard for active tournament to compute rank & podium standing
+  useEffect(() => {
+    if (activeTournamentId) {
+      loadTournamentLeaderboard(activeTournamentId)
+        .then(setLeaderboard)
+        .catch(() => setLeaderboard([]));
+    }
+  }, [activeTournamentId, loadTournamentLeaderboard]);
+
+  const userRankInfo = useMemo(() => {
+    if (!user || !isEnrolled || leaderboard.length === 0) return null;
+    const entry = leaderboard.find((u) => u.id === user.id);
+    if (!entry) return null;
+    const rank = entry.rank || (leaderboard.findIndex((u) => u.id === user.id) + 1);
+    return {
+      rank,
+      totalUsers: leaderboard.length,
+      isPodium: rank <= 3,
+    };
+  }, [user, isEnrolled, leaderboard]);
+
+  // Filter positions strictly for this tournament
+  const tournamentPositions = useMemo(() => {
+    if (!activeTournamentId) return positions;
+    return positions.filter((p) => {
+      if (p.tournamentId) return p.tournamentId === activeTournamentId;
+      const marketBelongs = currentTournament?.marketIds?.includes(p.marketId);
+      if (marketBelongs) return true;
+      if (tournaments.length === 1) return true;
+      return false;
+    });
+  }, [positions, activeTournamentId, currentTournament, tournaments.length]);
 
   // Open positions (qty > 0)
   const openPositions = useMemo(() => {
-    return positions.filter((p) => p.status === 'OPEN' && p.quantity > 0.001);
-  }, [positions]);
+    return tournamentPositions.filter((p) => p.status === 'OPEN' && p.quantity > 0.001);
+  }, [tournamentPositions]);
 
   // Settled / historical positions
   const settledPositions = useMemo(() => {
-    return positions.filter((p) => p.status !== 'OPEN' || p.quantity <= 0.001);
-  }, [positions]);
+    return tournamentPositions.filter((p) => p.status !== 'OPEN' || p.quantity <= 0.001);
+  }, [tournamentPositions]);
 
-  // Totals calculations
+  // Filter trades strictly for this tournament
+  const tournamentTrades = useMemo(() => {
+    if (!activeTournamentId) return trades;
+    return trades.filter((t) => {
+      if (t.tournamentId) return t.tournamentId === activeTournamentId;
+      const marketBelongs = currentTournament?.marketIds?.includes(t.marketId);
+      if (marketBelongs) return true;
+      if (tournaments.length === 1) return true;
+      return false;
+    });
+  }, [trades, activeTournamentId, currentTournament, tournaments.length]);
+
+  // Financial calculations strictly calibrated to tournament bankroll
   const totalInvested = openPositions.reduce((acc, p) => acc + p.currentCostBasis, 0);
   const totalPositionsValue = openPositions.reduce((acc, p) => acc + p.currentValue, 0);
-  const totalPortfolioValue = (user?.virtualBalance ?? 0) + totalPositionsValue;
+  const totalPortfolioValue = (isEnrolled ? tournamentBalance : (user?.virtualBalance ?? 0)) + totalPositionsValue;
   const totalUnrealizedPnL = openPositions.reduce((acc, p) => acc + p.unrealizedPnL, 0);
-  const totalRealizedPnL = positions.reduce((acc, p) => acc + (p.realizedPnL || 0), 0);
+  const totalRealizedPnL = tournamentPositions.reduce((acc, p) => acc + (p.realizedPnL || 0), 0);
   const totalNetPnL = totalRealizedPnL + totalUnrealizedPnL;
-  const initialVirtualDeposit = 1000.0;
-  const netReturnPercent = Number((((totalPortfolioValue - initialVirtualDeposit) / initialVirtualDeposit) * 100).toFixed(2));
+  const baseVal = isEnrolled ? initialGrantedBalance : 100.0;
+  const netReturnPercent = baseVal > 0 
+    ? Number((((totalPortfolioValue - baseVal) / baseVal) * 100).toFixed(2)) 
+    : 0;
 
-  // Generate authentic historical portfolio chart data from genuine trade logs
+  // Handle Joining active tournament directly from portfolio
+  const handleJoinTournament = async () => {
+    if (!activeTournamentId) return;
+    try {
+      setIsJoining(true);
+      await joinTournament(activeTournamentId);
+      confetti({
+        particleCount: 50,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#10b981', '#3b82f6', '#f59e0b'],
+      });
+    } catch (err: any) {
+      console.error('Failed to join tournament:', err);
+    } finally {
+      setIsJoining(false);
+    }
+  };
+
+  // Generate authentic historical portfolio chart data from tournament trade logs
   const chartData = useMemo(() => {
-    const baseVal = 1000.0;
-    
-    // If no trades yet, render two baseline points
-    if (!trades || trades.length === 0) {
+    // If no trades yet in this tournament, render baseline points
+    if (!tournamentTrades || tournamentTrades.length === 0) {
       return [
         { time: language === 'es' ? 'Inicio' : 'Start', value: baseVal, pnl: 0 },
-        { time: language === 'es' ? 'Hoy' : 'Now', value: totalPortfolioValue, pnl: Number((totalPortfolioValue - baseVal).toFixed(2)) },
+        { time: language === 'es' ? 'Hoy' : 'Now', value: Number(totalPortfolioValue.toFixed(2)), pnl: Number((totalPortfolioValue - baseVal).toFixed(2)) },
       ];
     }
 
     // Sort trades chronologically (oldest to newest)
-    const sortedTrades = [...trades].sort(
+    const sortedTrades = [...tournamentTrades].sort(
       (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     );
 
@@ -110,26 +236,45 @@ export const PortfolioPage: React.FC = () => {
     });
 
     return data;
-  }, [trades, totalPortfolioValue, language]);
+  }, [tournamentTrades, totalPortfolioValue, baseVal, language]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
       
-      {/* Header & Balance Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      {/* Header & Tournament Selector Bar */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono text-[10px] font-bold tracking-wider">
+              {language === 'es' ? 'PORTAFOLIO DE TORNEO' : 'TOURNAMENT PORTFOLIO'}
+            </span>
+            {currentTournament && (
+              <span className="text-slate-400 text-xs font-mono">
+                &bull; {currentTournament.title}
+              </span>
+            )}
+          </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight text-wrap-balance">
-            {t('portfolio.title')}
+            {language === 'es' ? 'Mi Portafolio de Inversión' : 'My Investment Portfolio'}
           </h1>
           <p className="text-slate-400 text-xs sm:text-sm mt-1 text-wrap-pretty">
-            {t('portfolio.subtitle')}
+            {language === 'es' 
+              ? 'Control de patrimonio neto, saldo de competición y posiciones atadas a tu torneo.'
+              : 'Track your tournament net equity, competition bankroll, and active market positions.'}
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={() => navigateTo('tournaments')}
+            className="px-3.5 py-2 min-h-[40px] rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold font-mono text-xs flex items-center gap-1.5 btn-tactile cursor-pointer transition-colors"
+          >
+            <Trophy className="w-3.5 h-3.5 text-amber-400" />
+            <span>{language === 'es' ? 'VER TORNEOS' : 'TOURNAMENTS'}</span>
+          </button>
           <button
             onClick={() => navigateTo('markets')}
-            className="px-4 py-2 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold font-mono text-xs flex items-center gap-1.5 btn-tactile shadow-sm cursor-pointer"
+            className="px-4 py-2 min-h-[40px] rounded-xl bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold font-mono text-xs flex items-center gap-1.5 btn-tactile shadow-sm cursor-pointer"
           >
             <span>{language === 'es' ? 'EXPLORAR MERCADOS' : 'EXPLORE MARKETS'}</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
@@ -137,41 +282,137 @@ export const PortfolioPage: React.FC = () => {
         </div>
       </div>
 
-      {/* KPI Cards Grid with Liquid Glass & Terminal Styling */}
+      {/* Tournament Switcher Tabs */}
+      {tournaments.length > 0 && (
+        <div className="mb-6 p-1.5 rounded-2xl bg-[#0b0f19] border border-white/[0.08] flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <div className="px-3 py-1 text-[11px] font-mono text-slate-400 uppercase tracking-wider shrink-0 flex items-center gap-1.5">
+            <Trophy className="w-3.5 h-3.5 text-amber-400" />
+            <span>{language === 'es' ? 'Torneo:' : 'Tournament:'}</span>
+          </div>
+          {tournaments.map((t) => {
+            const isSelected = t.id === activeTournamentId;
+            const participation = userTournaments.find((ut) => ut.tournament.id === t.id);
+            const userInTourn = Boolean(participation);
+
+            return (
+              <button
+                key={t.id}
+                onClick={() => {
+                  setActiveTournamentId(t.id);
+                  setSelectedTournamentId(t.id);
+                }}
+                className={`px-3.5 py-2 rounded-xl text-xs font-mono font-semibold shrink-0 transition-all flex items-center gap-2 cursor-pointer ${
+                  isSelected
+                    ? 'bg-slate-800 text-white border border-slate-700 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border border-transparent'
+                }`}
+              >
+                <span>{t.title}</span>
+                {userInTourn ? (
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                    isSelected ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-700/60 text-slate-300'
+                  }`}>
+                    ${participation.participant.tournamentBalance.toFixed(2)} tokens
+                  </span>
+                ) : (
+                  <span className="px-1.5 py-0.5 rounded text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    {language === 'es' ? 'Sin unirse' : 'Not joined'}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Non-enrolled Callout Banner if user hasn't joined the selected tournament */}
+      {!isEnrolled && currentTournament && (
+        <div className="mb-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-amber-500/15 via-slate-900 to-emerald-500/15 border border-amber-500/30 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+              <Trophy className="w-5 h-5 text-amber-400" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-white text-sm sm:text-base">
+                  {language === 'es' ? 'Aún no estás inscrito en este torneo' : 'You are not enrolled in this tournament'}
+                </h3>
+                <span className="px-2 py-0.2 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  {language === 'es' ? '100% GRATUITO' : '100% FREE'}
+                </span>
+              </div>
+              <p className="text-slate-300 text-xs sm:text-sm mt-1 leading-relaxed">
+                {language === 'es'
+                  ? `Inscríbete gratis con 1 clic para recibir tus ${initialGrantedBalance.toFixed(0)} tokens de prueba y activar tu portafolio en "${currentTournament.title}".`
+                  : `Join for free with 1 click to receive your ${initialGrantedBalance.toFixed(0)} test tokens and start trading in "${currentTournament.title}".`}
+              </p>
+            </div>
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleJoinTournament}
+            disabled={isJoining}
+            className="px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 text-slate-950 font-black font-mono text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 shrink-0 cursor-pointer disabled:opacity-50"
+          >
+            <Sparkles className="w-4 h-4 text-slate-950" />
+            <span>
+              {isJoining
+                ? (language === 'es' ? 'Inscribiendo...' : 'Joining...')
+                : (language === 'es' ? `🏆 UNIRSE Y RECIBIR ${initialGrantedBalance.toFixed(0)} TOKENS` : `🏆 JOIN & GET ${initialGrantedBalance.toFixed(0)} TOKENS`)}
+            </span>
+          </motion.button>
+        </div>
+      )}
+
+      {/* KPI Cards Grid calibrated to tournament equity */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8 font-mono tabular-nums">
         
-        {/* Total Portfolio Value */}
+        {/* Total Portfolio Value (Equity) */}
         <div className="p-4 rounded-2xl terminal-card elevation-card">
-          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">{t('portfolio.totalValue')}</div>
+          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+            {language === 'es' ? 'Patrimonio Total' : 'Total Equity'}
+          </div>
           <div className="text-lg sm:text-xl font-extrabold text-white mt-1">
             ${totalPortfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className={`text-[11px] font-bold mt-1 ${netReturnPercent >= 0 ? 'text-[#10b981]' : 'text-[#f43f5e]'}`}>
-            {netReturnPercent >= 0 ? '+' : ''}{netReturnPercent}% {language === 'es' ? 'histórico' : 'all-time'}
+            {netReturnPercent >= 0 ? '+' : ''}{netReturnPercent}% {language === 'es' ? 'ROI torneo' : 'tournament ROI'}
           </div>
         </div>
 
-        {/* Available Virtual Cash */}
+        {/* Available Tournament Tokens */}
         <div className="p-4 rounded-2xl terminal-card elevation-card">
-          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">{t('portfolio.availableCash')}</div>
-          <div className="text-lg sm:text-xl font-extrabold text-[#3b82f6] mt-1">
-            ${(user?.virtualBalance ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+            {language === 'es' ? 'Tokens Disponibles' : 'Available Tokens'}
           </div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">{language === 'es' ? 'Créditos Disponibles' : 'Virtual Credits'}</div>
+          <div className="text-lg sm:text-xl font-extrabold text-[#3b82f6] mt-1">
+            ${(isEnrolled ? tournamentBalance : 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <div className="text-[11px] text-slate-400 mt-1 font-mono">
+            {language === 'es' ? 'Saldo en Torneo' : 'Tournament Cash'}
+          </div>
         </div>
 
         {/* Invested Amount */}
         <div className="p-4 rounded-2xl terminal-card elevation-card">
-          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Invested Capital</div>
+          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+            {language === 'es' ? 'Capital en Posiciones' : 'Invested Capital'}
+          </div>
           <div className="text-lg sm:text-xl font-extrabold text-slate-200 mt-1">
             ${totalInvested.toFixed(2)}
           </div>
-          <div className="text-[11px] text-slate-400 mt-1">{openPositions.length} Positions</div>
+          <div className="text-[11px] text-slate-400 mt-1">
+            {openPositions.length} {language === 'es' ? 'Posiciones' : 'Positions'}
+          </div>
         </div>
 
         {/* Unrealized P&L */}
         <div className="p-4 rounded-2xl terminal-card elevation-card">
-          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Unrealized P&L</div>
+          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+            {language === 'es' ? 'PnL No Realizado' : 'Unrealized P&L'}
+          </div>
           <div className={`text-lg sm:text-xl font-extrabold mt-1 ${totalUnrealizedPnL >= 0 ? 'text-[#10b981]' : 'text-[#f43f5e]'}`}>
             {totalUnrealizedPnL >= 0 ? '+' : ''}${totalUnrealizedPnL.toFixed(2)}
           </div>
@@ -180,33 +421,65 @@ export const PortfolioPage: React.FC = () => {
 
         {/* Realized P&L */}
         <div className="p-4 rounded-2xl terminal-card elevation-card">
-          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Realized P&L</div>
+          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+            {language === 'es' ? 'PnL Realizado' : 'Realized P&L'}
+          </div>
           <div className={`text-lg sm:text-xl font-extrabold mt-1 ${totalRealizedPnL >= 0 ? 'text-[#10b981]' : 'text-[#f43f5e]'}`}>
             {totalRealizedPnL >= 0 ? '+' : ''}${totalRealizedPnL.toFixed(2)}
           </div>
-          <div className="text-[11px] text-slate-400 mt-1">Closed Trades</div>
+          <div className="text-[11px] text-slate-400 mt-1">
+            {language === 'es' ? 'Ventas Cerradas' : 'Closed Trades'}
+          </div>
         </div>
 
-        {/* Total Net P&L */}
-        <div className="p-4 rounded-2xl terminal-card elevation-card">
-          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Net Return</div>
-          <div className={`text-lg sm:text-xl font-extrabold mt-1 ${totalNetPnL >= 0 ? 'text-[#10b981]' : 'text-[#f43f5e]'}`}>
-            {totalNetPnL >= 0 ? '+' : ''}${totalNetPnL.toFixed(2)}
+        {/* Tournament Rank / Podium Standing */}
+        <div className="p-4 rounded-2xl terminal-card elevation-card flex flex-col justify-between">
+          <div>
+            <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+              {language === 'es' ? 'Clasificación' : 'Leaderboard Rank'}
+            </div>
+            <div className="text-lg sm:text-xl font-extrabold text-amber-400 mt-1 flex items-center gap-1.5">
+              {userRankInfo ? (
+                <>
+                  <Award className="w-5 h-5 text-amber-400" />
+                  <span>#{userRankInfo.rank}</span>
+                  <span className="text-xs text-slate-400 font-normal">/ {userRankInfo.totalUsers}</span>
+                </>
+              ) : (
+                <span className="text-slate-400 text-sm font-normal">
+                  {isEnrolled ? (language === 'es' ? 'Participando' : 'Active') : (language === 'es' ? 'Sin unirse' : 'Not joined')}
+                </span>
+              )}
+            </div>
           </div>
-          <div className="text-[11px] text-slate-400 mt-1">Combined P&L</div>
+          <div className="mt-1">
+            {userRankInfo?.isPodium ? (
+              <span className="text-[10px] font-bold text-amber-400 flex items-center gap-1">
+                <Flame className="w-3 h-3 text-amber-400" />
+                {language === 'es' ? '¡EN EL PODIO!' : 'ON THE PODIUM!'}
+              </span>
+            ) : (
+              <span className="text-[10px] text-slate-400">
+                {language === 'es' ? 'Compitiendo por el podio' : 'Competing for podium'}
+              </span>
+            )}
+          </div>
         </div>
 
       </div>
 
-      {/* Portfolio Financial Performance Chart with Concentric Radius */}
+      {/* Portfolio Financial Performance Chart */}
       <div className="terminal-card rounded-2xl p-5 sm:p-6 mb-8 elevation-card">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div>
-            <h3 className="font-bold text-sm text-slate-100 font-mono uppercase tracking-wider">
-              Portfolio Growth Trajectory
+            <h3 className="font-bold text-sm text-slate-100 font-mono uppercase tracking-wider flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-emerald-400" />
+              <span>{language === 'es' ? 'Evolución del Portafolio en el Torneo' : 'Tournament Portfolio Growth Trajectory'}</span>
             </h3>
             <p className="text-xs text-slate-400 mt-0.5 text-wrap-pretty">
-              Historical valuation calculated across cash balance and active mark-to-market positions.
+              {language === 'es'
+                ? `Valuación calculada sobre el saldo inicial de ${initialGrantedBalance.toFixed(0)} tokens y posiciones en vivo.`
+                : `Valuation tracked from initial ${initialGrantedBalance.toFixed(0)} tokens bankroll and active positions.`}
             </p>
           </div>
 
@@ -217,7 +490,7 @@ export const PortfolioPage: React.FC = () => {
                 chartView === 'value' ? 'bg-slate-800 text-[#10b981] font-semibold border border-slate-700/60 shadow-sm' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              Portfolio Value ($)
+              {language === 'es' ? 'Patrimonio ($)' : 'Portfolio Value ($)'}
             </button>
             <button
               onClick={() => setChartView('pnl')}
@@ -225,7 +498,7 @@ export const PortfolioPage: React.FC = () => {
                 chartView === 'pnl' ? 'bg-slate-800 text-[#3b82f6] font-semibold border border-slate-700/60 shadow-sm' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              Cumulative P&L ($)
+              {language === 'es' ? 'Retorno Neto ($)' : 'Cumulative P&L ($)'}
             </button>
           </div>
         </div>
@@ -248,103 +521,95 @@ export const PortfolioPage: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} opacity={0.8} />
               <XAxis dataKey="time" stroke="#64748b" fontSize={11} tickLine={false} axisLine={{ stroke: '#1e293b' }} />
               <YAxis stroke="#64748b" fontSize={11} tickFormatter={(v) => `$${v}`} tickLine={false} axisLine={{ stroke: '#1e293b' }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#111827',
-                  borderColor: '#1e293b',
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#0b0f19', 
+                  borderColor: 'rgba(255,255,255,0.1)', 
                   borderRadius: '12px',
-                  fontSize: '12px',
-                  fontFamily: 'monospace',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-                  color: '#ffffff',
+                  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
                 }}
-                formatter={(val: any) => [`$${val}`, chartView === 'value' ? 'Portfolio Value' : 'Net P&L']}
+                itemStyle={{ color: '#fff', fontSize: '12px', fontFamily: 'monospace' }}
+                labelStyle={{ color: '#94a3b8', fontSize: '11px', marginBottom: '4px' }}
+                formatter={(val: any) => [`$${Number(val).toFixed(2)} USD`, chartView === 'value' ? 'Patrimonio' : 'P&L']}
               />
-              <Area
-                type="monotone"
-                dataKey={chartView === 'value' ? 'value' : 'pnl'}
-                stroke={chartView === 'value' ? '#10b981' : '#3b82f6'}
-                strokeWidth={2.2}
-                fillOpacity={1}
-                fill={chartView === 'value' ? 'url(#valGrad)' : 'url(#pnlGrad)'}
-                activeDot={{
-                  r: 4.5,
-                  strokeWidth: 2,
-                  stroke: '#ffffff',
-                  fill: chartView === 'value' ? '#10b981' : '#3b82f6',
-                }}
+              <Area 
+                type="monotone" 
+                dataKey={chartView === 'value' ? 'value' : 'pnl'} 
+                stroke={chartView === 'value' ? '#10b981' : '#3b82f6'} 
+                strokeWidth={2}
+                fill={chartView === 'value' ? 'url(#valGrad)' : 'url(#pnlGrad)'} 
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Positions Section Header & Tabs */}
-      <div className="flex items-center justify-between border-b border-white/[0.08] pb-3 mb-6">
-        <div className="flex items-center gap-2">
+      {/* Positions Tabs: Open vs Settled */}
+      <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-6">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setActiveTab('open')}
-            className={`relative px-3.5 py-2 min-h-[40px] rounded-xl text-xs font-semibold tracking-normal transition-colors cursor-pointer btn-tactile ${
-              activeTab === 'open' ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-mono font-bold transition-all cursor-pointer flex items-center gap-2 ${
+              activeTab === 'open'
+                ? 'bg-slate-800 text-white border border-slate-700 shadow-sm'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            {activeTab === 'open' && (
-              <motion.div
-                layoutId="portfolio-tab-active"
-                className="absolute inset-0 bg-[#0e172a] border border-[#3b82f6]/40 rounded-xl shadow-sm"
-                transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-2">
-              <Briefcase className={`w-4 h-4 ${activeTab === 'open' ? 'text-[#3b82f6]' : 'text-slate-500'}`} />
-              <span>{language === 'es' ? `Posiciones Abiertas (${openPositions.length})` : `Open Positions (${openPositions.length})`}</span>
+            <span>{language === 'es' ? 'Posiciones Abiertas' : 'Open Positions'}</span>
+            <span className="px-2 py-0.2 rounded-full text-[10px] font-mono bg-emerald-500/20 text-emerald-400">
+              {openPositions.length}
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab('settled')}
-            className={`relative px-3.5 py-2 min-h-[40px] rounded-xl text-xs font-semibold tracking-normal transition-colors cursor-pointer btn-tactile ${
-              activeTab === 'settled' ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-mono font-bold transition-all cursor-pointer flex items-center gap-2 ${
+              activeTab === 'settled'
+                ? 'bg-slate-800 text-white border border-slate-700 shadow-sm'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            {activeTab === 'settled' && (
-              <motion.div
-                layoutId="portfolio-tab-active"
-                className="absolute inset-0 bg-[#0e172a] border border-[#3b82f6]/40 rounded-xl shadow-sm"
-                transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-2">
-              <CheckCircle2 className={`w-4 h-4 ${activeTab === 'settled' ? 'text-[#3b82f6]' : 'text-slate-500'}`} />
-              <span>{language === 'es' ? `Liquidadas y Cerradas (${settledPositions.length})` : `Settled & Closed (${settledPositions.length})`}</span>
+            <span>{language === 'es' ? 'Posiciones Cerradas / Liquidadas' : 'Settled Positions'}</span>
+            <span className="px-2 py-0.2 rounded-full text-[10px] font-mono bg-slate-700 text-slate-300">
+              {settledPositions.length}
             </span>
           </button>
         </div>
-
-        <span className="text-xs text-slate-400 font-mono hidden sm:inline">
-          {language === 'es' ? 'Valoración en tiempo real por LMSR' : 'Live LMSR Mark Valuation'}
-        </span>
       </div>
 
-      {/* Open Positions Table / Cards */}
+      {/* Positions List */}
       {activeTab === 'open' ? (
         openPositions.length === 0 ? (
-          <div className="text-center py-20 terminal-card rounded-2xl p-6 elevation-card">
-            <Briefcase className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-            <h4 className="text-slate-200 font-bold text-sm">
-              {language === 'es' ? 'No tienes posiciones activas' : 'No Active Positions'}
+          <div className="text-center py-16 terminal-card rounded-2xl flex flex-col items-center justify-center p-6 elevation-card">
+            <div className="w-12 h-12 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-400 mb-3">
+              <Briefcase className="w-6 h-6" />
+            </div>
+            <h4 className="font-bold text-sm text-slate-200 mb-1">
+              {language === 'es' ? 'No tienes posiciones activas en este torneo' : 'No active positions in this tournament'}
             </h4>
-            <p className="text-slate-400 text-xs mt-1 mb-5 text-wrap-pretty">
-              {language === 'es'
-                ? 'Actualmente no tienes participaciones en ningún mercado. ¡Elige un reto o evento para pronosticar!'
-                : 'You currently hold no shares in any contract. Use your virtual balance to take a position.'}
+            <p className="text-slate-400 text-xs max-w-sm mb-4">
+              {isEnrolled 
+                ? (language === 'es' ? 'Usa tus tokens disponibles para comprar acciones en los mercados oficiales y empezar a escalar en el ranking.' : 'Use your tournament bankroll to take positions and climb the leaderboard.')
+                : (language === 'es' ? 'Primero inscríbete en el torneo para recibir tus 100 tokens de prueba.' : 'First join the tournament to receive your 100 test tokens.')}
             </p>
-            <button
-              onClick={() => navigateTo('markets')}
-              className="px-4 py-2 min-h-[40px] sm:min-h-[44px] bg-[#10b981] hover:bg-[#059669] text-slate-950 rounded-xl text-xs font-bold font-mono btn-tactile shadow-sm cursor-pointer"
-            >
-              {language === 'es' ? 'EXPLORAR MERCADOS' : 'BROWSE PREDICTION MARKETS'}
-            </button>
+            {isEnrolled ? (
+              <button
+                onClick={() => navigateTo('markets')}
+                className="px-4 py-2 rounded-xl bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold font-mono text-xs flex items-center gap-1.5 btn-tactile shadow-sm cursor-pointer"
+              >
+                <span>{language === 'es' ? 'EXPLORAR MERCADOS DEL TORNEO' : 'EXPLORE TOURNAMENT MARKETS'}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <button
+                onClick={handleJoinTournament}
+                disabled={isJoining}
+                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold font-mono text-xs flex items-center gap-1.5 btn-tactile shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                <Trophy className="w-3.5 h-3.5" />
+                <span>{language === 'es' ? `UNIRSE Y RECIBIR ${initialGrantedBalance.toFixed(0)} TOKENS` : `JOIN & GET ${initialGrantedBalance.toFixed(0)} TOKENS`}</span>
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-3">
@@ -453,7 +718,7 @@ export const PortfolioPage: React.FC = () => {
         <div className="space-y-3">
           {settledPositions.length === 0 ? (
             <div className="text-center py-16 terminal-card rounded-2xl text-slate-400 text-xs font-mono">
-              {language === 'es' ? 'No hay posiciones cerradas o liquidadas todavía.' : 'No settled or closed positions yet.'}
+              {language === 'es' ? 'No hay posiciones cerradas o liquidadas en este torneo todavía.' : 'No settled or closed positions in this tournament yet.'}
             </div>
           ) : (
             settledPositions.map((pos) => {

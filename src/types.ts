@@ -175,6 +175,11 @@ export interface TournamentParticipant {
   joinedAt: string;
 }
 
+export interface UserTournamentParticipation {
+  tournament: Tournament;
+  participant: TournamentParticipant;
+}
+
 export interface LeaderboardUser {
   id: string;
   username: string;

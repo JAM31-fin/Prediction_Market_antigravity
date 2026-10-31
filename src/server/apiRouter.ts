@@ -332,6 +332,21 @@ export async function handleApiRequest(
       return true;
     }
 
+    // Authenticated User Tournaments & Subwallets List
+    if (pathname === '/api/user/tournaments' && method === 'GET') {
+      if (!req.user) {
+        sendError(res, 401, 'Unauthorized');
+        return true;
+      }
+      try {
+        const userTournaments = await dbService.getUserTournaments(req.user.id);
+        sendJson(res, 200, { success: true, userTournaments });
+      } catch (err: any) {
+        sendError(res, 500, err.message || 'Failed to load user tournaments.');
+      }
+      return true;
+    }
+
     // Public Tournament Detail
     if (pathname.startsWith('/api/tournaments/') && !pathname.includes('/leaderboard') && !pathname.includes('/join') && !pathname.includes('/markets') && !pathname.includes('/participant') && method === 'GET') {
       const tournamentId = pathname.replace('/api/tournaments/', '').trim();

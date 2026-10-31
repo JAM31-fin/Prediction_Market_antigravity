@@ -31,6 +31,7 @@ import {
   MarketStatus,
   Tournament,
   TournamentParticipant,
+  UserTournamentParticipation,
   PricePoint,
 } from '../types';
 import { hashPassword, verifyPassword, normalizePhoneNumber, isValidPhoneNumber } from './migrate';
@@ -1707,6 +1708,7 @@ export class DatabaseService {
           pnl: params.type === 'SELL' ? realizedPnL : undefined,
           status: 'EXECUTED',
           timestamp: new Date().toISOString(),
+          tournamentId: boundTournamentId || undefined,
           isAnonymous: Boolean(params.isAnonymous),
         };
 
@@ -2645,6 +2647,35 @@ export class DatabaseService {
       initialGrantedBalance: Money.round(Number(row.initial_granted_balance ?? 0)),
       joinedAt: new Date(row.joined_at).toISOString(),
     };
+  }
+
+  public async getUserTournaments(userId: string): Promise<UserTournamentParticipation[]> {
+    const res = await dbQuery(
+      `SELECT t.*, tp.tournament_balance, tp.initial_granted_balance, tp.joined_at
+       FROM tournament_participants tp
+       JOIN tournaments t ON t.id = tp.tournament_id
+       WHERE tp.user_id = $1
+       ORDER BY tp.joined_at DESC;`,
+      [userId]
+    );
+
+    const result: UserTournamentParticipation[] = [];
+    for (const r of res.rows) {
+      const tournament = await this.getTournament(r.id);
+      if (tournament) {
+        result.push({
+          tournament,
+          participant: {
+            tournamentId: r.id,
+            userId,
+            tournamentBalance: Money.round(Number(r.tournament_balance ?? 0)),
+            initialGrantedBalance: Money.round(Number(r.initial_granted_balance ?? 0)),
+            joinedAt: new Date(r.joined_at).toISOString(),
+          },
+        });
+      }
+    }
+    return result;
   }
 
   public async getTournamentMarkets(tournamentId: string): Promise<Market[]> {

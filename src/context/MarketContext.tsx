@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import { Market, Position, Trade, User, PlatformMetrics, NotificationItem, Category, MarketStatus, Tournament, LeaderboardUser, TournamentParticipant } from '../types';
+import { Market, Position, Trade, User, PlatformMetrics, NotificationItem, Category, MarketStatus, Tournament, LeaderboardUser, TournamentParticipant, UserTournamentParticipation } from '../types';
 import { apiClient } from '../services/apiClient';
 import {
   realtimeSubscriptionManager,
@@ -60,8 +60,10 @@ interface MarketContextType {
   loadingTournaments: boolean;
   loadingTournamentMarkets: boolean;
   userTournamentParticipant: TournamentParticipant | null;
+  userTournaments: UserTournamentParticipation[];
   setSelectedTournamentId: (id: string | null) => void;
   loadTournaments: (silent?: boolean) => Promise<void>;
+  loadUserTournaments: () => Promise<UserTournamentParticipation[]>;
   loadTournamentLeaderboard: (tournamentId: string) => Promise<LeaderboardUser[]>;
   loadTournamentMarkets: (tournamentId: string, silent?: boolean) => Promise<Market[]>;
   loadUserTournamentParticipant: (tournamentId: string) => Promise<TournamentParticipant | null>;
@@ -195,6 +197,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [loadingTournaments, setLoadingTournaments] = useState<boolean>(false);
   const [loadingTournamentMarkets, setLoadingTournamentMarkets] = useState<boolean>(false);
   const [userTournamentParticipant, setUserTournamentParticipant] = useState<TournamentParticipant | null>(null);
+  const [userTournaments, setUserTournaments] = useState<UserTournamentParticipation[]>([]);
 
   const userRef = useRef<User | null>(user);
   useEffect(() => {
@@ -251,13 +254,14 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
       const u = await apiClient.getUser();
       const isAdmin = u?.role === 'admin';
-      const [m, pUser, pAll, tUser, tAll, sMetrics] = await Promise.all([
+      const [m, pUser, pAll, tUser, tAll, sMetrics, uTournaments] = await Promise.all([
         apiClient.getMarkets(),
         u ? apiClient.getPositions(u.id) : Promise.resolve([]),
         isAdmin ? apiClient.getPositions() : Promise.resolve([]),
         u ? apiClient.getTrades(u.id) : Promise.resolve([]),
         isAdmin ? apiClient.getTrades() : apiClient.getPublicTrades(),
         apiClient.getPlatformMetrics().catch(() => null),
+        u ? apiClient.getUserTournaments().catch(() => []) : Promise.resolve([]),
       ]);
       setMarkets((prev) => {
         const seen = new Set<string>();
@@ -273,6 +277,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setAllPositions(pAll);
       setTrades(tUser);
       setAllTrades(tAll);
+      setUserTournaments(uTournaments);
       if (sMetrics) {
         setServerMetrics(sMetrics);
       }
@@ -487,6 +492,21 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, []);
 
+  const loadUserTournaments = useCallback(async (): Promise<UserTournamentParticipation[]> => {
+    if (!user) {
+      setUserTournaments([]);
+      return [];
+    }
+    try {
+      const list = await apiClient.getUserTournaments();
+      setUserTournaments(list);
+      return list;
+    } catch (err) {
+      console.error('Failed to load user tournaments:', err);
+      return [];
+    }
+  }, [user]);
+
   const addMarketToTournament = useCallback(async (tournId: string, mktId: string): Promise<void> => {
     await apiClient.addMarketToTournament(tournId, mktId);
     await loadTournamentMarkets(tournId, true);
@@ -505,8 +525,9 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     await loadTournamentLeaderboard(tournamentId);
     await loadTournamentMarkets(tournamentId, true);
     await loadUserTournamentParticipant(tournamentId);
+    await loadUserTournaments();
     await refreshData(true);
-  }, [loadTournaments, loadTournamentLeaderboard, loadTournamentMarkets, loadUserTournamentParticipant, refreshData]);
+  }, [loadTournaments, loadTournamentLeaderboard, loadTournamentMarkets, loadUserTournamentParticipant, loadUserTournaments, refreshData]);
 
   const createTournament = useCallback(async (data: Partial<Tournament>): Promise<Tournament> => {
     const created = await apiClient.createTournament(data);
@@ -1295,8 +1316,10 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     loadingTournaments,
     loadingTournamentMarkets,
     userTournamentParticipant,
+    userTournaments,
     setSelectedTournamentId,
     loadTournaments,
+    loadUserTournaments,
     loadTournamentLeaderboard,
     loadTournamentMarkets,
     loadUserTournamentParticipant,
