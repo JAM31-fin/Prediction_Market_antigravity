@@ -47,6 +47,7 @@ interface MarketContextType {
   selectedCategory: Category | 'All';
   isAuthModalOpen: boolean;
   isWelcomeModalOpen: boolean;
+  isTermsModalOpen: boolean;
   activeRole: 'user' | 'admin';
   loading: boolean;
   systemAlert: SystemAlert | null;
@@ -82,8 +83,10 @@ interface MarketContextType {
   setSelectedCategory: (cat: Category | 'All') => void;
   setIsAuthModalOpen: (open: boolean) => void;
   setIsWelcomeModalOpen: (open: boolean) => void;
+  setIsTermsModalOpen: (open: boolean) => void;
   switchUserRole: (role: 'user' | 'admin') => void;
   login: (usernameOrEmail: string, password?: string, adminPin?: string) => Promise<User>;
+  loginWithPhone: (phoneNumber: string, username?: string, alias?: string) => Promise<User>;
   register: (username: string, password: string, phoneNumber: string, name?: string, email?: string) => Promise<User>;
   logout: () => Promise<void>;
   retryConnection: () => Promise<void>;
@@ -183,6 +186,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState<boolean>(false);
   const [activeRole, setActiveRole] = useState<'user' | 'admin'>('user');
   const [loading, setLoading] = useState<boolean>(true);
   const [realtimeStatus, setRealtimeStatus] = useState<RealtimeStatus>('connecting');
@@ -908,6 +912,41 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return verifiedUser;
   }, [currentView, navigateTo, addNotification]);
 
+  const loginWithPhone = useCallback(async (phoneNumber: string, username?: string, alias?: string) => {
+    const res = await apiClient.loginWithPhone(phoneNumber, username, alias);
+    const verifiedUser = res.user;
+    setUser(verifiedUser);
+    setAuthStatus('authenticated');
+    setActiveRole(verifiedUser.role || 'user');
+
+    const [userPositions, userTrades, tAll] = await Promise.all([
+      apiClient.getPositions(verifiedUser.id),
+      apiClient.getTrades(verifiedUser.id),
+      apiClient.getPublicTrades(),
+    ]);
+    setPositions(userPositions);
+    setTrades(userTrades);
+    setAllTrades(tAll);
+
+    if (res.isNew) {
+      addNotification({
+        title: '¡Bienvenido a Centra! (Fase Beta)',
+        message: 'Tu cuenta ha sido creada con éxito. Recuerda que no se requiere dinero real y puedes unirte al torneo de prueba gratuito.',
+        type: 'system',
+      });
+      setIsWelcomeModalOpen(true);
+    } else {
+      addNotification({
+        title: 'Sesión Iniciada con Teléfono',
+        message: `Bienvenido de vuelta, ${verifiedUser.name || verifiedUser.username}.`,
+        type: 'system',
+      });
+    }
+
+    realtimeSubscriptionManager.updateAuth(apiClient.getToken(), verifiedUser.id, verifiedUser.role);
+    return verifiedUser;
+  }, [addNotification]);
+
   const register = useCallback(async (username: string, password: string, phoneNumber: string, name?: string, email?: string) => {
     const newUser = await apiClient.register(username, password, phoneNumber, name, email);
     if (!newUser) {
@@ -1305,6 +1344,8 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     isAuthModalOpen,
     isWelcomeModalOpen,
     setIsWelcomeModalOpen,
+    isTermsModalOpen,
+    setIsTermsModalOpen,
     activeRole,
     loading,
     systemAlert,
@@ -1337,6 +1378,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setIsAuthModalOpen,
     switchUserRole,
     login,
+    loginWithPhone,
     register,
     logout,
     retryConnection,

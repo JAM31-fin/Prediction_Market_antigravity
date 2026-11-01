@@ -554,6 +554,105 @@ export class DatabaseService {
     return this.authenticate(cleanUsername, cleanPassword);
   }
 
+  public async authenticateOrRegisterByPhone(
+    phoneNumber: string,
+    username?: string,
+    alias?: string
+  ): Promise<{ user: User; token: string; isNew: boolean }> {
+    const cleanPhone = normalizePhoneNumber(phoneNumber);
+    if (!cleanPhone || !isValidPhoneNumber(cleanPhone)) {
+      throw new Error('Número de teléfono celular inválido. Debe contener 9 dígitos.');
+    }
+
+    const cleanUsernameInput = (username || '').trim();
+    const cleanAliasInput = (alias || '').trim();
+
+    // Check if user already exists with this phone number
+    const existing = await this.getUserByPhoneNumber(cleanPhone);
+    if (existing) {
+      if (cleanAliasInput && (!existing.name || existing.name.startsWith('Trader '))) {
+        await dbQuery(`UPDATE users SET name = $1, updated_at = NOW() WHERE id = $2;`, [cleanAliasInput, existing.id]);
+        existing.name = cleanAliasInput;
+      }
+      const token = await this.createSession(existing.id);
+      const { passwordHash, createdAt, updatedAt, ...safeUser } = existing;
+      return { user: safeUser, token, isNew: false };
+    }
+
+    // Check if user already exists with this username (if provided)
+    if (cleanUsernameInput) {
+      const existingByUsername = await this.getUserByUsernameOrEmail(cleanUsernameInput);
+      if (existingByUsername) {
+        const token = await this.createSession(existingByUsername.id);
+        const { passwordHash, createdAt, updatedAt, ...safeUser } = existingByUsername;
+        return { user: safeUser, token, isNew: false };
+      }
+    }
+
+    // Auto-generate profile details for new beta participant
+    const digitsOnly = cleanPhone.replace(/\D/g, '');
+    const suffix = digitsOnly.slice(-4) || Math.floor(1000 + Math.random() * 9000).toString();
+    
+    let chosenUsername = cleanUsernameInput 
+      ? cleanUsernameInput.toLowerCase().replace(/[^a-z0-9_.-]/g, '_')
+      : `trader_${suffix}`;
+    
+    if (chosenUsername.length < 3) {
+      chosenUsername = `trader_${suffix}`;
+    }
+    
+    // Check collision for username
+    const existingWithUser = await this.getUserByUsernameOrEmail(chosenUsername);
+    if (existingWithUser) {
+      chosenUsername = `${chosenUsername}_${crypto.randomBytes(2).toString('hex')}`;
+    }
+
+    const defaultName = cleanAliasInput || cleanUsernameInput || `Trader ${suffix}`;
+    const userId = `usr-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+    const initialBalance = 0.0;
+    const dummyPassword = crypto.randomBytes(16).toString('hex');
+    const pHash = hashPassword(dummyPassword);
+    const cleanEmail = `${chosenUsername}@centra.internal`;
+    const now = new Date().toISOString();
+
+    await dbTransaction(async (client) => {
+      await client.query(
+        `INSERT INTO users (id, username, name, email, phone_number, role, password_hash, virtual_balance, avatar, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, 'user', $6, $7, null, $8, $8);`,
+        [userId, chosenUsername.toLowerCase(), defaultName, cleanEmail.toLowerCase(), cleanPhone, pHash, initialBalance, now]
+      );
+
+      await client.query(
+        `INSERT INTO ledger_transactions (id, user_id, user_email, type, amount, balance_after, description, timestamp)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`,
+        [
+          `ledg-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`,
+          userId,
+          cleanEmail.toLowerCase(),
+          'INITIAL_DEMO_CREDIT',
+          0,
+          0,
+          'Account initialized with base $0.00 balance (Phone Registration)',
+          now,
+        ]
+      );
+    });
+
+    const token = await this.createSession(userId);
+    const safeUser: User = {
+      id: userId,
+      username: chosenUsername,
+      name: defaultName,
+      email: cleanEmail,
+      phoneNumber: cleanPhone,
+      role: 'user',
+      virtualBalance: initialBalance,
+      createdAt: now,
+    };
+
+    return { user: safeUser, token, isNew: true };
+  }
+
   public async switchUserRole(userId: string, newRole: 'user' | 'admin'): Promise<User> {
     if (newRole === 'admin') {
       throw new Error('Forbidden: Self-elevation or role promotion to administrator is prohibited.');

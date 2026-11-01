@@ -42,7 +42,8 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
     executeTrade, 
     navigateTo,
     tournaments,
-    loadUserTournamentParticipant
+    loadUserTournamentParticipant,
+    setIsAuthModalOpen
   } = useMarket();
   const { language, t } = useLanguage();
 
@@ -221,6 +222,11 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
 
   // Handle Trade Execution
   const handleExecute = async () => {
+    if (!user) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
     if (isAdmin) {
       setTradeStatus({
         success: false,
@@ -392,6 +398,10 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
           role="tab"
           aria-selected={tradeMode === 'BUY'}
           onClick={() => {
+            if (!user) {
+              setIsAuthModalOpen(true);
+              return;
+            }
             setTradeMode('BUY');
             setTradeStatus(null);
           }}
@@ -408,12 +418,16 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
               transition={{ type: 'spring', stiffness: 450, damping: 35 }}
             />
           )}
-          BUY
+          {language === 'es' ? 'COMPRAR' : 'BUY'}
         </button>
         <button
           role="tab"
           aria-selected={tradeMode === 'SELL'}
           onClick={() => {
+            if (!user) {
+              setIsAuthModalOpen(true);
+              return;
+            }
             setTradeMode('SELL');
             setTradeStatus(null);
             // If current selected outcome has no shares, check if user holds shares in another outcome
@@ -438,7 +452,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
               transition={{ type: 'spring', stiffness: 450, damping: 35 }}
             />
           )}
-          SELL
+          {language === 'es' ? 'VENDER' : 'SELL'}
         </button>
       </div>
 
@@ -858,16 +872,20 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={
-            isTournamentEnrollmentRequired
+            !user
+              ? () => setIsAuthModalOpen(true)
+              : isTournamentEnrollmentRequired
               ? () => navigateTo('tournaments')
               : user && userBalance <= 0 && !isAdmin
               ? () => navigateTo('tournaments')
               : handleExecute
           }
-          disabled={isAdmin || market.status !== 'open' || (!isTournamentEnrollmentRequired && userBalance > 0 && isBuyDisabled)}
+          disabled={isAdmin || market.status !== 'open' || (user && !isTournamentEnrollmentRequired && userBalance > 0 && isBuyDisabled)}
           className={`w-full py-3.5 rounded-xl font-bold font-mono text-sm tracking-wider btn-tactile shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-all ${
             isAdmin || market.status !== 'open'
               ? 'bg-[#0b1220] text-slate-500 cursor-not-allowed border border-[#151e2e]'
+              : !user
+              ? 'bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold shadow-md shadow-emerald-950/40'
               : isTournamentEnrollmentRequired
               ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-sm'
               : user && userBalance <= 0
@@ -877,7 +895,13 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
               : 'bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold shadow-sm'
           }`}
         >
-          {isExecuting ? (
+          {!user ? (
+            <>
+              <ShieldCheck className="w-4 h-4 text-slate-950" />
+              <span>{language === 'es' ? 'REGISTRARSE / INICIAR SESIÓN PARA COMPRAR' : 'SIGN IN / REGISTER TO BUY'}</span>
+              <ArrowRight className="w-4 h-4" />
+            </>
+          ) : isExecuting ? (
             <span>{language === 'es' ? 'Ejecutando en el mercado...' : 'Executing via LMSR...'}</span>
           ) : isAdmin ? (
             <span>{language === 'es' ? 'ADMIN NO PUEDE OPERAR' : 'ADMIN TRADING RESTRICTED'}</span>
@@ -901,11 +925,19 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
       ) : (
         <motion.button
           whileTap={{ scale: 0.98 }}
-          onClick={isTournamentEnrollmentRequired ? () => navigateTo('tournaments') : handleExecute}
-          disabled={isAdmin || market.status !== 'open' || (!isTournamentEnrollmentRequired && isSellDisabled)}
+          onClick={
+            !user
+              ? () => setIsAuthModalOpen(true)
+              : isTournamentEnrollmentRequired
+              ? () => navigateTo('tournaments')
+              : handleExecute
+          }
+          disabled={isAdmin || market.status !== 'open' || (user && !isTournamentEnrollmentRequired && isSellDisabled)}
           className={`w-full py-3.5 rounded-xl font-bold font-mono text-sm tracking-wider btn-tactile shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-all ${
             isAdmin || market.status !== 'open'
               ? 'bg-[#0b1220] text-slate-500 cursor-not-allowed border border-[#151e2e]'
+              : !user
+              ? 'bg-[#f43f5e] hover:bg-[#e11d48] text-slate-950 font-black shadow-md shadow-rose-950/40'
               : isTournamentEnrollmentRequired
               ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-sm'
               : isSellDisabled
@@ -913,7 +945,13 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
               : 'bg-[#f43f5e] hover:bg-[#e11d48] text-slate-950 font-black shadow-sm'
           }`}
         >
-          {isExecuting ? (
+          {!user ? (
+            <>
+              <ShieldCheck className="w-4 h-4 text-slate-950" />
+              <span>{language === 'es' ? 'REGISTRARSE / INICIAR SESIÓN PARA VENDER' : 'SIGN IN / REGISTER TO SELL'}</span>
+              <ArrowRight className="w-4 h-4" />
+            </>
+          ) : isExecuting ? (
             <span>{language === 'es' ? 'Liquidando acciones...' : 'Settling Shares...'}</span>
           ) : isAdmin ? (
             <span>{language === 'es' ? 'ADMIN NO PUEDE OPERAR' : 'ADMIN TRADING RESTRICTED'}</span>

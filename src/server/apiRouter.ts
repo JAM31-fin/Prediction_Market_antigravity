@@ -121,6 +121,40 @@ export async function handleApiRequest(
     // PUBLIC AUTH ENDPOINTS
     // -----------------------------------------------------------------------
 
+    // Public Phone Auth & Code Verification Endpoints
+    if ((pathname === '/api/auth/phone' || pathname === '/api/auth/phone-login') && method === 'POST') {
+      const { phoneNumber, username, alias, name } = req.parsedBody || {};
+      if (!phoneNumber || typeof phoneNumber !== 'string' || phoneNumber.trim().length === 0) {
+        sendError(res, 400, 'El número de teléfono celular es obligatorio.');
+        return true;
+      }
+      try {
+        const result = await dbService.authenticateOrRegisterByPhone(
+          phoneNumber.trim(),
+          typeof username === 'string' ? username.trim() : undefined,
+          typeof alias === 'string' ? alias.trim() : (typeof name === 'string' ? name.trim() : undefined)
+        );
+        sendJson(res, 200, { success: true, ...result });
+      } catch (err: any) {
+        sendError(res, 400, err.message || 'Error al autenticar con el número de teléfono.');
+      }
+      return true;
+    }
+
+    if (pathname === '/api/auth/send-code' && method === 'POST') {
+      const { phoneNumber } = req.parsedBody || {};
+      if (!phoneNumber || typeof phoneNumber !== 'string' || phoneNumber.trim().length === 0) {
+        sendError(res, 400, 'El número de teléfono es obligatorio para enviar el código.');
+        return true;
+      }
+      sendJson(res, 200, {
+        success: true,
+        message: 'Código de verificación generado para la fase Beta.',
+        code: '123456',
+      });
+      return true;
+    }
+
     if (pathname === '/api/auth/login' && method === 'POST') {
       const { email, username, identifier, password, adminPin } = req.parsedBody || {};
       const loginId = identifier || username || email;

@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 
 export const MarketDetailPage: React.FC = () => {
-  const { markets, selectedMarketId, navigateTo, positions, trades, allTrades, retryConnection } = useMarket();
+  const { markets, selectedMarketId, navigateTo, positions, trades, allTrades, retryConnection, user, setIsAuthModalOpen } = useMarket();
   const { language } = useLanguage();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -316,6 +316,9 @@ export const MarketDetailPage: React.FC = () => {
                     onClick={() => {
                       setFocusedOutcomeId(outcome.id);
                       setTradeIntent({ mode: 'BUY', outcomeId: outcome.id });
+                      if (!user) {
+                        setIsAuthModalOpen(true);
+                      }
                     }}
                     className={`p-3.5 rounded-xl bg-[#0b0f19] border transition-all cursor-pointer ${
                       isSelected 
@@ -370,6 +373,10 @@ export const MarketDetailPage: React.FC = () => {
             positions={marketPositions}
             marketStatus={market.status}
             onSellClick={(pos) => {
+              if (!user) {
+                setIsAuthModalOpen(true);
+                return;
+              }
               setTradeIntent({
                 mode: 'SELL',
                 outcomeId: pos.outcomeId,

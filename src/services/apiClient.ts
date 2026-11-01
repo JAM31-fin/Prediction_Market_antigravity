@@ -206,6 +206,34 @@ class ApiClient {
 
   // --- Auth Operations ---
 
+  public async loginWithPhone(phoneNumber: string, username?: string, alias?: string): Promise<{ user: User; token: string; isNew: boolean }> {
+    const res = await this.request<{ success: boolean; user: User; token: string; isNew: boolean }>(
+      '/api/auth/phone',
+      {
+        method: 'POST',
+        body: JSON.stringify({ phoneNumber, username, alias }),
+      }
+    );
+
+    if (!res || !res.user) {
+      throw new Error('No se pudo verificar el número de teléfono.');
+    }
+
+    this.setToken(res.token);
+    this.setCachedUser(res.user);
+    return res;
+  }
+
+  public async sendPhoneVerificationCode(phoneNumber: string): Promise<{ success: boolean; code?: string; message: string }> {
+    return this.request<{ success: boolean; code?: string; message: string }>(
+      '/api/auth/send-code',
+      {
+        method: 'POST',
+        body: JSON.stringify({ phoneNumber }),
+      }
+    );
+  }
+
   public async login(identifier: string, password?: string, adminPin?: string): Promise<User> {
     const res = await this.request<{ success: boolean; user: User; token: string }>(
       '/api/auth/login',

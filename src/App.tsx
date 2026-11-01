@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LanguageProvider } from './context/LanguageContext';
 import { MarketProvider, useMarket } from './context/MarketContext';
@@ -22,9 +22,21 @@ import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AdminAccessDenied } from './components/admin/AdminAccessDenied';
 import { AuthModal } from './components/auth/AuthModal';
 import { WelcomeInstructionsModal } from './components/common/WelcomeInstructionsModal';
+import { TermsDisclaimerModal } from './components/common/TermsDisclaimerModal';
 
 const AppContent: React.FC = () => {
-  const { currentView, user, authStatus, navigateTo, isAuthModalOpen, setIsAuthModalOpen, isWelcomeModalOpen, setIsWelcomeModalOpen } = useMarket();
+  const { 
+    currentView, 
+    user, 
+    authStatus, 
+    navigateTo, 
+    isAuthModalOpen, 
+    setIsAuthModalOpen, 
+    isWelcomeModalOpen, 
+    setIsWelcomeModalOpen,
+    isTermsModalOpen,
+    setIsTermsModalOpen
+  } = useMarket();
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex flex-col font-sans selection:bg-[#3b82f6]/30 selection:text-white">
@@ -81,6 +93,12 @@ const AppContent: React.FC = () => {
       <WelcomeInstructionsModal
         isOpen={isWelcomeModalOpen}
         onClose={() => setIsWelcomeModalOpen(false)}
+      />
+
+      {/* Official Legal Terms, Beta Disclaimer & Regulatory Modal */}
+      <TermsDisclaimerModal
+        isOpen={isTermsModalOpen}
+        onClose={() => setIsTermsModalOpen(false)}
       />
 
       {/* Financial Platform Footer */}

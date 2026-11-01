@@ -132,6 +132,12 @@ export const Navbar: React.FC = () => {
             />
           </form>
 
+          {/* Discreet Beta Status Badge */}
+          <div className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 font-mono text-[11px] font-semibold select-none">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            <span>Fase Beta Experimental — Sin Dinero Real</span>
+          </div>
+
           {/* Right Action Widgets */}
           <div className="flex items-center gap-2">
 

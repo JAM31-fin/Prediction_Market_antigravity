@@ -1,9 +1,9 @@
 import React from 'react';
 import { useMarket } from '../../context/MarketContext';
-import { ShieldCheck, Cpu, Database, Award, ArrowUpRight } from 'lucide-react';
+import { ShieldCheck, Cpu, Database, Award, ArrowUpRight, Scale, AlertTriangle, Sparkles } from 'lucide-react';
 
 export const Footer: React.FC = () => {
-  const { navigateTo, setAdminSubView, user } = useMarket();
+  const { navigateTo, setAdminSubView, user, setIsTermsModalOpen } = useMarket();
 
   return (
     <footer className="bg-slate-950 border-t border-slate-800/80 text-slate-400 text-xs py-10 mt-16">
@@ -133,31 +133,55 @@ export const Footer: React.FC = () => {
             ) : (
               <>
                 <h4 className="text-slate-200 font-semibold text-xs uppercase tracking-wider mb-3">
-                  Market Rules & Security
+                  Marco Legal & Normativa
                 </h4>
                 <ul className="space-y-2 text-xs text-slate-400">
-                  <li>Binary YES/NO settle at $1.00 or $0.00</li>
-                  <li>Multi-outcome mutually exclusive contracts</li>
-                  <li>Continuous liquidity guaranteed by LMSR</li>
-                  <li>Verified real-world oracle sources</li>
-                  <li>Zero gas fees & instant settlement</li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => setIsTermsModalOpen(true)}
+                      className="text-cyan-400 hover:text-cyan-300 underline font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <Scale className="w-3.5 h-3.5" />
+                      <span>Términos y Aviso Legal</span>
+                    </button>
+                  </li>
+                  <li className="text-slate-400">Sin Afiliación Institucional UP / CEUP</li>
+                  <li>Simulador Académico de Investigación</li>
+                  <li>Prohibición Estricta de Apuestas</li>
+                  <li>Torneo Piloto Gratuito (Premio S/ 15)</li>
                 </ul>
               </>
             )}
           </div>
         </div>
 
-        {/* Bottom copyright & disclaimer */}
-        <div className="pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-400">
-          <p>
-            &copy; {new Date().getFullYear()} CentraMarkets Trading Technologies. Product prototype demonstration.
-          </p>
-          <div className="flex items-center gap-4 text-slate-400">
-            <span>Algorithmic Liquidity</span>
+        {/* Permanent Beta Badge & Legal Notice Strip */}
+        <div className="pt-6 border-t border-slate-900 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] text-slate-400">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono text-[11px] font-bold flex items-center gap-1.5 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              <span>Fase Beta Experimental — Sin Dinero Real</span>
+            </span>
+
+            <button
+              type="button"
+              onClick={() => setIsTermsModalOpen(true)}
+              className="px-2.5 py-1 rounded-full bg-slate-900 hover:bg-slate-800 text-cyan-400 hover:text-cyan-300 border border-slate-800 hover:border-cyan-500/40 font-mono text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+            >
+              <Scale className="w-3 h-3" />
+              <span>Términos y Aviso Legal</span>
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 text-slate-400 text-center md:text-right">
+            <span>&copy; {new Date().getFullYear()} CentraMarkets Beta.</span>
             <span>&bull;</span>
-            <span>Simulated Credits Only</span>
+            <span>Fines Académicos</span>
             <span>&bull;</span>
-            <span>Centralized Clearing</span>
+            <span>Créditos Simulados</span>
+            <span>&bull;</span>
+            <span>Sin Apuestas</span>
           </div>
         </div>
 
