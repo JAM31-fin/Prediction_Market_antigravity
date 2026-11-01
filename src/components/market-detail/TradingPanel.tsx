@@ -167,9 +167,10 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
           market.spread
         );
       } else {
-        if (parsedShares <= 0 || !userPosition) return null;
-        // Cap quote calculation to available shares so it doesn't fail
-        const quoteShares = Math.min(parsedShares, userPosition.quantity);
+        if (parsedShares <= 0) return null;
+        if (user && !userPosition) return null;
+        // In simulation mode without user, quote calculation uses parsedShares directly
+        const quoteShares = user && userPosition ? Math.min(parsedShares, userPosition.quantity) : parsedShares;
         return LMSREngine.getTradeQuote(
           currentQuantities,
           selectedOutcomeId,
@@ -183,7 +184,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
     } catch {
       return null;
     }
-  }, [currentQuantities, selectedOutcomeId, tradeMode, parsedAmount, parsedShares, userPosition, market]);
+  }, [currentQuantities, selectedOutcomeId, tradeMode, parsedAmount, parsedShares, userPosition, market, user]);
 
   // Check if active user is an administrator
   const isAdmin = user?.role === 'admin';
@@ -193,14 +194,18 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
     ? (tournamentParticipant?.tournamentBalance ?? 0)
     : (user?.virtualBalance ?? 0);
 
-  const isTournamentEnrollmentRequired = isTournamentMarket && !isEnrolledInTournament && !isAdmin;
+  const isTournamentEnrollmentRequired = Boolean(user && isTournamentMarket && !isEnrolledInTournament && !isAdmin);
 
-  const isInsufficientBalance = tradeMode === 'BUY' && parsedAmount > userBalance;
+  // In simulation mode (unauthenticated), allow simulating with up to $1,000 virtual balance and 100 shares
+  const simulatedDemoBalance = 1000;
+  const simulatedDemoShares = 100;
+
+  const isInsufficientBalance = user ? (tradeMode === 'BUY' && parsedAmount > userBalance) : false;
   const isZeroBuy = tradeMode === 'BUY' && parsedAmount <= 0;
   
-  const availableShares = userPosition ? userPosition.quantity : 0;
-  const isNoPositionToSell = tradeMode === 'SELL' && (!userPosition || availableShares <= 0);
-  const isExceedingOwnedShares = tradeMode === 'SELL' && (parsedShares > availableShares + 0.00001);
+  const availableShares = user ? (userPosition ? userPosition.quantity : 0) : simulatedDemoShares;
+  const isNoPositionToSell = user ? (tradeMode === 'SELL' && (!userPosition || availableShares <= 0)) : false;
+  const isExceedingOwnedShares = user ? (tradeMode === 'SELL' && (parsedShares > availableShares + 0.00001)) : false;
   const isZeroSell = tradeMode === 'SELL' && parsedShares <= 0;
 
   const isBuyDisabled =
@@ -392,16 +397,29 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
         </div>
       )}
 
+      {/* Simulation Mode Banner for Unauthenticated Visitors */}
+      {!user && (
+        <div className="mb-4 p-3 rounded-xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2 text-blue-300">
+            <Sparkles className="w-4 h-4 text-blue-400 shrink-0" />
+            <span className="font-sans">
+              {language === 'es'
+                ? 'Modo Simulación: Puedes probar el impacto en el precio y calcular retornos en vivo.'
+                : 'Simulation Mode: Experiment with price impacts and live payouts freely.'}
+            </span>
+          </div>
+          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 shrink-0">
+            SIMULADOR
+          </span>
+        </div>
+      )}
+
       {/* Trading Panel Header: Mode Tabs with concentric radius */}
       <div role="tablist" aria-label="Trade direction" className="relative flex items-center bg-[#0b0f19] p-1 rounded-xl border border-white/[0.08] mb-4">
         <button
           role="tab"
           aria-selected={tradeMode === 'BUY'}
           onClick={() => {
-            if (!user) {
-              setIsAuthModalOpen(true);
-              return;
-            }
             setTradeMode('BUY');
             setTradeStatus(null);
           }}
@@ -424,19 +442,20 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
           role="tab"
           aria-selected={tradeMode === 'SELL'}
           onClick={() => {
-            if (!user) {
-              setIsAuthModalOpen(true);
-              return;
-            }
             setTradeMode('SELL');
             setTradeStatus(null);
-            // If current selected outcome has no shares, check if user holds shares in another outcome
-            const ownedPos = positions.find((p) => p.marketId === market.id && p.status === 'OPEN' && p.quantity > 0.001);
-            if (ownedPos && (!userPosition || userPosition.quantity <= 0)) {
-              setSelectedOutcomeId(ownedPos.outcomeId);
-              setSellShares(ownedPos.quantity.toString());
-            } else if (userPosition && userPosition.quantity > 0) {
-              setSellShares(userPosition.quantity.toString());
+            if (user) {
+              const ownedPos = positions.find((p) => p.marketId === market.id && p.status === 'OPEN' && p.quantity > 0.001);
+              if (ownedPos && (!userPosition || userPosition.quantity <= 0)) {
+                setSelectedOutcomeId(ownedPos.outcomeId);
+                setSellShares(ownedPos.quantity.toString());
+              } else if (userPosition && userPosition.quantity > 0) {
+                setSellShares(userPosition.quantity.toString());
+              }
+            } else {
+              if (!sellShares || sellShares === '0') {
+                setSellShares('25');
+              }
             }
           }}
           className={`relative flex-1 py-2.5 min-h-[44px] flex items-center justify-center text-xs font-bold font-mono rounded-lg transition-colors cursor-pointer z-10 ${
@@ -526,17 +545,27 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
           )}
 
           <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
-            <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400">Investment Amount:</span>
+            <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400">
+              {language === 'es' ? 'Monto a Invertir:' : 'Investment Amount:'}
+            </span>
             <span className="font-mono text-[11px] text-slate-400 flex items-center gap-1.5 tabular-nums">
               <Wallet className="w-3.5 h-3.5 text-slate-500" />
-              {isTournamentMarket ? (
-                <>
-                  {language === 'es' ? 'Saldo Torneo: ' : 'Tournament Bal: '}
-                  <span className="text-[#10b981] font-bold">${userBalance.toFixed(2)}</span>
-                </>
+              {user ? (
+                isTournamentMarket ? (
+                  <>
+                    {language === 'es' ? 'Saldo Torneo: ' : 'Tournament Bal: '}
+                    <span className="text-[#10b981] font-bold">${userBalance.toFixed(2)}</span>
+                  </>
+                ) : (
+                  <>
+                    {language === 'es' ? 'Disponible: ' : 'Available: '}
+                    <span className="text-[#10b981] font-bold">${userBalance.toFixed(2)}</span>
+                  </>
+                )
               ) : (
                 <>
-                  Available: <span className="text-[#10b981] font-bold">${userBalance.toFixed(2)}</span>
+                  <span className="text-amber-400 font-bold">{language === 'es' ? 'Simulador: ' : 'Simulator: '}</span>
+                  <span className="text-[#10b981] font-bold">$1,000.00 Demo</span>
                 </>
               )}
             </span>
@@ -551,7 +580,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
               aria-describedby={isInsufficientBalance ? "buy-balance-error" : undefined}
               type="number"
               min="1"
-              max={userBalance}
+              max={user ? userBalance : 10000}
               step="1"
               value={dollarAmount}
               onChange={(e) => setDollarAmount(e.target.value)}
@@ -587,7 +616,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
               </button>
             ))}
             <button
-              onClick={() => setDollarAmount(Math.floor(userBalance).toString())}
+              onClick={() => setDollarAmount(Math.floor(user ? userBalance : 100).toString())}
               className="px-3 py-1.5 min-h-[44px] rounded-lg bg-[#111827] hover:bg-[#10b981]/15 border border-[#10b981]/30 hover:border-[#10b981]/60 text-[11px] font-mono text-[#10b981] btn-tactile font-bold cursor-pointer"
             >
               MAX
@@ -598,9 +627,21 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
         /* SELL INPUT: Number of Shares */
         <div className="mb-4">
           <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
-            <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400">Shares to Sell:</span>
+            <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400">
+              {language === 'es' ? 'Acciones a Vender:' : 'Shares to Sell:'}
+            </span>
             <span className="font-mono text-[11px] text-slate-400 tabular-nums">
-              Available: <span className="text-[#10b981] font-bold">{availableShares > 0 ? availableShares.toFixed(3) : '0'} shares</span>
+              {user ? (
+                <>
+                  {language === 'es' ? 'En cartera: ' : 'Available: '}
+                  <span className="text-[#10b981] font-bold">{availableShares > 0 ? availableShares.toFixed(3) : '0'} shares</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-amber-400 font-bold">{language === 'es' ? 'Simulación: ' : 'Simulation: '}</span>
+                  <span className="text-[#10b981] font-bold">100.00 sh Demo</span>
+                </>
+              )}
             </span>
           </div>
 
@@ -612,7 +653,7 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
               aria-describedby={isExceedingOwnedShares ? "sell-shares-error" : undefined}
               type="number"
               min="0.001"
-              max={availableShares}
+              max={user ? availableShares : 1000}
               step="any"
               value={sellShares}
               onChange={(e) => setSellShares(e.target.value)}
@@ -636,33 +677,31 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
             </div>
           )}
 
-          {isNoPositionToSell && (
+          {user && isNoPositionToSell && (
             <div className="mt-2.5 p-3 rounded-lg bg-amber-500/10 border border-amber-500/25 text-[11px] text-amber-300 font-mono flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
               <span>You do not own any shares of this outcome.</span>
             </div>
           )}
 
-          {/* Quick Percentage Chips */}
-          {availableShares > 0 && (
-            <div className="mt-2.5 space-y-1.5">
-              {availableShares >= 25 && (
-                <div className="flex items-center gap-1.5">
-                  {[25, 50, 75, 100].filter((sh) => sh <= availableShares).map((sh) => (
-                    <button
-                      key={`shares-${sh}`}
-                      type="button"
-                      onClick={() => {
-                        setSellShares(sh.toString());
-                      }}
-                      className="flex-1 py-1.5 min-h-[44px] rounded-lg bg-[#111827] hover:bg-[#162032] border border-white/[0.08] text-[11px] font-mono tabular-nums text-slate-300 btn-tactile cursor-pointer"
-                    >
-                      {sh} sh
-                    </button>
-                  ))}
-                </div>
-              )}
+          {/* Quick Quantity / Percentage Chips */}
+          <div className="mt-2.5 space-y-1.5">
+            <div className="flex items-center gap-1.5">
+              {(!user ? [10, 25, 50, 100] : [25, 50, 75, 100].filter((sh) => sh <= availableShares)).map((sh) => (
+                <button
+                  key={`shares-${sh}`}
+                  type="button"
+                  onClick={() => {
+                    setSellShares(sh.toString());
+                  }}
+                  className="flex-1 py-1.5 min-h-[44px] rounded-lg bg-[#111827] hover:bg-[#162032] border border-white/[0.08] text-[11px] font-mono tabular-nums text-slate-300 btn-tactile cursor-pointer"
+                >
+                  {sh} sh
+                </button>
+              ))}
+            </div>
 
+            {user && availableShares > 0 && (
               <div className="flex items-center gap-1.5">
                 {[
                   { label: '25%', factor: 0.25 },
@@ -690,8 +729,8 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 
@@ -880,28 +919,20 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
               ? () => navigateTo('tournaments')
               : handleExecute
           }
-          disabled={isAdmin || market.status !== 'open' || (user && !isTournamentEnrollmentRequired && userBalance > 0 && isBuyDisabled)}
+          disabled={isAdmin || market.status !== 'open' || (user && !isTournamentEnrollmentRequired && userBalance > 0 && isBuyDisabled) || (!user && isBuyDisabled)}
           className={`w-full py-3.5 rounded-xl font-bold font-mono text-sm tracking-wider btn-tactile shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-all ${
             isAdmin || market.status !== 'open'
               ? 'bg-[#0b1220] text-slate-500 cursor-not-allowed border border-[#151e2e]'
-              : !user
-              ? 'bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold shadow-md shadow-emerald-950/40'
               : isTournamentEnrollmentRequired
               ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-sm'
               : user && userBalance <= 0
               ? 'bg-[#3b82f6] hover:bg-blue-600 text-white font-bold shadow-sm'
               : isBuyDisabled
               ? 'bg-[#0b1220] text-slate-500 cursor-not-allowed border border-[#151e2e]'
-              : 'bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold shadow-sm'
+              : 'bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold shadow-sm shadow-emerald-950/40'
           }`}
         >
-          {!user ? (
-            <>
-              <ShieldCheck className="w-4 h-4 text-slate-950" />
-              <span>{language === 'es' ? 'REGISTRARSE / INICIAR SESIÓN PARA COMPRAR' : 'SIGN IN / REGISTER TO BUY'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </>
-          ) : isExecuting ? (
+          {isExecuting ? (
             <span>{language === 'es' ? 'Ejecutando en el mercado...' : 'Executing via LMSR...'}</span>
           ) : isAdmin ? (
             <span>{language === 'es' ? 'ADMIN NO PUEDE OPERAR' : 'ADMIN TRADING RESTRICTED'}</span>
@@ -917,7 +948,11 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
             </>
           ) : (
             <>
-              <span>{language === 'es' ? `INVERTIR EN ${selectedOutcome?.name} ($${parsedAmount.toFixed(2)})` : `BUY ${selectedOutcome?.name} ($${parsedAmount.toFixed(2)})`}</span>
+              <span>
+                {language === 'es'
+                  ? `COMPRAR / INVERTIR EN ${selectedOutcome?.name} ($${parsedAmount.toFixed(2)})`
+                  : `BUY ${selectedOutcome?.name} ($${parsedAmount.toFixed(2)})`}
+              </span>
               <ArrowRight className="w-4 h-4" />
             </>
           )}
@@ -932,26 +967,18 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
               ? () => navigateTo('tournaments')
               : handleExecute
           }
-          disabled={isAdmin || market.status !== 'open' || (user && !isTournamentEnrollmentRequired && isSellDisabled)}
+          disabled={isAdmin || market.status !== 'open' || (user && !isTournamentEnrollmentRequired && isSellDisabled) || (!user && isSellDisabled)}
           className={`w-full py-3.5 rounded-xl font-bold font-mono text-sm tracking-wider btn-tactile shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-all ${
             isAdmin || market.status !== 'open'
               ? 'bg-[#0b1220] text-slate-500 cursor-not-allowed border border-[#151e2e]'
-              : !user
-              ? 'bg-[#f43f5e] hover:bg-[#e11d48] text-slate-950 font-black shadow-md shadow-rose-950/40'
               : isTournamentEnrollmentRequired
               ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-sm'
               : isSellDisabled
               ? 'bg-[#0b1220] text-slate-500 cursor-not-allowed border border-[#151e2e]'
-              : 'bg-[#f43f5e] hover:bg-[#e11d48] text-slate-950 font-black shadow-sm'
+              : 'bg-[#f43f5e] hover:bg-[#e11d48] text-slate-950 font-black shadow-sm shadow-rose-950/40'
           }`}
         >
-          {!user ? (
-            <>
-              <ShieldCheck className="w-4 h-4 text-slate-950" />
-              <span>{language === 'es' ? 'REGISTRARSE / INICIAR SESIÓN PARA VENDER' : 'SIGN IN / REGISTER TO SELL'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </>
-          ) : isExecuting ? (
+          {isExecuting ? (
             <span>{language === 'es' ? 'Liquidando acciones...' : 'Settling Shares...'}</span>
           ) : isAdmin ? (
             <span>{language === 'es' ? 'ADMIN NO PUEDE OPERAR' : 'ADMIN TRADING RESTRICTED'}</span>
@@ -960,16 +987,18 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
               <Trophy className="w-4 h-4 text-slate-950" />
               <span>{language === 'es' ? '🏆 INSCRIBIRSE AL TORNEO PARA OPERAR' : '🏆 JOIN TOURNAMENT TO TRADE'}</span>
             </>
-          ) : isNoPositionToSell ? (
+          ) : user && isNoPositionToSell ? (
             <span>{language === 'es' ? `NO TIENES ACCIONES DE ${selectedOutcome?.name}` : `NO ${selectedOutcome?.name} SHARES OWNED`}</span>
-          ) : isExceedingOwnedShares ? (
+          ) : user && isExceedingOwnedShares ? (
             <span>{language === 'es' ? `SUPERA EL SALDO (${availableShares.toFixed(3)})` : `EXCEEDS AVAILABLE (${availableShares.toFixed(3)})`}</span>
           ) : isZeroSell ? (
             <span>{language === 'es' ? 'INGRESA CANTIDAD A VENDER' : 'ENTER SHARES TO SELL'}</span>
           ) : (
             <>
               <span>
-                {language === 'es' ? `VENDER ${selectedOutcome?.name}` : `SELL ${selectedOutcome?.name}`}
+                {language === 'es'
+                  ? `VENDER ${selectedOutcome?.name} (${parsedShares} sh)`
+                  : `SELL ${selectedOutcome?.name} (${parsedShares} sh)`}
               </span>
               <ArrowRight className="w-4 h-4" />
             </>
@@ -1029,7 +1058,9 @@ export const TradingPanel: React.FC<TradingPanelProps> = ({ market, tradeIntent,
                 : `Confirmar venta de ${parsedShares} acciones de ${selectedOutcome?.name}`
             }
             onClick={
-              isTournamentEnrollmentRequired
+              !user
+                ? () => setIsAuthModalOpen(true)
+                : isTournamentEnrollmentRequired
                 ? () => navigateTo('tournaments')
                 : user && userBalance <= 0 && !isAdmin
                 ? () => navigateTo('tournaments')

@@ -316,9 +316,6 @@ export const MarketDetailPage: React.FC = () => {
                     onClick={() => {
                       setFocusedOutcomeId(outcome.id);
                       setTradeIntent({ mode: 'BUY', outcomeId: outcome.id });
-                      if (!user) {
-                        setIsAuthModalOpen(true);
-                      }
                     }}
                     className={`p-3.5 rounded-xl bg-[#0b0f19] border transition-all cursor-pointer ${
                       isSelected 

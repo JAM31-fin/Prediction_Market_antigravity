@@ -25,6 +25,7 @@ export const Navbar: React.FC = () => {
     notifications,
     realtimeStatus,
     retryConnection,
+    setIsTermsModalOpen,
   } = useMarket();
 
   const { language, toggleLanguage, t } = useLanguage();
@@ -50,10 +51,10 @@ export const Navbar: React.FC = () => {
   return (
     <header className="sticky top-0 z-40 bg-[#0b0f19]/90 border-b border-white/[0.08] backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
+        <div className="flex items-center justify-between h-16 gap-2 lg:gap-3 xl:gap-4">
           
           {/* Logo & Brand */}
-          <div className="flex items-center gap-7">
+          <div className="flex items-center gap-3 lg:gap-5 xl:gap-6 shrink-0">
             <button
               onClick={() => navigateTo('home')}
               className="flex items-center gap-2.5 text-left group cursor-pointer"
@@ -77,7 +78,7 @@ export const Navbar: React.FC = () => {
             </button>
 
             {/* Main Navigation Links with Sliding Pill */}
-            <nav className="hidden md:flex items-center gap-1 bg-black/40 border border-white/[0.06] p-1 rounded-xl">
+            <nav className="hidden md:flex items-center gap-1 bg-black/40 border border-white/[0.06] p-1 rounded-xl shrink-0">
               {NAV_ITEMS.map((item) => {
                 const isActive = currentView === item.id || (item.id === 'markets' && currentView === 'detail');
                 return (
@@ -106,7 +107,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => navigateTo('admin')}
                   aria-current={currentView === 'admin' ? 'page' : undefined}
-                  className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold btn-tactile flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold btn-tactile flex items-center gap-1.5 cursor-pointer shrink-0 ${
                     currentView === 'admin'
                       ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                       : 'text-amber-400/80 hover:text-amber-300 hover:bg-amber-500/10'
@@ -119,8 +120,11 @@ export const Navbar: React.FC = () => {
             </nav>
           </div>
 
-          {/* Quick Search Bar */}
-          <form onSubmit={handleSearchSubmit} className="hidden lg:flex items-center flex-1 max-w-xs relative group">
+          {/* Quick Search Bar / Quick Search Trigger */}
+          <form
+            onSubmit={handleSearchSubmit}
+            className={`hidden ${user?.role === 'admin' ? '2xl:flex' : 'lg:flex'} items-center flex-1 min-w-[130px] max-w-[200px] xl:max-w-xs relative group shrink`}
+          >
             <Search className="w-3.5 h-3.5 text-slate-500 group-focus-within:text-[#3b82f6] absolute left-3 top-1/2 -translate-y-1/2 transition-colors pointer-events-none" />
             <input
               type="text"
@@ -132,14 +136,50 @@ export const Navbar: React.FC = () => {
             />
           </form>
 
-          {/* Discreet Beta Status Badge */}
-          <div className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 font-mono text-[11px] font-semibold select-none">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            <span>Fase Beta Experimental — Sin Dinero Real</span>
-          </div>
+          {/* Compact Search Trigger for Admin on XL screens */}
+          {user?.role === 'admin' && (
+            <button
+              type="button"
+              onClick={() => navigateTo('markets')}
+              className="hidden xl:flex 2xl:hidden items-center justify-center w-8 h-8 rounded-xl bg-[#0b0f19] border border-white/[0.08] text-slate-400 hover:text-white hover:border-[#3b82f6]/40 transition-colors shrink-0 cursor-pointer"
+              title={language === 'es' ? 'Buscar contratos y mercados' : 'Search contracts and markets'}
+              aria-label={language === 'es' ? 'Buscar contratos y mercados' : 'Search contracts and markets'}
+            >
+              <Search className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {/* Interactive Beta Status / Disclaimer Button */}
+          <button
+            type="button"
+            onClick={() => setIsTermsModalOpen(true)}
+            title={
+              language === 'es'
+                ? 'Entorno de simulación académica sin dinero real · Clic para ver descargo legal'
+                : 'Academic simulation environment with no real money · Click for legal disclaimer'
+            }
+            aria-label={
+              language === 'es'
+                ? 'Descargo de Fase Beta Experimental · Clic para ver detalles legales'
+                : 'Experimental Beta Phase Disclaimer · Click to view legal details'
+            }
+            className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 hover:border-amber-500/40 text-amber-300 font-mono text-[11px] font-semibold select-none shrink-0 whitespace-nowrap cursor-pointer transition-colors shadow-sm"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
+            <span>{language === 'es' ? 'Fase Beta' : 'Beta Phase'}</span>
+            {user?.role === 'admin' ? (
+              <span className="hidden 2xl:inline text-amber-400/80 font-normal">
+                {language === 'es' ? ' · Simulación' : ' · Simulation'}
+              </span>
+            ) : (
+              <span className="hidden 2xl:inline text-amber-400/80 font-normal">
+                {language === 'es' ? ' Experimental — Sin Dinero Real' : ' Experimental — No Real Money'}
+              </span>
+            )}
+          </button>
 
           {/* Right Action Widgets */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
 
             {/* Real-time SSE Live Connection Indicator with Radar Pulse */}
             <button
@@ -150,7 +190,7 @@ export const Navbar: React.FC = () => {
                   retryConnection();
                 }
               }}
-              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl border text-[11px] font-mono tabular-nums transition-[background-color,border-color,color] ${
+              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl border text-[11px] font-mono tabular-nums transition-[background-color,border-color,color] shrink-0 ${
                 realtimeStatus === 'connected'
                   ? 'bg-black/30 border-white/[0.08] text-slate-300 hover:border-slate-700 cursor-default'
                   : 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20 cursor-pointer btn-tactile'
@@ -196,7 +236,7 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#111827] hover:bg-[#162032] border border-white/[0.08] hover:border-blue-500/30 text-xs font-mono font-bold text-slate-200 btn-tactile cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#111827] hover:bg-[#162032] border border-white/[0.08] hover:border-blue-500/30 text-xs font-mono font-bold text-slate-200 btn-tactile cursor-pointer shrink-0"
               title={language === 'es' ? 'Cambiar idioma / Switch language' : 'Switch language / Cambiar idioma'}
               aria-label={language === 'es' ? 'Cambiar idioma a inglés' : 'Switch language to Spanish'}
             >
@@ -209,7 +249,7 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo(user.role === 'admin' ? 'admin' : 'portfolio')}
-                className="flex items-center gap-2 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#111827] hover:bg-[#162032] border border-white/[0.08] hover:border-blue-500/30 cursor-pointer btn-tactile shadow-sm text-left"
+                className="flex items-center gap-2 px-3 py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#111827] hover:bg-[#162032] border border-white/[0.08] hover:border-blue-500/30 cursor-pointer btn-tactile shadow-sm text-left shrink-0"
                 title={user.role === 'admin' ? 'Platform Treasury Balance' : 'Virtual Balance - Click to view portfolio'}
                 aria-label={user.role === 'admin' ? `Treasury balance: $${(user.virtualBalance ?? 0).toFixed(2)} USD` : `Account balance: $${(user.virtualBalance ?? 0).toFixed(2)} USD`}
               >
@@ -228,7 +268,7 @@ export const Navbar: React.FC = () => {
             )}
 
             {/* Notifications Bell with 40x40px hit area */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <button
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
                 className="relative min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] p-2 rounded-xl bg-[#111827] hover:bg-[#162032] border border-white/[0.08] hover:border-blue-500/30 text-slate-300 hover:text-white btn-tactile flex items-center justify-center cursor-pointer"
@@ -249,7 +289,7 @@ export const Navbar: React.FC = () => {
             {user ? (
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#111827] hover:bg-[#162032] border border-white/[0.08] hover:border-blue-500/30 text-slate-200 btn-tactile cursor-pointer"
+                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 min-h-[40px] sm:min-h-[44px] rounded-xl bg-[#111827] hover:bg-[#162032] border border-white/[0.08] hover:border-blue-500/30 text-slate-200 btn-tactile cursor-pointer shrink-0"
                 title="Account Settings"
               >
                 <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold font-mono shrink-0 ${

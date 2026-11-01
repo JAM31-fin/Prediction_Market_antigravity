@@ -9,11 +9,7 @@ import {
   Coins, 
   Trophy, 
   Lock, 
-  Clock, 
-  HeartHandshake,
   CheckCircle2,
-  FileText,
-  Building2,
   Scale
 } from 'lucide-react';
 
@@ -211,38 +207,6 @@ export const TermsDisclaimerModal: React.FC<TermsDisclaimerModalProps> = ({
                 </div>
                 <p className="text-slate-300 pl-8 leading-relaxed">
                   El número de teléfono móvil solicitado es empleado exclusivamente como identificador de sesión y mecanismo de validación de unicidad en la base de datos interna. <strong>La plataforma NO solicita contraseñas complejas, correos personales ni correos institucionales (@up.edu.pe)</strong>. Los números no serán cedidos, comercializados ni compartidos con empresas ni terceros ajenos al proyecto de investigación.
-                </p>
-              </div>
-
-              {/* Section 6 */}
-              <div className="p-4 rounded-xl bg-slate-900/60 border border-white/[0.06] hover:border-slate-700 transition-colors">
-                <div className="flex items-center gap-2.5 mb-2">
-                  <div className="w-6 h-6 rounded-md bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 font-mono text-xs font-bold">
-                    6
-                  </div>
-                  <h3 className="font-bold text-slate-100 text-sm flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-rose-400" />
-                    Congelamiento Obligatorio durante Periodos de Veda Electoral
-                  </h3>
-                </div>
-                <p className="text-slate-300 pl-8 leading-relaxed">
-                  En acatamiento estricto a las disposiciones legales y electorales peruanas aplicables (Ley Orgánica de Elecciones), todo mercado de predicción de naturaleza política, electoral o referendaria <strong>será congelado y suspendido de manera automática durante los periodos de veda electoral</strong> estipulados por el Jurado Nacional de Elecciones (JNE), impidiendo transacciones hasta la publicación oficial de resultados.
-                </p>
-              </div>
-
-              {/* Section 7 */}
-              <div className="p-4 rounded-xl bg-slate-900/60 border border-white/[0.06] hover:border-slate-700 transition-colors">
-                <div className="flex items-center gap-2.5 mb-2">
-                  <div className="w-6 h-6 rounded-md bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-mono text-xs font-bold">
-                    7
-                  </div>
-                  <h3 className="font-bold text-slate-100 text-sm flex items-center gap-1.5">
-                    <HeartHandshake className="w-4 h-4 text-indigo-400" />
-                    Normas de Respeto, Convivencia y No Difamación
-                  </h3>
-                </div>
-                <p className="text-slate-300 pl-8 leading-relaxed">
-                  Los participantes se comprometen a interactuar bajo un estándar de respeto mutuo, honestidad y cordialidad cívica. Se prohíben conductas hostiles, difamatorias, acoso o la creación de mercados con fines vejatorios o de hostigamiento hacia personas naturales o entidades. Las cuentas que incurran en estas prácticas serán canceladas de oficio.
                 </p>
               </div>
 
