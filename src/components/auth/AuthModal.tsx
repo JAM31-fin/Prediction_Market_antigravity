@@ -1,24 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useMarket } from '../../context/MarketContext';
-import { PhoneAuthForm } from './PhoneAuthForm';
 import {
   X,
-  ArrowRight,
-  ShieldCheck,
-  LogOut,
+  LogIn,
+  UserPlus,
+  User,
+  Lock,
+  Phone,
+  Sparkles,
+  CheckCircle2,
   AlertCircle,
-  Loader2,
-  Database,
+  ShieldCheck,
+  ShieldAlert,
   Eye,
   EyeOff,
-  UserCheck,
-  Phone,
-  KeyRound,
+  Loader2,
+  Database,
+  LogOut,
+  ArrowRight,
   ArrowLeft,
-  Lock,
-  Sparkles,
-  ShieldAlert,
 } from 'lucide-react';
 
 interface AuthModalProps {
@@ -27,38 +28,74 @@ interface AuthModalProps {
   initialMode?: 'login' | 'register';
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const { user, login, logout, setAdminSubView, navigateTo, setIsTermsModalOpen } = useMarket();
+export const AuthModal: React.FC<AuthModalProps> = ({
+  isOpen,
+  onClose,
+  initialMode = 'login',
+}) => {
+  const {
+    user,
+    login,
+    register,
+    logout,
+    setAdminSubView,
+    navigateTo,
+    setIsTermsModalOpen,
+  } = useMarket();
 
-  const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
-  const [adminStep, setAdminStep] = useState<boolean>(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  // Mode: 'login' (Log In) vs 'register' (Sign In)
+  const [mode, setMode] = useState<'login' | 'register'>(initialMode);
+
+  // --- Log In Form State ---
+  const [loginIdentifier, setLoginIdentifier] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+
+  // --- Admin Master PIN Second Step ---
+  const [adminStep, setAdminStep] = useState(false);
   const [adminPin, setAdminPin] = useState('');
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showAdminPin, setShowAdminPin] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [showAdminPin, setShowAdminPin] = useState(false);
 
-  const prevIsOpenRef = useRef<boolean>(false);
+  // --- Sign In / Registration Form State ---
+  const [regUsername, setRegUsername] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [showRegPassword, setShowRegPassword] = useState(false);
+  const [regPhoneNumber, setRegPhoneNumber] = useState('');
+  const [regAlias, setRegAlias] = useState('');
+  const [prefix] = useState('+51');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  // Common UI State
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const prevIsOpenRef = useRef(false);
   const pinInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync state ONLY when modal transitions from closed to open.
+  // Sync state whenever modal opens or initialMode changes
   useEffect(() => {
     if (isOpen && !prevIsOpenRef.current) {
-      setIsAdminMode(false);
+      setMode(initialMode || 'login');
       setAdminStep(false);
       setError(null);
-      setPassword('');
-      setShowPassword(false);
-      setShowAdminPin(false);
-      setUsername('');
+      setLoginIdentifier('');
+      setLoginPassword('');
       setAdminPin('');
+      setShowLoginPassword(false);
+      setShowAdminPin(false);
+      setRegUsername('');
+      setRegPassword('');
+      setShowRegPassword(false);
+      setRegPhoneNumber('');
+      setRegAlias('');
+      setAcceptedTerms(false);
+    } else if (isOpen && initialMode && initialMode !== mode && !prevIsOpenRef.current) {
+      setMode(initialMode);
     }
     prevIsOpenRef.current = isOpen;
-  }, [isOpen]);
+  }, [isOpen, initialMode]);
 
-  // Focus PIN input when transitioning to admin step
+  // Focus PIN input when admin step activates
   useEffect(() => {
     if (adminStep) {
       const timer = setTimeout(() => {
@@ -85,22 +122,52 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  const handleAdminSubmit = async (e: React.FormEvent) => {
+  // Phone formatting helpers
+  const rawDigits = regPhoneNumber.replace(/\D/g, '');
+  const cleanPhoneDigits = rawDigits.startsWith('51') && rawDigits.length > 9
+    ? rawDigits.slice(2)
+    : rawDigits;
+
+  const isPhoneValid = cleanPhoneDigits.length === 9;
+  const isRegUsernameValid = regUsername.trim().length >= 3;
+  const isRegPasswordValid = regPassword.length >= 6;
+  const isRegisterDisabled =
+    !isRegUsernameValid || !isRegPasswordValid || !isPhoneValid || !acceptedTerms || loading;
+
+  const formatDisplayPhone = (digits: string) => {
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
+    return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 9)}`;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError(null);
+    let val = e.target.value.replace(/\D/g, '');
+    if (val.startsWith('51') && val.length > 9) {
+      val = val.slice(2);
+    }
+    if (val.length <= 9) {
+      setRegPhoneNumber(val);
+    }
+  };
+
+  // --- 1. HANDLE LOG IN (Usuario y Contraseña) ---
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
-      if (!adminStep) {
-        if (!username.trim()) {
-          throw new Error('Por favor ingresa tu usuario o credencial de operador.');
-        }
-        if (!password) {
-          throw new Error('Por favor ingresa tu contraseña de operador.');
-        }
+      if (!loginIdentifier.trim()) {
+        throw new Error('Por favor ingresa tu nombre de usuario.');
+      }
+      if (!loginPassword) {
+        throw new Error('Por favor ingresa tu contraseña.');
+      }
 
+      if (!adminStep) {
         try {
-          const authedUser = await login(username.trim(), password);
+          const authedUser = await login(loginIdentifier.trim(), loginPassword);
           if (authedUser?.role === 'admin') {
             navigateTo('admin');
             setAdminSubView('overview');
@@ -111,7 +178,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         } catch (loginErr: any) {
           const isPinChallenge =
             loginErr?.requiresAdminPin ||
-            /Administrator master PIN is required|PIN maestro de administrador/i.test(loginErr?.message || '');
+            /Administrator master PIN is required|PIN maestro de administrador/i.test(
+              loginErr?.message || ''
+            );
 
           if (isPinChallenge) {
             setAdminStep(true);
@@ -126,7 +195,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           throw new Error('Por favor ingresa tu código PIN maestro de administrador.');
         }
 
-        const authedUser = await login(username.trim(), password, adminPin.trim());
+        const authedUser = await login(loginIdentifier.trim(), loginPassword, adminPin.trim());
         if (authedUser?.role === 'admin') {
           navigateTo('admin');
           setAdminSubView('overview');
@@ -137,6 +206,56 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       }
     } catch (err: any) {
       setError(err.message || 'Error de autenticación. Verifica tus credenciales.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- 2. HANDLE SIGN IN / REGISTRO (Usuario, Contraseña y Número de Celular) ---
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (cleanPhoneDigits.length !== 9) {
+      setError('Por favor ingresa un número de celular peruano válido de 9 dígitos.');
+      return;
+    }
+    if (regUsername.trim().length < 3) {
+      setError('El nombre de usuario debe tener al menos 3 caracteres.');
+      return;
+    }
+    if (!/^[a-zA-Z0-9_.-]+$/.test(regUsername.trim())) {
+      setError('El nombre de usuario solo puede contener letras, números, guiones y puntos.');
+      return;
+    }
+    if (regPassword.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+    if (!acceptedTerms) {
+      setError('Debes aceptar los Términos y Condiciones y el Descargo de Responsabilidad para continuar.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const fullPhone = `${prefix}${cleanPhoneDigits}`;
+      await register(
+        regUsername.trim(),
+        regPassword,
+        fullPhone,
+        regAlias.trim() || regUsername.trim()
+      );
+      onClose();
+    } catch (err: any) {
+      const msg = err.message || '';
+      if (/already registered|ya está registrado/i.test(msg)) {
+        setError('Este número de celular ya está registrado. Por favor utiliza la pestaña "Log In".');
+      } else if (/already exists/i.test(msg)) {
+        setError('Este nombre de usuario ya está en uso. Por favor elige otro o utiliza "Log In".');
+      } else {
+        setError(msg || 'Error al registrar la cuenta. Intenta nuevamente.');
+      }
     } finally {
       setLoading(false);
     }
@@ -165,7 +284,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         className="relative rounded-2xl max-w-md w-full bg-[#0d131f] border border-white/[0.12] flex flex-col max-h-[92vh] sm:max-h-[88vh] my-auto overflow-hidden shadow-2xl"
       >
         {/* Top Decorative Strip */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-cyan-500 to-amber-500" />
+        <div
+          className={`absolute top-0 left-0 right-0 h-1 transition-all duration-300 ${
+            mode === 'login'
+              ? 'bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600'
+              : 'bg-gradient-to-r from-emerald-500 via-teal-500 to-amber-500'
+          }`}
+        />
 
         {/* Sticky Header */}
         <div className="shrink-0 bg-[#111827]/95 border-b border-white/[0.08] px-5 pt-4 pb-3.5 relative">
@@ -180,33 +305,47 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
           {/* Platform branding & tag */}
           <div className="flex items-center gap-2 mb-1.5">
-            <div className={`w-5 h-5 rounded flex items-center justify-center font-bold font-mono text-[11px] ${
-              isAdminMode ? 'bg-amber-500 text-slate-950' : 'bg-[#10b981] text-slate-950'
-            }`}>
-              {isAdminMode ? 'A' : 'C'}
+            <div
+              className={`w-5 h-5 rounded flex items-center justify-center font-bold font-mono text-[11px] ${
+                mode === 'login'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-[#10b981] text-slate-950'
+              }`}
+            >
+              {mode === 'login' ? 'L' : 'S'}
             </div>
-            <span className={`text-[11px] font-mono uppercase font-bold tracking-wider ${
-              isAdminMode ? 'text-amber-400' : 'text-emerald-400'
-            }`}>
-              {isAdminMode ? 'PANEL DE CONTROL OPERADOR' : 'SIMULADOR DE PREDICCIONES (BETA)'}
+            <span
+              className={`text-[11px] font-mono uppercase font-bold tracking-wider ${
+                mode === 'login' ? 'text-blue-400' : 'text-emerald-400'
+              }`}
+            >
+              {user
+                ? 'SESIÓN ACTIVA'
+                : adminStep
+                ? 'AUTORIZACIÓN OPERADOR'
+                : mode === 'login'
+                ? 'ACCESO DE USUARIO / LOG IN'
+                : 'REGISTRO DE PARTICIPANTE / SIGN IN'}
             </span>
           </div>
 
           <h3 className="text-base font-extrabold text-white text-wrap-balance">
             {user
               ? 'Gestión de Cuenta'
-              : isAdminMode
-              ? adminStep
-                ? 'Autorización PIN Maestro'
-                : 'Acceso de Administrador'
-              : 'Acceso / Registro por Celular'}
+              : adminStep
+              ? 'Autorización PIN Maestro'
+              : mode === 'login'
+              ? 'Log In · Iniciar Sesión'
+              : 'Sign In · Registrarse'}
           </h3>
           <p className="text-[11px] text-slate-400 mt-0.5 leading-normal">
             {user
               ? 'Detalles de tu sesión activa y saldo disponible.'
-              : isAdminMode
-              ? 'Consola exclusiva para operadores y gestión de mercados.'
-              : 'Ingresa tu número de teléfono para acceder o registrarte en el torneo de prueba.'}
+              : adminStep
+              ? 'Ingresa tu PIN de seguridad maestro para acceder a la consola.'
+              : mode === 'login'
+              ? 'Ingresa con tu nombre de usuario y contraseña.'
+              : 'Regístrate con tu número de celular para competir en los torneos.'}
           </p>
         </div>
 
@@ -269,7 +408,43 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          {/* Error Notification */}
+          {/* Mode Switcher Tabs (Only if not logged in and not in admin PIN challenge) */}
+          {!user && !adminStep && (
+            <div className="grid grid-cols-2 p-1 rounded-xl bg-black/40 border border-white/[0.06]">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('login');
+                  setError(null);
+                }}
+                className={`py-2 px-3 rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  mode === 'login'
+                    ? 'bg-blue-600/20 text-blue-400 border border-blue-500/40 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Log In</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('register');
+                  setError(null);
+                }}
+                className={`py-2 px-3 rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  mode === 'register'
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Sign In (Registro)</span>
+              </button>
+            </div>
+          )}
+
+          {/* Error Notification Alert */}
           {error && (
             <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
@@ -277,30 +452,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          {/* MAIN PARTICIPANT PHONE FLOW */}
-          {!user && !isAdminMode && (
-            <PhoneAuthForm
-              onSuccess={onClose}
-              onOpenTerms={() => setIsTermsModalOpen(true)}
-            />
-          )}
-
-          {/* ADMIN OPERATOR CREDENTIALS FLOW */}
-          {!user && isAdminMode && (
-            <form onSubmit={handleAdminSubmit} className="space-y-4">
+          {/* ============================================================== */}
+          {/* TAB 1: LOG IN (Solo nombre de usuario y contraseña)            */}
+          {/* ============================================================== */}
+          {!user && mode === 'login' && (
+            <form onSubmit={handleLoginSubmit} className="space-y-3.5">
               {adminStep ? (
+                /* Step 2 for Admin: PIN Maestro */
                 <div className="space-y-3.5">
                   <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2.5">
                     <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                     <p className="text-amber-200/90 text-xs leading-relaxed">
-                      Se requiere el PIN maestro de seguridad para autorizar la consola de operador.
+                      Credenciales de administrador reconocidas. Se requiere el PIN maestro de seguridad.
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono font-semibold text-amber-300 mb-1.5">
-                      PIN Maestro de Administrador
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-mono font-semibold text-amber-300">
+                        PIN Maestro de Administrador
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowAdminPin(!showAdminPin)}
+                        className="text-[11px] font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1 cursor-pointer"
+                      >
+                        {showAdminPin ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                        <span>{showAdminPin ? 'Ocultar' : 'Mostrar'}</span>
+                      </button>
+                    </div>
                     <input
                       ref={pinInputRef}
                       type={showAdminPin ? 'text' : 'password'}
@@ -314,99 +494,354 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     />
                   </div>
 
-                  <motion.button
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-colors"
-                  >
-                    {loading ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
-                    ) : (
-                      <>
-                        <ShieldCheck className="w-4 h-4" />
-                        <span>VERIFICAR PIN Y ACCEDER</span>
-                      </>
-                    )}
-                  </motion.button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAdminStep(false);
+                        setAdminPin('');
+                        setError(null);
+                      }}
+                      className="px-3 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" />
+                      <span>Volver</span>
+                    </button>
+
+                    <motion.button
+                      whileTap={{ scale: 0.98 }}
+                      type="submit"
+                      disabled={loading}
+                      className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                      ) : (
+                        <>
+                          <ShieldCheck className="w-4 h-4" />
+                          <span>VERIFICAR PIN Y ACCEDER</span>
+                        </>
+                      )}
+                    </motion.button>
+                  </div>
                 </div>
               ) : (
+                /* Step 1: Standard Username & Password */
                 <div className="space-y-3.5">
                   <div>
-                    <label className="block text-xs font-mono font-semibold text-slate-300 mb-1.5">
-                      Usuario de Operador
+                    <label className="block text-xs font-mono font-semibold text-slate-200 mb-1.5 flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Nombre de usuario</span>
                     </label>
                     <input
                       type="text"
                       required
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="admin31"
-                      className="w-full bg-[#0b0f19] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500 font-mono transition-all"
+                      value={loginIdentifier}
+                      onChange={(e) => {
+                        setError(null);
+                        setLoginIdentifier(e.target.value);
+                      }}
+                      placeholder="ej. juan_perez o admin31"
+                      autoComplete="username"
+                      autoFocus
+                      className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-blue-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
                     />
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-xs font-mono font-semibold text-slate-300">
-                        Contraseña
+                      <label className="block text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
+                        <Lock className="w-3.5 h-3.5 text-blue-400" />
+                        <span>Contraseña</span>
                       </label>
                       <button
                         type="button"
-                        onClick={() => setShowPassword(!showPassword)}
+                        onClick={() => setShowLoginPassword(!showLoginPassword)}
                         className="text-[11px] font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1 cursor-pointer"
                       >
-                        {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                        <span>{showPassword ? 'Ocultar' : 'Mostrar'}</span>
+                        {showLoginPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                        <span>{showLoginPassword ? 'Ocultar' : 'Mostrar'}</span>
                       </button>
                     </div>
                     <input
-                      type={showPassword ? 'text' : 'password'}
+                      type={showLoginPassword ? 'text' : 'password'}
                       required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-[#0b0f19] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500 font-mono transition-all"
+                      value={loginPassword}
+                      onChange={(e) => {
+                        setError(null);
+                        setLoginPassword(e.target.value);
+                      }}
+                      placeholder="••••••••"
+                      autoComplete="current-password"
+                      className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-blue-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
                     />
                   </div>
 
                   <motion.button
                     whileTap={{ scale: 0.98 }}
                     type="submit"
-                    disabled={loading}
-                    className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                    disabled={loading || !loginIdentifier.trim() || !loginPassword}
+                    className={`w-full py-3 px-4 rounded-xl font-mono text-xs font-black shadow-md flex items-center justify-center gap-2 min-h-[44px] transition-all ${
+                      loading || !loginIdentifier.trim() || !loginPassword
+                        ? 'opacity-40 cursor-not-allowed bg-slate-800 text-slate-500 border border-slate-700/60'
+                        : 'bg-blue-600 hover:bg-blue-500 text-white cursor-pointer shadow-blue-950/40 hover:shadow-lg'
+                    }`}
                   >
                     {loading ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>VERIFICANDO...</span>
+                      </>
                     ) : (
                       <>
-                        <span>ACCEDER COMO OPERADOR</span>
+                        <LogIn className="w-4 h-4" />
+                        <span>INICIAR SESIÓN (LOG IN)</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </>
                     )}
                   </motion.button>
+
+                  <div className="pt-2 text-center text-xs font-mono text-slate-400">
+                    ¿No tienes una cuenta aún?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMode('register');
+                        setError(null);
+                      }}
+                      className="text-emerald-400 hover:text-emerald-300 font-bold underline cursor-pointer"
+                    >
+                      Regístrate aquí (Sign In)
+                    </button>
+                  </div>
                 </div>
               )}
             </form>
           )}
 
+          {/* ============================================================== */}
+          {/* TAB 2: SIGN IN (Nombre de usuario, Contraseña y Número)         */}
+          {/* ============================================================== */}
+          {!user && mode === 'register' && (
+            <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+              
+              {/* 1. Nombre de Usuario */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Nombre de usuario</span>
+                  </label>
+                  <div className="text-[11px] font-mono">
+                    {isRegUsernameValid ? (
+                      <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        Válido
+                      </span>
+                    ) : (
+                      <span className="text-slate-400">Mín. 3 caracteres</span>
+                    )}
+                  </div>
+                </div>
+                <input
+                  type="text"
+                  required
+                  value={regUsername}
+                  onChange={(e) => {
+                    setError(null);
+                    setRegUsername(e.target.value);
+                  }}
+                  placeholder="ej. juan_perez"
+                  autoComplete="username"
+                  autoFocus
+                  className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
+                />
+              </div>
+
+              {/* 2. Contraseña */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Contraseña</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowRegPassword(!showRegPassword)}
+                    className="text-[11px] font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1 cursor-pointer"
+                  >
+                    {showRegPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                    <span>{showRegPassword ? 'Ocultar' : 'Mostrar'}</span>
+                  </button>
+                </div>
+                <input
+                  type={showRegPassword ? 'text' : 'password'}
+                  required
+                  value={regPassword}
+                  onChange={(e) => {
+                    setError(null);
+                    setRegPassword(e.target.value);
+                  }}
+                  placeholder="Mínimo 6 caracteres"
+                  autoComplete="new-password"
+                  className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
+                />
+              </div>
+
+              {/* 3. Número de Celular (Obligatorio en Sign In) */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Número de celular (WhatsApp)</span>
+                  </label>
+                  <div className="text-[11px] font-mono">
+                    {isPhoneValid ? (
+                      <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        9 dígitos válidos
+                      </span>
+                    ) : (
+                      <span className="text-slate-400">{cleanPhoneDigits.length}/9 dígitos</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="relative flex items-center">
+                  <div className="absolute left-1.5 top-1.5 bottom-1.5 px-2.5 rounded-lg bg-slate-800/90 border border-slate-700 flex items-center gap-1.5 text-xs font-mono font-bold text-slate-200 select-none z-10">
+                    <span className="text-sm leading-none">🇵🇪</span>
+                    <span>{prefix}</span>
+                  </div>
+
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    required
+                    value={formatDisplayPhone(cleanPhoneDigits)}
+                    onChange={handlePhoneChange}
+                    placeholder="987 654 321"
+                    autoComplete="tel"
+                    className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl pl-22 pr-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono tracking-wider focus:outline-none transition-all shadow-inner"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400 font-mono mt-1">
+                  Anti-Sybil: 1 cuenta por celular para garantizar torneos justos.
+                </p>
+              </div>
+
+              {/* 4. Alias o Apodo (Opcional) */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Alias o Apodo</span>
+                  </label>
+                  <span className="text-[10px] font-mono text-slate-400 font-medium">(Opcional)</span>
+                </div>
+                <input
+                  type="text"
+                  value={regAlias}
+                  onChange={(e) => {
+                    setError(null);
+                    setRegAlias(e.target.value);
+                  }}
+                  placeholder="ej. Juan P. (nombre visible en el torneo)"
+                  className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
+                />
+              </div>
+
+              {/* 5. Aceptación de Términos */}
+              <div className="p-3 rounded-xl bg-slate-900/60 border border-white/[0.06] hover:border-slate-700 transition-colors">
+                <label className="flex items-start gap-2.5 cursor-pointer group select-none">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded border-slate-700 text-emerald-500 focus:ring-emerald-500/30 focus:ring-offset-0 bg-[#0b0f19] cursor-pointer shrink-0"
+                  />
+                  <span className="text-[11px] text-slate-300 leading-relaxed text-wrap-pretty">
+                    He leído y acepto los{' '}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsTermsModalOpen(true);
+                      }}
+                      className="underline text-cyan-400 hover:text-cyan-300 font-semibold cursor-pointer"
+                    >
+                      Términos y Condiciones
+                    </button>{' '}
+                    y el{' '}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsTermsModalOpen(true);
+                      }}
+                      className="underline text-cyan-400 hover:text-cyan-300 font-semibold cursor-pointer"
+                    >
+                      Descargo de Responsabilidad
+                    </button>{' '}
+                    de la versión Beta.
+                  </span>
+                </label>
+              </div>
+
+              {/* Submit Button */}
+              <motion.button
+                whileTap={!isRegisterDisabled ? { scale: 0.98 } : undefined}
+                type="submit"
+                disabled={isRegisterDisabled}
+                className={`w-full py-3 px-4 rounded-xl font-mono text-xs font-black shadow-md flex items-center justify-center gap-2 min-h-[44px] transition-all ${
+                  isRegisterDisabled
+                    ? 'opacity-40 cursor-not-allowed bg-slate-800 text-slate-500 border border-slate-700/60'
+                    : 'bg-[#10b981] hover:bg-[#059669] text-slate-950 cursor-pointer shadow-emerald-950/40 hover:shadow-lg'
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                    <span>CREANDO CUENTA...</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>CREAR CUENTA (SIGN IN) Y ENTRAR</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </>
+                )}
+              </motion.button>
+
+              <div className="pt-2 text-center text-xs font-mono text-slate-400">
+                ¿Ya tienes una cuenta registrada?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('login');
+                    setError(null);
+                  }}
+                  className="text-blue-400 hover:text-blue-300 font-bold underline cursor-pointer"
+                >
+                  Inicia sesión aquí (Log In)
+                </button>
+              </div>
+
+            </form>
+          )}
+
         </div>
 
-        {/* Modal Footer / Fallback Toggle */}
+        {/* Modal Footer */}
         <div className="shrink-0 bg-[#111827]/95 border-t border-white/[0.08] px-5 py-3 flex items-center justify-between text-[11px] font-mono">
           {!user && (
-            <button
-              type="button"
-              onClick={() => {
-                setIsAdminMode(!isAdminMode);
-                setAdminStep(false);
-                setError(null);
-              }}
-              className="text-slate-400 hover:text-slate-200 underline cursor-pointer transition-colors"
-            >
-              {isAdminMode
-                ? '← Volver al acceso de participante por celular'
-                : '¿Operador o administrador? Acceso con credenciales'}
-            </button>
+            <span className="text-slate-400">
+              {mode === 'login'
+                ? 'Ingreso rápido con usuario y clave'
+                : '1 cuenta por celular · Saldo virtual gratuito'}
+            </span>
           )}
 
           <div className="flex items-center gap-1 text-slate-400 ml-auto">

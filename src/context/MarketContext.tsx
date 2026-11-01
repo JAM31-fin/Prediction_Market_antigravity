@@ -82,6 +82,8 @@ interface MarketContextType {
   setSearchQuery: (q: string) => void;
   setSelectedCategory: (cat: Category | 'All') => void;
   setIsAuthModalOpen: (open: boolean) => void;
+  authModalMode: 'login' | 'register';
+  openAuthModal: (mode?: 'login' | 'register') => void;
   setIsWelcomeModalOpen: (open: boolean) => void;
   setIsTermsModalOpen: (open: boolean) => void;
   switchUserRole: (role: 'user' | 'admin') => void;
@@ -185,6 +187,12 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
+
+  const openAuthModal = useCallback((mode: 'login' | 'register' = 'login') => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+  }, []);
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState<boolean>(false);
   const [activeRole, setActiveRole] = useState<'user' | 'admin'>('user');
@@ -1376,6 +1384,8 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setSearchQuery,
     setSelectedCategory,
     setIsAuthModalOpen,
+    authModalMode,
+    openAuthModal,
     switchUserRole,
     login,
     loginWithPhone,

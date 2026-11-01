@@ -32,6 +32,7 @@ const AppContent: React.FC = () => {
     navigateTo, 
     isAuthModalOpen, 
     setIsAuthModalOpen, 
+    authModalMode,
     isWelcomeModalOpen, 
     setIsWelcomeModalOpen,
     isTermsModalOpen,
@@ -87,7 +88,11 @@ const AppContent: React.FC = () => {
       </main>
 
       {/* Centralized Identity & Account Modal */}
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+        initialMode={authModalMode}
+      />
 
       {/* New Account Onboarding & Beta Instructions Modal */}
       <WelcomeInstructionsModal
