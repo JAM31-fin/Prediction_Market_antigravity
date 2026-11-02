@@ -379,7 +379,12 @@ export class DatabaseService {
     if (!phone) return null;
     const clean = normalizePhoneNumber(phone);
     if (!clean) return null;
-    const res = await dbQuery('SELECT * FROM users WHERE phone_number = $1;', [clean]);
+    const with51 = clean.startsWith('+51') ? clean : `+51${clean.replace(/^\+/, '')}`;
+    const without51 = clean.replace(/^\+?51/, '');
+    const res = await dbQuery(
+      'SELECT * FROM users WHERE phone_number = $1 OR phone_number = $2 OR phone_number = $3;',
+      [clean, with51, without51]
+    );
     if (res.rowCount === 0) return null;
     return this.mapRowToStoredUserAccount(res.rows[0]);
   }
@@ -388,12 +393,14 @@ export class DatabaseService {
     if (!identifier) return null;
     const clean = identifier.trim().toLowerCase();
     const cleanPhone = normalizePhoneNumber(identifier);
+    const with51 = cleanPhone ? (cleanPhone.startsWith('+51') ? cleanPhone : `+51${cleanPhone.replace(/^\+/, '')}`) : '';
+    const without51 = cleanPhone ? cleanPhone.replace(/^\+?51/, '') : '';
     const res = await dbQuery(
       `SELECT * FROM users 
        WHERE LOWER(username) = $1 
           OR LOWER(email) = $1 
-          OR (phone_number IS NOT NULL AND phone_number = $2 AND $2 != '');`,
-      [clean, cleanPhone]
+          OR (phone_number IS NOT NULL AND $2 != '' AND (phone_number = $2 OR phone_number = $3 OR phone_number = $4));`,
+      [clean, cleanPhone, with51, without51]
     );
     if (res.rowCount === 0) return null;
     return this.mapRowToStoredUserAccount(res.rows[0]);

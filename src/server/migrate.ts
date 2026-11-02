@@ -32,15 +32,12 @@ export function normalizePhoneNumber(raw: string): string {
   if (!raw) return '';
   const clean = raw.trim().replace(/[^\d+]/g, '');
   const digits = clean.replace(/\D/g, '');
-  // Peruvian mobile: 9 digits starting with 9 (normalize to +519XXXXXXXX)
-  if (digits.length === 9 && digits.startsWith('9')) {
-    return '+51' + digits;
-  }
-  // 11 digits starting with 519 (normalize to +519XXXXXXXX)
-  if (digits.length === 11 && digits.startsWith('519')) {
+  // If explicitly starts with +, preserve international prefix
+  if (clean.startsWith('+')) {
     return '+' + digits;
   }
-  return clean.startsWith('00') ? '+' + clean.slice(2) : clean;
+  // Otherwise in beta phase, keep clean digits directly without prepending +51
+  return digits;
 }
 
 export function isValidPhoneNumber(phone: string): boolean {
@@ -48,16 +45,12 @@ export function isValidPhoneNumber(phone: string): boolean {
   // If input contains letters or invalid characters, reject
   if (/[a-zA-Z]/.test(phone)) return false;
   const digits = phone.replace(/\D/g, '');
-  // Any 9-digit Peruvian number starting with 9 or 11 digits starting with 519 is 100% valid
-  if ((digits.length === 9 && digits.startsWith('9')) || (digits.length === 11 && digits.startsWith('519'))) {
+  // Any 9-digit number is 100% valid in beta phase
+  if (digits.length === 9) {
     return true;
   }
-  // Any 9-digit number that does not start with 9 is invalid
-  if (digits.length === 9 && !digits.startsWith('9')) {
-    return false;
-  }
-  const clean = normalizePhoneNumber(phone);
-  return /^\+?[0-9]{8,16}$/.test(clean);
+  // General fallback for international numbers (8-16 digits)
+  return digits.length >= 8 && digits.length <= 16;
 }
 
 export const CANONICAL_SEED_ACCOUNTS = [

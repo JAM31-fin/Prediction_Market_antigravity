@@ -64,7 +64,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [regPhoneNumber, setRegPhoneNumber] = useState('');
   const [regAlias, setRegAlias] = useState('');
-  const [prefix] = useState('+51');
   const [acceptedTerms, setAcceptedTerms] = useState(true);
 
   // Common UI State
@@ -143,9 +142,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }),
   };
 
-  // Phone formatting helpers: Peruvian mobile numbers have 9 digits and start with 9
-  const cleanPhoneDigits = regPhoneNumber.replace(/\D/g, '').replace(/^51/, '');
-  const isPhoneValid = /^9\d{8}$/.test(cleanPhoneDigits);
+  // Phone formatting helpers: Any 9 digits in beta phase
+  const cleanPhoneDigits = regPhoneNumber.replace(/\D/g, '');
+  const isPhoneValid = cleanPhoneDigits.length === 9;
   const isRegUsernameValid = regUsername.trim().length >= 3;
   const isRegPasswordValid = regPassword.length >= 6;
   const isRegisterDisabled =
@@ -160,10 +159,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
     let raw = e.target.value.replace(/\D/g, '');
-    // If user pasted or entered with Peruvian country code 51 at start, strip it
-    if (raw.startsWith('51') && (raw.length > 9 || raw.length === 2)) {
-      raw = raw.slice(2);
-    }
     // If length didn't change but string shortened, user backspaced on a space: delete 1 digit
     if (raw.length === regPhoneNumber.length && e.target.value.length < formatDisplayPhone(regPhoneNumber).length) {
       raw = raw.slice(0, -1);
@@ -240,8 +235,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     e.preventDefault();
     setError(null);
 
-    if (!/^9\d{8}$/.test(cleanPhoneDigits)) {
-      setError('El número de celular debe empezar con 9 y tener exactamente 9 dígitos (ej. 987 654 321).');
+    if (cleanPhoneDigits.length !== 9) {
+      setError('El número de celular debe tener exactamente 9 dígitos (ej. 987 654 321).');
       return;
     }
     if (regUsername.trim().length < 3) {
@@ -263,11 +258,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     setLoading(true);
     try {
-      const fullPhone = `${prefix}${cleanPhoneDigits}`;
       await register(
         regUsername.trim(),
         regPassword,
-        fullPhone,
+        cleanPhoneDigits,
         regAlias.trim() || regUsername.trim()
       );
       onClose();
@@ -729,7 +723,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     }}
                     className="touch-pan-y"
                   >
-                    <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+                    <form noValidate onSubmit={handleRegisterSubmit} className="space-y-3.5">
                       {/* 1. Nombre de Usuario */}
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
@@ -798,15 +792,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         <div className="flex items-center justify-between mb-1.5">
                           <label className="text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
                             <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                            <span>Número de celular (WhatsApp)</span>
+                            <span>Número de celular</span>
                           </label>
                           <div className="text-[11px] font-mono">
                             {cleanPhoneDigits.length === 0 ? (
-                              <span className="text-slate-400">9 dígitos (empieza con 9)</span>
-                            ) : !cleanPhoneDigits.startsWith('9') ? (
-                              <span className="text-amber-400 font-semibold flex items-center gap-1">
-                                Debe empezar con 9
-                              </span>
+                              <span className="text-slate-400">9 dígitos</span>
                             ) : cleanPhoneDigits.length < 9 ? (
                               <span className="text-slate-400">{cleanPhoneDigits.length}/9 dígitos</span>
                             ) : (
@@ -819,25 +809,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         </div>
 
                         <div className="relative flex items-center">
-                          <div className="absolute left-1.5 top-1.5 bottom-1.5 px-2.5 rounded-lg bg-slate-800/90 border border-slate-700 flex items-center gap-1.5 text-xs font-mono font-bold text-slate-200 select-none z-10 pointer-events-none">
-                            <span className="text-sm leading-none">🇵🇪</span>
-                            <span>{prefix}</span>
-                          </div>
+                          <Phone className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
 
                           <input
                             type="tel"
                             inputMode="numeric"
-                            pattern="[0-9]*"
-                            required
                             value={formatDisplayPhone(cleanPhoneDigits)}
                             onChange={handlePhoneChange}
-                            placeholder="987 654 321"
+                            placeholder="9 dígitos (ej. 987 654 321)"
                             autoComplete="tel"
-                            className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl pl-[88px] pr-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono tracking-wider focus:outline-none transition-all shadow-inner"
+                            className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono tracking-wider focus:outline-none transition-all shadow-inner"
                           />
                         </div>
                         <p className="text-[10px] text-slate-400 font-mono mt-1">
-                          Cualquier número de 9 dígitos que comience con 9 (ej. 987 654 321).
+                          Cualquier número de 9 dígitos.
                         </p>
                       </div>
 
