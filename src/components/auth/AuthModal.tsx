@@ -45,6 +45,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   // Mode: 'login' (Log In) vs 'register' (Sign In)
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
+  // Direction for horizontal slide animation: 1 = right-to-left (to register), -1 = left-to-right (to login)
+  const [direction, setDirection] = useState<number>(initialMode === 'register' ? 1 : -1);
 
   // --- Log In Form State ---
   const [loginIdentifier, setLoginIdentifier] = useState('');
@@ -75,7 +77,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   // Sync state whenever modal opens or initialMode changes
   useEffect(() => {
     if (isOpen && !prevIsOpenRef.current) {
-      setMode(initialMode || 'login');
+      const initial = initialMode || 'login';
+      setDirection(initial === 'register' ? 1 : -1);
+      setMode(initial);
       setAdminStep(false);
       setError(null);
       setLoginIdentifier('');
@@ -90,6 +94,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setRegAlias('');
       setAcceptedTerms(false);
     } else if (isOpen && initialMode && initialMode !== mode && !prevIsOpenRef.current) {
+      setDirection(initialMode === 'register' ? 1 : -1);
       setMode(initialMode);
     }
     prevIsOpenRef.current = isOpen;
@@ -121,6 +126,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+
+  // Horizontal slide animation variants for carousel transition between Log In and Sign In
+  const slideVariants = {
+    enter: (dir: number) => ({
+      x: dir > 0 ? 60 : dir < 0 ? -60 : 0,
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (dir: number) => ({
+      x: dir > 0 ? -60 : 60,
+      opacity: 0,
+    }),
+  };
 
   // Phone formatting helpers
   const rawDigits = regPhoneNumber.replace(/\D/g, '');
@@ -408,39 +429,81 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           )}
 
-          {/* Mode Switcher Tabs (Only if not logged in and not in admin PIN challenge) */}
+          {/* Interactive Sliding Switcher Pill (Slider Tab) */}
           {!user && !adminStep && (
-            <div className="grid grid-cols-2 p-1 rounded-xl bg-black/40 border border-white/[0.06]">
-              <button
-                type="button"
-                onClick={() => {
-                  setMode('login');
-                  setError(null);
-                }}
-                className={`py-2 px-3 rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                  mode === 'login'
-                    ? 'bg-blue-600/20 text-blue-400 border border-blue-500/40 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
+            <div className="space-y-2">
+              <div 
+                role="tablist"
+                aria-label="Selección de modo de autenticación"
+                className="relative p-1 rounded-2xl bg-[#0b0f19] border border-white/[0.08] grid grid-cols-2 select-none overflow-hidden"
               >
-                <LogIn className="w-3.5 h-3.5" />
-                <span>Log In</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMode('register');
-                  setError(null);
-                }}
-                className={`py-2 px-3 rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                  mode === 'register'
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <UserPlus className="w-3.5 h-3.5" />
-                <span>Sign In (Registro)</span>
-              </button>
+                {/* Sliding indicator pill */}
+                <motion.div
+                  className={`absolute top-1 bottom-1 rounded-xl shadow-md ${
+                    mode === 'login'
+                      ? 'left-1 w-[calc(50%-4px)] bg-blue-600 border border-blue-400/40 shadow-blue-600/30'
+                      : 'left-[calc(50%+2px)] w-[calc(50%-4px)] bg-[#10b981] border border-emerald-300/40 shadow-emerald-500/30'
+                  }`}
+                  layoutId="auth-sliding-pill-indicator"
+                  transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                />
+
+                {/* Tab 1: Log In */}
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === 'login'}
+                  onClick={() => {
+                    setDirection(-1);
+                    setMode('login');
+                    setError(null);
+                  }}
+                  className={`relative z-10 py-2.5 px-3 rounded-xl text-xs font-mono font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                    mode === 'login' ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Log In (Ingresar)</span>
+                </button>
+
+                {/* Tab 2: Sign In */}
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === 'register'}
+                  onClick={() => {
+                    setDirection(1);
+                    setMode('register');
+                    setError(null);
+                  }}
+                  className={`relative z-10 py-2.5 px-3 rounded-xl text-xs font-mono font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                    mode === 'register' ? 'text-slate-950 font-black' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Sign In (Registrarse)</span>
+                </button>
+              </div>
+
+              {/* Slider micro-affordance hint */}
+              <div className="flex items-center justify-between px-2 text-[10px] font-mono text-slate-400">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      mode === 'login' ? 'bg-blue-400 w-5' : 'bg-slate-700 w-1.5'
+                    }`}
+                  />
+                  <span
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      mode === 'register' ? 'bg-emerald-400 w-5' : 'bg-slate-700 w-1.5'
+                    }`}
+                  />
+                </div>
+                <span className="flex items-center gap-1.5 text-slate-400 select-none">
+                  <span className="text-[11px]">↔</span>
+                  <span>Desliza para alternar vista</span>
+                </span>
+              </div>
             </div>
           )}
 
@@ -453,383 +516,427 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           )}
 
           {/* ============================================================== */}
-          {/* TAB 1: LOG IN (Solo nombre de usuario y contraseña)            */}
+          {/* SLIDING FORMS VIEWPORT WITH DRAG / SWIPE GESTURE SUPPORT       */}
           {/* ============================================================== */}
-          {!user && mode === 'login' && (
-            <form onSubmit={handleLoginSubmit} className="space-y-3.5">
-              {adminStep ? (
-                /* Step 2 for Admin: PIN Maestro */
-                <div className="space-y-3.5">
-                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2.5">
-                    <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                    <p className="text-amber-200/90 text-xs leading-relaxed">
-                      Credenciales de administrador reconocidas. Se requiere el PIN maestro de seguridad.
-                    </p>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-xs font-mono font-semibold text-amber-300">
-                        PIN Maestro de Administrador
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setShowAdminPin(!showAdminPin)}
-                        className="text-[11px] font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1 cursor-pointer"
-                      >
-                        {showAdminPin ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                        <span>{showAdminPin ? 'Ocultar' : 'Mostrar'}</span>
-                      </button>
-                    </div>
-                    <input
-                      ref={pinInputRef}
-                      type={showAdminPin ? 'text' : 'password'}
-                      required
-                      value={adminPin}
-                      onChange={(e) => setAdminPin(e.target.value)}
-                      placeholder="••••••"
-                      maxLength={12}
-                      className="w-full bg-[#0b0f19] border border-amber-500/50 rounded-xl px-4 py-3 text-center text-lg tracking-[0.3em] text-amber-300 font-mono focus:outline-none focus:border-amber-400 shadow-inner"
-                      autoComplete="one-time-code"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAdminStep(false);
-                        setAdminPin('');
-                        setError(null);
-                      }}
-                      className="px-3 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono font-bold flex items-center gap-1 transition-colors cursor-pointer"
-                    >
-                      <ArrowLeft className="w-3.5 h-3.5" />
-                      <span>Volver</span>
-                    </button>
-
-                    <motion.button
-                      whileTap={{ scale: 0.98 }}
-                      type="submit"
-                      disabled={loading}
-                      className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-colors"
-                    >
-                      {loading ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
-                      ) : (
-                        <>
-                          <ShieldCheck className="w-4 h-4" />
-                          <span>VERIFICAR PIN Y ACCEDER</span>
-                        </>
-                      )}
-                    </motion.button>
-                  </div>
-                </div>
-              ) : (
-                /* Step 1: Standard Username & Password */
-                <div className="space-y-3.5">
-                  <div>
-                    <label className="block text-xs font-mono font-semibold text-slate-200 mb-1.5 flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-blue-400" />
-                      <span>Nombre de usuario</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={loginIdentifier}
-                      onChange={(e) => {
-                        setError(null);
-                        setLoginIdentifier(e.target.value);
-                      }}
-                      placeholder="ej. juan_perez o admin31"
-                      autoComplete="username"
-                      autoFocus
-                      className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-blue-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
-                        <Lock className="w-3.5 h-3.5 text-blue-400" />
-                        <span>Contraseña</span>
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setShowLoginPassword(!showLoginPassword)}
-                        className="text-[11px] font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1 cursor-pointer"
-                      >
-                        {showLoginPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                        <span>{showLoginPassword ? 'Ocultar' : 'Mostrar'}</span>
-                      </button>
-                    </div>
-                    <input
-                      type={showLoginPassword ? 'text' : 'password'}
-                      required
-                      value={loginPassword}
-                      onChange={(e) => {
-                        setError(null);
-                        setLoginPassword(e.target.value);
-                      }}
-                      placeholder="••••••••"
-                      autoComplete="current-password"
-                      className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-blue-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
-                    />
-                  </div>
-
-                  <motion.button
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    disabled={loading || !loginIdentifier.trim() || !loginPassword}
-                    className={`w-full py-3 px-4 rounded-xl font-mono text-xs font-black shadow-md flex items-center justify-center gap-2 min-h-[44px] transition-all ${
-                      loading || !loginIdentifier.trim() || !loginPassword
-                        ? 'opacity-40 cursor-not-allowed bg-slate-800 text-slate-500 border border-slate-700/60'
-                        : 'bg-blue-600 hover:bg-blue-500 text-white cursor-pointer shadow-blue-950/40 hover:shadow-lg'
-                    }`}
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin text-white" />
-                        <span>VERIFICANDO...</span>
-                      </>
-                    ) : (
-                      <>
-                        <LogIn className="w-4 h-4" />
-                        <span>INICIAR SESIÓN (LOG IN)</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </>
-                    )}
-                  </motion.button>
-
-                  <div className="pt-2 text-center text-xs font-mono text-slate-400">
-                    ¿No tienes una cuenta aún?{' '}
-                    <button
-                      type="button"
-                      onClick={() => {
+          {!user && (
+            <div className="relative overflow-hidden">
+              <AnimatePresence mode="wait" custom={direction}>
+                {mode === 'login' ? (
+                  <motion.div
+                    key="auth-modal-login-view"
+                    custom={direction}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                    drag={!adminStep ? "x" : false}
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.2}
+                    onDragEnd={(_e, { offset, velocity }) => {
+                      if (offset.x < -40 || velocity.x < -300) {
+                        setDirection(1);
                         setMode('register');
                         setError(null);
-                      }}
-                      className="text-emerald-400 hover:text-emerald-300 font-bold underline cursor-pointer"
-                    >
-                      Regístrate aquí (Sign In)
-                    </button>
-                  </div>
-                </div>
-              )}
-            </form>
-          )}
-
-          {/* ============================================================== */}
-          {/* TAB 2: SIGN IN (Nombre de usuario, Contraseña y Número)         */}
-          {/* ============================================================== */}
-          {!user && mode === 'register' && (
-            <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
-              
-              {/* 1. Nombre de Usuario */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Nombre de usuario</span>
-                  </label>
-                  <div className="text-[11px] font-mono">
-                    {isRegUsernameValid ? (
-                      <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" />
-                        Válido
-                      </span>
-                    ) : (
-                      <span className="text-slate-400">Mín. 3 caracteres</span>
-                    )}
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  required
-                  value={regUsername}
-                  onChange={(e) => {
-                    setError(null);
-                    setRegUsername(e.target.value);
-                  }}
-                  placeholder="ej. juan_perez"
-                  autoComplete="username"
-                  autoFocus
-                  className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
-                />
-              </div>
-
-              {/* 2. Contraseña */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
-                    <Lock className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Contraseña</span>
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowRegPassword(!showRegPassword)}
-                    className="text-[11px] font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1 cursor-pointer"
+                      }
+                    }}
+                    className="touch-pan-y"
                   >
-                    {showRegPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                    <span>{showRegPassword ? 'Ocultar' : 'Mostrar'}</span>
-                  </button>
-                </div>
-                <input
-                  type={showRegPassword ? 'text' : 'password'}
-                  required
-                  value={regPassword}
-                  onChange={(e) => {
-                    setError(null);
-                    setRegPassword(e.target.value);
-                  }}
-                  placeholder="Mínimo 6 caracteres"
-                  autoComplete="new-password"
-                  className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
-                />
-              </div>
+                    <form onSubmit={handleLoginSubmit} className="space-y-3.5">
+                      {adminStep ? (
+                        /* Step 2 for Admin: PIN Maestro */
+                        <div className="space-y-3.5">
+                          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2.5">
+                            <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                            <p className="text-amber-200/90 text-xs leading-relaxed">
+                              Credenciales de administrador reconocidas. Se requiere el PIN maestro de seguridad.
+                            </p>
+                          </div>
 
-              {/* 3. Número de Celular (Obligatorio en Sign In) */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Número de celular (WhatsApp)</span>
-                  </label>
-                  <div className="text-[11px] font-mono">
-                    {isPhoneValid ? (
-                      <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" />
-                        9 dígitos válidos
-                      </span>
-                    ) : (
-                      <span className="text-slate-400">{cleanPhoneDigits.length}/9 dígitos</span>
-                    )}
-                  </div>
-                </div>
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <label className="block text-xs font-mono font-semibold text-amber-300">
+                                PIN Maestro de Administrador
+                              </label>
+                              <button
+                                type="button"
+                                onClick={() => setShowAdminPin(!showAdminPin)}
+                                className="text-[11px] font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1 cursor-pointer"
+                              >
+                                {showAdminPin ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                                <span>{showAdminPin ? 'Ocultar' : 'Mostrar'}</span>
+                              </button>
+                            </div>
+                            <input
+                              ref={pinInputRef}
+                              type={showAdminPin ? 'text' : 'password'}
+                              required
+                              value={adminPin}
+                              onChange={(e) => setAdminPin(e.target.value)}
+                              placeholder="••••••"
+                              maxLength={12}
+                              className="w-full bg-[#0b0f19] border border-amber-500/50 rounded-xl px-4 py-3 text-center text-lg tracking-[0.3em] text-amber-300 font-mono focus:outline-none focus:border-amber-400 shadow-inner"
+                              autoComplete="one-time-code"
+                            />
+                          </div>
 
-                <div className="relative flex items-center">
-                  <div className="absolute left-1.5 top-1.5 bottom-1.5 px-2.5 rounded-lg bg-slate-800/90 border border-slate-700 flex items-center gap-1.5 text-xs font-mono font-bold text-slate-200 select-none z-10">
-                    <span className="text-sm leading-none">🇵🇪</span>
-                    <span>{prefix}</span>
-                  </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAdminStep(false);
+                                setAdminPin('');
+                                setError(null);
+                              }}
+                              className="px-3 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                            >
+                              <ArrowLeft className="w-3.5 h-3.5" />
+                              <span>Volver</span>
+                            </button>
 
-                  <input
-                    type="tel"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    required
-                    value={formatDisplayPhone(cleanPhoneDigits)}
-                    onChange={handlePhoneChange}
-                    placeholder="987 654 321"
-                    autoComplete="tel"
-                    className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl pl-22 pr-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono tracking-wider focus:outline-none transition-all shadow-inner"
-                  />
-                </div>
-                <p className="text-[10px] text-slate-400 font-mono mt-1">
-                  Anti-Sybil: 1 cuenta por celular para garantizar torneos justos.
-                </p>
-              </div>
+                            <motion.button
+                              whileTap={{ scale: 0.98 }}
+                              type="submit"
+                              disabled={loading}
+                              className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                            >
+                              {loading ? (
+                                <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                              ) : (
+                                <>
+                                  <ShieldCheck className="w-4 h-4" />
+                                  <span>VERIFICAR PIN Y ACCEDER</span>
+                                </>
+                              )}
+                            </motion.button>
+                          </div>
+                        </div>
+                      ) : (
+                        /* Step 1: Standard Username & Password */
+                        <div className="space-y-3.5">
+                          <div>
+                            <label className="block text-xs font-mono font-semibold text-slate-200 mb-1.5 flex items-center gap-1.5">
+                              <User className="w-3.5 h-3.5 text-blue-400" />
+                              <span>Nombre de usuario</span>
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={loginIdentifier}
+                              onChange={(e) => {
+                                setError(null);
+                                setLoginIdentifier(e.target.value);
+                              }}
+                              placeholder="ej. juan_perez o admin31"
+                              autoComplete="username"
+                              autoFocus
+                              className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-blue-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
+                            />
+                          </div>
 
-              {/* 4. Alias o Apodo (Opcional) */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Alias o Apodo</span>
-                  </label>
-                  <span className="text-[10px] font-mono text-slate-400 font-medium">(Opcional)</span>
-                </div>
-                <input
-                  type="text"
-                  value={regAlias}
-                  onChange={(e) => {
-                    setError(null);
-                    setRegAlias(e.target.value);
-                  }}
-                  placeholder="ej. Juan P. (nombre visible en el torneo)"
-                  className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
-                />
-              </div>
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <label className="block text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
+                                <Lock className="w-3.5 h-3.5 text-blue-400" />
+                                <span>Contraseña</span>
+                              </label>
+                              <button
+                                type="button"
+                                onClick={() => setShowLoginPassword(!showLoginPassword)}
+                                className="text-[11px] font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1 cursor-pointer"
+                              >
+                                {showLoginPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                                <span>{showLoginPassword ? 'Ocultar' : 'Mostrar'}</span>
+                              </button>
+                            </div>
+                            <input
+                              type={showLoginPassword ? 'text' : 'password'}
+                              required
+                              value={loginPassword}
+                              onChange={(e) => {
+                                setError(null);
+                                setLoginPassword(e.target.value);
+                              }}
+                              placeholder="••••••••"
+                              autoComplete="current-password"
+                              className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-blue-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
+                            />
+                          </div>
 
-              {/* 5. Aceptación de Términos */}
-              <div className="p-3 rounded-xl bg-slate-900/60 border border-white/[0.06] hover:border-slate-700 transition-colors">
-                <label className="flex items-start gap-2.5 cursor-pointer group select-none">
-                  <input
-                    type="checkbox"
-                    checked={acceptedTerms}
-                    onChange={(e) => setAcceptedTerms(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded border-slate-700 text-emerald-500 focus:ring-emerald-500/30 focus:ring-offset-0 bg-[#0b0f19] cursor-pointer shrink-0"
-                  />
-                  <span className="text-[11px] text-slate-300 leading-relaxed text-wrap-pretty">
-                    He leído y acepto los{' '}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setIsTermsModalOpen(true);
-                      }}
-                      className="underline text-cyan-400 hover:text-cyan-300 font-semibold cursor-pointer"
-                    >
-                      Términos y Condiciones
-                    </button>{' '}
-                    y el{' '}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setIsTermsModalOpen(true);
-                      }}
-                      className="underline text-cyan-400 hover:text-cyan-300 font-semibold cursor-pointer"
-                    >
-                      Descargo de Responsabilidad
-                    </button>{' '}
-                    de la versión Beta.
-                  </span>
-                </label>
-              </div>
+                          <motion.button
+                            whileTap={{ scale: 0.98 }}
+                            type="submit"
+                            disabled={loading || !loginIdentifier.trim() || !loginPassword}
+                            className={`w-full py-3 px-4 rounded-xl font-mono text-xs font-black shadow-md flex items-center justify-center gap-2 min-h-[44px] transition-all ${
+                              loading || !loginIdentifier.trim() || !loginPassword
+                                ? 'opacity-40 cursor-not-allowed bg-slate-800 text-slate-500 border border-slate-700/60'
+                                : 'bg-blue-600 hover:bg-blue-500 text-white cursor-pointer shadow-blue-950/40 hover:shadow-lg'
+                            }`}
+                          >
+                            {loading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                                <span>VERIFICANDO...</span>
+                              </>
+                            ) : (
+                              <>
+                                <LogIn className="w-4 h-4" />
+                                <span>INICIAR SESIÓN (LOG IN)</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </>
+                            )}
+                          </motion.button>
 
-              {/* Submit Button */}
-              <motion.button
-                whileTap={!isRegisterDisabled ? { scale: 0.98 } : undefined}
-                type="submit"
-                disabled={isRegisterDisabled}
-                className={`w-full py-3 px-4 rounded-xl font-mono text-xs font-black shadow-md flex items-center justify-center gap-2 min-h-[44px] transition-all ${
-                  isRegisterDisabled
-                    ? 'opacity-40 cursor-not-allowed bg-slate-800 text-slate-500 border border-slate-700/60'
-                    : 'bg-[#10b981] hover:bg-[#059669] text-slate-950 cursor-pointer shadow-emerald-950/40 hover:shadow-lg'
-                }`}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
-                    <span>CREANDO CUENTA...</span>
-                  </>
+                          <div className="pt-2 text-center text-xs font-mono text-slate-400">
+                            ¿No tienes una cuenta aún?{' '}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDirection(1);
+                                setMode('register');
+                                setError(null);
+                              }}
+                              className="text-emerald-400 hover:text-emerald-300 font-bold underline cursor-pointer"
+                            >
+                              Desliza a Registro (Sign In) →
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </form>
+                  </motion.div>
                 ) : (
-                  <>
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>CREAR CUENTA (SIGN IN) Y ENTRAR</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </>
+                  <motion.div
+                    key="auth-modal-register-view"
+                    custom={direction}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.2}
+                    onDragEnd={(_e, { offset, velocity }) => {
+                      if (offset.x > 40 || velocity.x > 300) {
+                        setDirection(-1);
+                        setMode('login');
+                        setError(null);
+                      }
+                    }}
+                    className="touch-pan-y"
+                  >
+                    <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+                      {/* 1. Nombre de Usuario */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
+                            <User className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Nombre de usuario</span>
+                          </label>
+                          <div className="text-[11px] font-mono">
+                            {isRegUsernameValid ? (
+                              <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                                <CheckCircle2 className="w-3 h-3" />
+                                Válido
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">Mín. 3 caracteres</span>
+                            )}
+                          </div>
+                        </div>
+                        <input
+                          type="text"
+                          required
+                          value={regUsername}
+                          onChange={(e) => {
+                            setError(null);
+                            setRegUsername(e.target.value);
+                          }}
+                          placeholder="ej. juan_perez"
+                          autoComplete="username"
+                          autoFocus
+                          className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
+                        />
+                      </div>
+
+                      {/* 2. Contraseña */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
+                            <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Contraseña</span>
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setShowRegPassword(!showRegPassword)}
+                            className="text-[11px] font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1 cursor-pointer"
+                          >
+                            {showRegPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                            <span>{showRegPassword ? 'Ocultar' : 'Mostrar'}</span>
+                          </button>
+                        </div>
+                        <input
+                          type={showRegPassword ? 'text' : 'password'}
+                          required
+                          value={regPassword}
+                          onChange={(e) => {
+                            setError(null);
+                            setRegPassword(e.target.value);
+                          }}
+                          placeholder="Mínimo 6 caracteres"
+                          autoComplete="new-password"
+                          className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
+                        />
+                      </div>
+
+                      {/* 3. Número de Celular (Obligatorio en Sign In) */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
+                            <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Número de celular (WhatsApp)</span>
+                          </label>
+                          <div className="text-[11px] font-mono">
+                            {isPhoneValid ? (
+                              <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                                <CheckCircle2 className="w-3 h-3" />
+                                9 dígitos válidos
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">{cleanPhoneDigits.length}/9 dígitos</span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="relative flex items-center">
+                          <div className="absolute left-1.5 top-1.5 bottom-1.5 px-2.5 rounded-lg bg-slate-800/90 border border-slate-700 flex items-center gap-1.5 text-xs font-mono font-bold text-slate-200 select-none z-10">
+                            <span className="text-sm leading-none">🇵🇪</span>
+                            <span>{prefix}</span>
+                          </div>
+
+                          <input
+                            type="tel"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            required
+                            value={formatDisplayPhone(cleanPhoneDigits)}
+                            onChange={handlePhoneChange}
+                            placeholder="987 654 321"
+                            autoComplete="tel"
+                            className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl pl-22 pr-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono tracking-wider focus:outline-none transition-all shadow-inner"
+                          />
+                        </div>
+                        <p className="text-[10px] text-slate-400 font-mono mt-1">
+                          Anti-Sybil: 1 cuenta por celular para garantizar torneos justos.
+                        </p>
+                      </div>
+
+                      {/* 4. Alias o Apodo (Opcional) */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="text-xs font-mono font-semibold text-slate-200 flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                            <span>Alias o Apodo</span>
+                          </label>
+                          <span className="text-[10px] font-mono text-slate-400 font-medium">(Opcional)</span>
+                        </div>
+                        <input
+                          type="text"
+                          value={regAlias}
+                          onChange={(e) => {
+                            setError(null);
+                            setRegAlias(e.target.value);
+                          }}
+                          placeholder="ej. Juan P. (nombre visible en el torneo)"
+                          className="w-full bg-[#0b0f19] border border-slate-700/80 hover:border-slate-600 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono focus:outline-none transition-all shadow-inner"
+                        />
+                      </div>
+
+                      {/* 5. Aceptación de Términos */}
+                      <div className="p-3 rounded-xl bg-slate-900/60 border border-white/[0.06] hover:border-slate-700 transition-colors">
+                        <label className="flex items-start gap-2.5 cursor-pointer group select-none">
+                          <input
+                            type="checkbox"
+                            checked={acceptedTerms}
+                            onChange={(e) => setAcceptedTerms(e.target.checked)}
+                            className="mt-0.5 w-4 h-4 rounded border-slate-700 text-emerald-500 focus:ring-emerald-500/30 focus:ring-offset-0 bg-[#0b0f19] cursor-pointer shrink-0"
+                          />
+                          <span className="text-[11px] text-slate-300 leading-relaxed text-wrap-pretty">
+                            He leído y acepto los{' '}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setIsTermsModalOpen(true);
+                              }}
+                              className="underline text-cyan-400 hover:text-cyan-300 font-semibold cursor-pointer"
+                            >
+                              Términos y Condiciones
+                            </button>{' '}
+                            y el{' '}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setIsTermsModalOpen(true);
+                              }}
+                              className="underline text-cyan-400 hover:text-cyan-300 font-semibold cursor-pointer"
+                            >
+                              Descargo de Responsabilidad
+                            </button>{' '}
+                            de la versión Beta.
+                          </span>
+                        </label>
+                      </div>
+
+                      {/* Submit Button */}
+                      <motion.button
+                        whileTap={!isRegisterDisabled ? { scale: 0.98 } : undefined}
+                        type="submit"
+                        disabled={isRegisterDisabled}
+                        className={`w-full py-3 px-4 rounded-xl font-mono text-xs font-black shadow-md flex items-center justify-center gap-2 min-h-[44px] transition-all ${
+                          isRegisterDisabled
+                            ? 'opacity-40 cursor-not-allowed bg-slate-800 text-slate-500 border border-slate-700/60'
+                            : 'bg-[#10b981] hover:bg-[#059669] text-slate-950 cursor-pointer shadow-emerald-950/40 hover:shadow-lg'
+                        }`}
+                      >
+                        {loading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                            <span>CREANDO CUENTA...</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShieldCheck className="w-4 h-4" />
+                            <span>CREAR CUENTA (SIGN IN) Y ENTRAR</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </>
+                        )}
+                      </motion.button>
+
+                      <div className="pt-2 text-center text-xs font-mono text-slate-400">
+                        ¿Ya tienes una cuenta registrada?{' '}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDirection(-1);
+                            setMode('login');
+                            setError(null);
+                          }}
+                          className="text-blue-400 hover:text-blue-300 font-bold underline cursor-pointer"
+                        >
+                          ← Desliza a Iniciar Sesión (Log In)
+                        </button>
+                      </div>
+
+                    </form>
+                  </motion.div>
                 )}
-              </motion.button>
-
-              <div className="pt-2 text-center text-xs font-mono text-slate-400">
-                ¿Ya tienes una cuenta registrada?{' '}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode('login');
-                    setError(null);
-                  }}
-                  className="text-blue-400 hover:text-blue-300 font-bold underline cursor-pointer"
-                >
-                  Inicia sesión aquí (Log In)
-                </button>
-              </div>
-
-            </form>
+              </AnimatePresence>
+            </div>
           )}
 
         </div>

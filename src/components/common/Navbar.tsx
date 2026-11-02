@@ -11,7 +11,8 @@ import {
   Wallet,
   Globe,
   Trophy,
-  Sparkles
+  Sparkles,
+  LogIn
 } from 'lucide-react';
 import { NotificationDropdown } from './NotificationDropdown';
 
@@ -314,25 +315,16 @@ export const Navbar: React.FC = () => {
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:inline shrink-0" />
               </button>
             ) : (
-              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => openAuthModal('login')}
-                  className="px-3 py-1.5 min-h-[38px] sm:min-h-[42px] rounded-xl bg-[#111827] hover:bg-[#1a2333] border border-white/[0.08] hover:border-blue-500/30 text-slate-200 text-xs font-mono font-bold btn-tactile cursor-pointer transition-colors shadow-sm"
-                  title={language === 'es' ? 'Iniciar sesión (solo usuario y contraseña)' : 'Log in (username and password only)'}
-                >
-                  Log In
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openAuthModal('register')}
-                  className="px-3.5 py-1.5 min-h-[38px] sm:min-h-[42px] rounded-xl bg-[#10b981] hover:bg-[#059669] text-slate-950 text-xs font-mono font-black btn-tactile cursor-pointer shadow-sm transition-all flex items-center gap-1.5"
-                  title={language === 'es' ? 'Crear cuenta con número de celular para competir' : 'Sign in / register with phone number'}
-                >
-                  <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                  <span>Sign In</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => openAuthModal('login')}
+                className="px-3.5 py-1.5 min-h-[38px] sm:min-h-[42px] rounded-xl bg-white hover:bg-slate-100 text-slate-950 text-xs font-mono font-black btn-tactile cursor-pointer shadow-sm transition-all flex items-center gap-1.5 shrink-0"
+                title={language === 'es' ? 'Iniciar sesión o registrarse' : 'Log in or sign in'}
+                aria-label={language === 'es' ? 'Iniciar sesión o registrarse' : 'Log in or sign in'}
+              >
+                <LogIn className="w-3.5 h-3.5 text-slate-900 shrink-0" />
+                <span>Log In / Sign In</span>
+              </button>
             )}
           </div>
 
