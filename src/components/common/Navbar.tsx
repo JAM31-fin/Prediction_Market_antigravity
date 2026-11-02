@@ -53,7 +53,7 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-[#0b0f19]/90 border-b border-white/[0.08] backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-2 lg:gap-3 xl:gap-4">
           
           {/* Logo & Brand */}
@@ -166,7 +166,9 @@ export const Navbar: React.FC = () => {
                 ? 'Descargo de Fase Beta Experimental · Clic para ver detalles legales'
                 : 'Experimental Beta Phase Disclaimer · Click to view legal details'
             }
-            className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 hover:border-amber-500/40 text-amber-300 font-mono text-[11px] font-semibold select-none shrink-0 whitespace-nowrap cursor-pointer transition-colors shadow-sm"
+            className={`${
+              user?.role === 'admin' ? 'hidden 2xl:inline-flex' : 'hidden xl:inline-flex'
+            } items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 hover:border-amber-500/40 text-amber-300 font-mono text-[11px] font-semibold select-none shrink-0 whitespace-nowrap cursor-pointer transition-colors shadow-sm`}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
             <span>{language === 'es' ? 'Fase Beta' : 'Beta Phase'}</span>

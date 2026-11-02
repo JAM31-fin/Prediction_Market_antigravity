@@ -63,10 +63,24 @@ describe('Phone Authentication & Terms / Beta Disclaimer Verification', () => {
       ).rejects.toThrow(/inválido|digits/i);
     });
 
-    it('handles 9-digit Peruvian numbers provided with or without country code', async () => {
-      const res = await dbService.authenticateOrRegisterByPhone('977665544');
+    it('handles any 9-digit Peruvian number starting with 9', async () => {
+      const res = await dbService.authenticateOrRegisterByPhone('912345678');
       expect(res.user).toBeDefined();
-      expect(res.user.phoneNumber).toBe('977665544');
+      expect(res.user.phoneNumber).toBe('+51912345678');
+
+      const res2 = await dbService.authenticateOrRegisterByPhone('900112233');
+      expect(res2.user).toBeDefined();
+      expect(res2.user.phoneNumber).toBe('+51900112233');
+    });
+
+    it('rejects 9-digit numbers that do not start with 9', async () => {
+      await expect(
+        dbService.authenticateOrRegisterByPhone('812345678')
+      ).rejects.toThrow(/inválido|empieza con 9/i);
+
+      await expect(
+        dbService.authenticateOrRegisterByPhone('123456789')
+      ).rejects.toThrow(/inválido|empieza con 9/i);
     });
   });
 

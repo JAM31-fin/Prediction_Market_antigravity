@@ -29,17 +29,14 @@ export const PhoneAuthForm: React.FC<PhoneAuthFormProps> = ({
   const [phoneNumber, setPhoneNumber] = useState('');
   const [alias, setAlias] = useState('');
   const [prefix] = useState('+51');
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Extract clean digits
-  const rawDigits = phoneNumber.replace(/\D/g, '');
-  const cleanDigits = rawDigits.startsWith('51') && rawDigits.length > 9 
-    ? rawDigits.slice(2) 
-    : rawDigits;
+  // Extract clean digits: Peruvian mobile numbers have 9 digits starting with 9
+  const cleanDigits = phoneNumber.replace(/\D/g, '').replace(/^51/, '');
   
-  const isPhoneValid = cleanDigits.length === 9;
+  const isPhoneValid = /^9\d{8}$/.test(cleanDigits);
   const isUsernameValid = username.trim().length >= 3;
   const isSubmitDisabled = !isUsernameValid || !isPhoneValid || !acceptedTerms || loading;
 
@@ -52,17 +49,28 @@ export const PhoneAuthForm: React.FC<PhoneAuthFormProps> = ({
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
-    let val = e.target.value.replace(/\D/g, '');
-    if (val.startsWith('51') && val.length > 9) {
-      val = val.slice(2);
+    let raw = e.target.value.replace(/\D/g, '');
+    // If user pasted or typed with leading 51, strip it so the 9 digits remain
+    if (raw.startsWith('51') && (raw.length > 9 || raw.length === 2)) {
+      raw = raw.slice(2);
     }
-    if (val.length <= 9) {
-      setPhoneNumber(val);
+    // If length didn't change but string shortened, user backspaced on a space: delete 1 digit
+    if (raw.length === phoneNumber.length && e.target.value.length < formatDisplayPhone(phoneNumber).length) {
+      raw = raw.slice(0, -1);
     }
+    // Limit strictly to 9 digits
+    if (raw.length > 9) {
+      raw = raw.slice(0, 9);
+    }
+    setPhoneNumber(raw);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!/^9\d{8}$/.test(cleanDigits)) {
+      setError('El número de celular debe empezar con 9 y tener 9 dígitos (ej. 987 654 321).');
+      return;
+    }
     if (isSubmitDisabled) return;
 
     setError(null);
@@ -140,14 +148,18 @@ export const PhoneAuthForm: React.FC<PhoneAuthFormProps> = ({
               <span>Número de celular</span>
             </label>
             <div className="text-[11px] font-mono">
-              {isPhoneValid ? (
+              {cleanDigits.length === 0 ? (
+                <span className="text-slate-400">9 dígitos (empieza con 9)</span>
+              ) : !cleanDigits.startsWith('9') ? (
+                <span className="text-amber-400 font-semibold flex items-center gap-1">
+                  Debe empezar con 9
+                </span>
+              ) : cleanDigits.length < 9 ? (
+                <span className="text-slate-400">{cleanDigits.length}/9 dígitos</span>
+              ) : (
                 <span className="text-emerald-400 font-semibold flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" />
                   9 dígitos válidos
-                </span>
-              ) : (
-                <span className="text-slate-400">
-                  {cleanDigits.length}/9 dígitos
                 </span>
               )}
             </div>
@@ -155,7 +167,7 @@ export const PhoneAuthForm: React.FC<PhoneAuthFormProps> = ({
 
           <div className="relative flex items-center">
             {/* Prefix Badge (+51 Perú) */}
-            <div className="absolute left-1.5 top-1.5 bottom-1.5 px-2.5 rounded-lg bg-slate-800/90 border border-slate-700 flex items-center gap-1.5 text-xs font-mono font-bold text-slate-200 select-none z-10">
+            <div className="absolute left-1.5 top-1.5 bottom-1.5 px-2.5 rounded-lg bg-slate-800/90 border border-slate-700 flex items-center gap-1.5 text-xs font-mono font-bold text-slate-200 select-none z-10 pointer-events-none">
               <span className="text-sm leading-none">🇵🇪</span>
               <span>{prefix}</span>
             </div>
@@ -168,9 +180,12 @@ export const PhoneAuthForm: React.FC<PhoneAuthFormProps> = ({
               onChange={handlePhoneChange}
               placeholder="987 654 321"
               autoComplete="tel"
-              className="w-full bg-[#0b0f19] border border-slate-700/90 hover:border-slate-600 focus:border-emerald-500 rounded-xl pl-22 pr-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono tracking-wider focus:outline-none transition-all shadow-inner"
+              className="w-full bg-[#0b0f19] border border-slate-700/90 hover:border-slate-600 focus:border-emerald-500 rounded-xl pl-[88px] pr-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 font-mono tracking-wider focus:outline-none transition-all shadow-inner"
             />
           </div>
+          <p className="text-[10px] text-slate-400 font-mono mt-1">
+            Cualquier número de 9 dígitos que comience con 9 (ej. 987 654 321).
+          </p>
         </div>
 
         {/* 3. Alias Field (Optional) */}
